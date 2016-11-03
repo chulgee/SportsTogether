@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by chulchoice on 2016-10-12.
+ * Created by chulchoice on 2016-10-12.d
  */
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>{
     private List<Sports> mDataset;
