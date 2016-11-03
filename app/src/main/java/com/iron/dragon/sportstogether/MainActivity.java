@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
         mFactory.create("탁구");
         mFactory.create("테니스");
         mFactory.create("축구");
+
         mAdapter = new MyAdapter(getApplicationContext(), mFactory.getList());
         mList.setAdapter(mAdapter);
     }

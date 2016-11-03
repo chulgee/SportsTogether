@@ -17,9 +17,7 @@ import com.iron.dragon.sportstogether.abs.Sports;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by chulchoice on 2016-10-12.d
- */
+
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>{
     private List<Sports> mDataset;
     private Context mContext;
