@@ -1,0 +1,23 @@
+DB명세
+1. Profile Table
+  _id, userid, sportsid, name, age, gender, locationid, cellphone, level
+  1) 리스트 
+    all list : Get /profiles/
+    sportsid로 필터링 : Get /profiles?sportsid=:sportsid, 
+    userid로 필터링 : Get /profiles?userids=:userid,
+    locationid와 sportsid로 필터링 : Get /profiles?locationid=:locationid&sportsid=:sportsid
+  2) 등록 Post /profiles {userid=, sportsid=, name=, age=, gender=, locationid=, cellphone=, level=, hours=}
+  3) 변경 Put /profiles/_id {userid=, sportsid=, name=, age=, gender=, locationid=, cellphone=, level=, hours=}
+  4) 삭제 Delete /profiles:_id
+  
+2. Bulletin Table
+  _id, location, sports, comment
+  1) 리스트 가져오기 Get /bulletin/comments?locationid=:locationid&sportsid=:sportsid
+  2) 리스트 포스트하기 Post /bulletin/comments {locationid=, sportsid=, comments=}
+  3) 리스트 수정하기 PUT /bulletin/comments?locationid=:locationid&sportsid=:sportsid {locationid=, sportsid=, comments=}
+  4) 리스트 삭제하기 Delete /bulletin/comments?locationid=:locationid&sportsid=:sportsid
+  
+3. Chat Table
+  _id, userid_sender, userid_receiver, data
+  1) 채팅 요청 Get /chat/request
+ 
