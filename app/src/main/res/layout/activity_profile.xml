@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <LinearLayout
@@ -32,10 +33,15 @@
         <TextView android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/gender"/>
-        <EditText android:id="@+id/etGender"
-            android:layout_width="match_parent"
+        <fr.ganfra.materialspinner.MaterialSpinner
+            android:id="@+id/spGender"
+            android:layout_width="200dip"
             android:layout_height="wrap_content"
-            />
+            app:ms_arrowColor="#0000FF"
+            app:ms_arrowSize="16dp"
+            app:ms_floatingLabelColor="#00FF00"
+            app:ms_multiline="true"
+            android:entries="@array/gender" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"
@@ -43,10 +49,15 @@
         <TextView android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/location"/>
-        <EditText android:id="@+id/etLocation"
-            android:layout_width="match_parent"
+        <fr.ganfra.materialspinner.MaterialSpinner
+            android:id="@+id/spLocation"
+            android:layout_width="200dip"
             android:layout_height="wrap_content"
-            />
+            app:ms_arrowColor="#0000FF"
+            app:ms_arrowSize="16dp"
+            app:ms_floatingLabelColor="#00FF00"
+            android:entries="@array/location"
+            app:ms_multiline="true"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"
@@ -65,10 +76,15 @@
         <TextView android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/sports_type"/>
-        <EditText android:id="@+id/etSportType"
-            android:layout_width="match_parent"
+        <fr.ganfra.materialspinner.MaterialSpinner
+            android:id="@+id/spSportsType"
+            android:layout_width="200dip"
             android:layout_height="wrap_content"
-            />
+            app:ms_arrowColor="#0000FF"
+            app:ms_arrowSize="16dp"
+            app:ms_floatingLabelColor="#00FF00"
+            android:entries="@array/sportstype"
+            app:ms_multiline="true"/>
     </LinearLayout>
 
     <LinearLayout
@@ -77,10 +93,15 @@
         <TextView android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/level"/>
-        <EditText android:id="@+id/etLevel"
-            android:layout_width="match_parent"
+        <fr.ganfra.materialspinner.MaterialSpinner
+            android:id="@+id/spLevel"
+            android:layout_width="200dip"
             android:layout_height="wrap_content"
-            />
+            app:ms_arrowColor="#0000FF"
+            app:ms_arrowSize="16dp"
+            app:ms_floatingLabelColor="#00FF00"
+            android:entries="@array/level"
+            app:ms_multiline="true"/>
     </LinearLayout>
 
     <LinearLayout
@@ -99,6 +120,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content" />
         <Button
+            android:id="@+id/bt_cancel"
             android:text="@string/cancel"
             android:layout_width="0dip"
             android:layout_weight="5"

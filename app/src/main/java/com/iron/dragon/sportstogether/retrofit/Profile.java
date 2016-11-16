@@ -8,19 +8,19 @@ import com.iron.dragon.sportstogether.data.ProfileItem;
 
 public class Profile {
     public Profile(ProfileItem profile) {
-        this.nickname = profile.get_mNickName();
+        this.username = profile.get_mNickName();
         this.age = profile.get_mAge();
         this.gender = profile.get_mGender();
-        this.location = profile.get_mLocation();
-        this.phonenum = profile.get_mPhoneNum();
-        this.sportstype = profile.get_mSportsType();
+        this.locationid = profile.get_mLocation();
+        this.phone = profile.get_mPhoneNum();
+        this.sportsid = profile.get_mSportsType();
         this.level = profile.get_mLevel();
     }
-    private String nickname;
-    private int age;
-    private int gender;
-    private String location;
-    private String phonenum;
-    private String sportstype;
-    private int level;
+    protected String username;
+    protected int age;
+    protected int gender;
+    protected int locationid;
+    protected String phone;
+    protected int sportsid;
+    protected int level;
 }

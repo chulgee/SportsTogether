@@ -14,7 +14,6 @@ public class ProfileActivity extends AppCompatActivity  {
 
 
 
-        InitLayout();
     }
 
     protected void InitLayout() {

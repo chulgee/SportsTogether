@@ -5,13 +5,13 @@ package com.iron.dragon.sportstogether.data;
  */
 
 public class ProfileItem {
-    private String _mId;
+    private int _mId;
     private String _mNickName;
     private int _mAge;
     private int _mGender;
-    private String _mLocation;
+    private int _mLocation;
     private String _mPhoneNum;
-    private String _mSportsType;
+    private int _mSportsType;
     private int _mLevel;
 
     public ProfileItem() {
@@ -53,13 +53,13 @@ public class ProfileItem {
         }
     }
 
-    public String get_mLocation() {
+    public int get_mLocation() {
         return _mLocation;
     }
 
-    public void set_mLocation(String region) {
+    public void set_mLocation(int location) {
         try {
-            this._mLocation = region;
+            this._mLocation = location;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -76,13 +76,13 @@ public class ProfileItem {
         }
     }
 
-    public String get_mSportsType() {
+    public int get_mSportsType() {
         return _mSportsType;
     }
 
-    public void set_mSportsType(String sports) {
+    public void set_mSportsType(int type) {
         try {
-            this._mSportsType = (sports);
+            this._mSportsType = (type);
         } catch (Exception e) {
             e.printStackTrace();
         }

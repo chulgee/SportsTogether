@@ -29,12 +29,12 @@ public class MainActivity extends AppCompatActivity {
         mLayoutManager = new GridLayoutManager(this,2);
         mList.setLayoutManager(mLayoutManager);
 
+        String[] sports = getResources().getStringArray(R.array.sportstype);
         mFactory = new SportsFactory();
-        mFactory.create("배드민턴");
-        mFactory.create("탁구");
-        mFactory.create("테니스");
-        mFactory.create("축구");
+        for(String type:sports) {
+            mFactory.create(type);
 
+        }
         mAdapter = new MyAdapter(getApplicationContext(), mFactory.getList());
         mList.setAdapter(mAdapter);
     }

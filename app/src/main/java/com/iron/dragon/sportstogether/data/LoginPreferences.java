@@ -47,8 +47,8 @@ public class LoginPreferences {
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         editor.putString(PROFILE_NICKNAME, profile.get_mNickName());
-        editor.putString(PROFILE_SPORTSTYPE, profile.get_mSportsType());
-        editor.putString(PROFILE_LOCATION,  profile.get_mLocation());
+        editor.putInt(PROFILE_SPORTSTYPE, profile.get_mSportsType());
+        editor.putInt(PROFILE_LOCATION,  profile.get_mLocation());
         editor.apply();
     }
 
