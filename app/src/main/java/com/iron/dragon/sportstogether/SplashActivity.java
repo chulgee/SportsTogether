@@ -12,6 +12,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.iron.dragon.sportstogether.abs.Sports;
+import com.iron.dragon.sportstogether.data.LoginPreferences;
 
 import java.util.List;
 
@@ -32,12 +33,19 @@ public class SplashActivity extends Activity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
+                if(IsLogged()) {
                 startActivity(new Intent(SplashActivity.this, MainActivity.class));
                 finish();
+                } else {
+                    startActivity(new Intent(SplashActivity.this, LoginActivity.class));
+                    finish();
+                }
             }
         }, 3000);
     }
-
+    private boolean IsLogged() {
+        return LoginPreferences.GetInstance().CheckLogin(this);
+    }
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);

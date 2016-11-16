@@ -11,7 +11,7 @@ import com.iron.dragon.sportstogether.adapter.MyAdapter;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity_";
+    private static final String TAG = "MainActivity";
     Factory mFactory;
     RecyclerView mList;
     RecyclerView.Adapter mAdapter;
@@ -22,13 +22,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-
-
-
-
-
         setContentView(R.layout.activity_main);
 
         mList = (RecyclerView)findViewById(R.id.list);
