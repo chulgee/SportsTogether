@@ -11,7 +11,7 @@ import com.iron.dragon.sportstogether.adapter.MyAdapter;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "MainActivity_";
     Factory mFactory;
     RecyclerView mList;
     RecyclerView.Adapter mAdapter;
