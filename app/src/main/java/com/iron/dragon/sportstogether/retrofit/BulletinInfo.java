@@ -10,7 +10,7 @@ public class BulletinInfo {
     int locationid;
     int sportsid;
     int comment;
-    String date;//
+    String date;////
 
     BulletinInfo(Builder builder){
         locationid = builder.locationid;
