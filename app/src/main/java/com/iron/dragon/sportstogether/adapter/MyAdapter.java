@@ -10,9 +10,12 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.iron.dragon.sportstogether.MainActivity;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.abs.Sports;
+import static com.iron.dragon.sportstogether.util.Const.SPORTS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,31 +49,38 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>{
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         //holder.iv.setImageResource(R.drawable.a);
         int id;
         int res = 0;
         id = (int)getItemId(position);
-
-        switch(id){
-            case 0:
-                res = R.drawable.badminton;
-                break;
-            case 1:
-                res = R.drawable.basketball;
-                break;
-            case 2:
-                res = R.drawable.pingpong;
-                break;
-            case 3:
-                res = R.drawable.t;
-                break;
+        SPORTS sports = SPORTS.values()[position];
+        if(sports.equals(SPORTS.BADMINTON)){
+            res = R.drawable.badminton_c;
+        }else if(sports.equals(SPORTS.TENNIS)){
+            res = R.drawable.tennis;
+        }else if(sports.equals(SPORTS.TABLE_TENNIS)){
+            res = R.drawable.table_tennis;
+        }else if(sports.equals(SPORTS.SOCCER)){
+            res = R.drawable.soccer;
+        }else if(sports.equals(SPORTS.BASEBALL)){
+            res = R.drawable.baseball;
+        }else if(sports.equals(SPORTS.BASKETBALL)) {
+            res = R.drawable.basketball_c;
+        }else{
+            res = R.drawable.t;
         }
 
         holder.tv.setText(mDataset.get(position).getName());
         holder.iv.setImageResource(res);
         Animation animation = AnimationUtils.loadAnimation(mContext, android.R.anim.slide_in_left);
         holder.iv.setAnimation(animation);
+        holder.iv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(mContext, ""+position, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override

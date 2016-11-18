@@ -2,6 +2,7 @@ package com.iron.dragon.sportstogether;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -9,8 +10,11 @@ import android.widget.EditText;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.ProfileItem;
 import com.iron.dragon.sportstogether.retrofit.GitHubService;
+import com.iron.dragon.sportstogether.retrofit.Error;
 import com.iron.dragon.sportstogether.retrofit.Profile;
 import com.iron.dragon.sportstogether.retrofit.ProfileWithId;
+import com.iron.dragon.sportstogether.util.Const;
+import com.iron.dragon.sportstogether.util.ErrorUtil;
 import com.iron.dragon.sportstogether.util.ToastUtil;
 
 import java.util.List;
@@ -65,15 +69,18 @@ public class LoginActivity extends ProfileActivity {
                     @Override
                     public void onResponse(Call<Profile> call, Response<Profile> response) {
                         if (response.isSuccessful()) {
+                            android.util.Log.d("Test", "body = " + response.body().toString());
+                            Profile p = response.body();
+                            Log.v(TAG, Const.SPORTS.BADMINTON.name());
+                            Log.v(TAG, ""+Const.SPORTS.values());
+
                             setLoagged();
                             saveLocalProfile(pi);
                             ToBoardListView();
                         } else {
-                            ToastUtil.show(getApplicationContext(), "NickName is Existed");
+                            Error err = ErrorUtil.parse(response);
+                            ToastUtil.show(getApplicationContext(), err.getStatusCode()+", "+err.getMessage());
                         }
-                        android.util.Log.d("Test", "code = " + response.code() + " issuccessful = " + response.isSuccessful());
-                        android.util.Log.d("Test", "body = " + response.body().toString());
-                        android.util.Log.d("Test", "message = " + response.message());
                     }
 
                     @Override
@@ -89,7 +96,7 @@ public class LoginActivity extends ProfileActivity {
             public void onClick(View view) {
                 GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
                 final Call<List<ProfileWithId>> call =
-                        gitHubService.getProfiles(1);
+                        gitHubService.getProfiles("김한용1", 0, 0);
                 call.enqueue(new Callback<List<ProfileWithId>>() {
                     @Override
                     public void onResponse(Call<List<ProfileWithId>> call, Response<List<ProfileWithId>> response) {
@@ -101,6 +108,31 @@ public class LoginActivity extends ProfileActivity {
                     @Override
                     public void onFailure(Call<List<ProfileWithId>> call, Throwable t) {
                         android.util.Log.d("Test", "error message = " + t.getMessage());
+                    }
+                });
+            }
+        });
+        findViewById(R.id.bt_cancel1).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
+                final Call<List<ProfileWithId>> call = gitHubService.getProfiles();
+                call.enqueue(new Callback<List<ProfileWithId>>() {
+                    @Override
+                    public void onResponse(Call<List<ProfileWithId>> call, Response<List<ProfileWithId>> response) {
+                        if (response.isSuccessful()) {
+                            android.util.Log.d("Test", "body = " + response.body().toString());
+                        } else {
+                            Error err = ErrorUtil.parse(response);
+                            ToastUtil.show(getApplicationContext(), err.getStatusCode()+", "+err.getMessage());
+                        }
+                        //test
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<ProfileWithId>> call, Throwable t) {
+
                     }
                 });
             }

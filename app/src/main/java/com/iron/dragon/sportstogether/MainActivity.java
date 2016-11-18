@@ -37,5 +37,6 @@ public class MainActivity extends AppCompatActivity {
         }
         mAdapter = new MyAdapter(getApplicationContext(), mFactory.getList());
         mList.setAdapter(mAdapter);
+
     }
 }

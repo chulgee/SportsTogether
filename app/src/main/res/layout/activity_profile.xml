@@ -125,6 +125,11 @@
             android:layout_width="0dip"
             android:layout_weight="5"
             android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/bt_cancel1"
+            android:text="temp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
 

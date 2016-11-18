@@ -14,6 +14,8 @@
         <item>테니스</item>
         <item>탁구</item>
         <item>축구</item>
+        <item>야구</item>
+        <item>농구</item>
     </string-array>
     <string-array name="level">
         <item>1</item>

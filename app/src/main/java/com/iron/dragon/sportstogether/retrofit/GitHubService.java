@@ -7,27 +7,47 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 /**
  * Created by seungyong on 2016-11-09.
  */
 
 public interface GitHubService {
-    @POST("profiles")
-    Call<Profile> postProfiles(
-            @Body Profile profile
-           );
 
     @GET("profiles")
     Call<List<ProfileWithId>> getProfiles(
-            );
+    );
+
+    @GET("profiles")
+    Call<List<ProfileWithId>> getProfiles(
+            @Query("username") String username, @Query("locationid") int locationid, @Query("sportsid") int sportsid
+    );
 
     @GET("profiles/{id}")
     Call<List<ProfileWithId>> getProfiles(
-            @Path("id") int id);
+            @Path("id") int id
+    );
+
+    @POST("profiles")
+    Call<Profile> postProfiles(
+            @Body Profile profile
+    );
+
+    @PUT("profiles/{id}")
+    Call<Profile> putProfiles(
+            @Path("id") int id, @Body Profile profile
+    );
+
+    @DELETE("profiles/{id}")
+    Call<Profile> deleteProfiles(
+            @Path("id") int id
+    );
 
     static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
     public static final Retrofit retrofit = new Retrofit.Builder()

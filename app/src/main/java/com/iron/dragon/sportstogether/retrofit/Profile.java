@@ -23,4 +23,45 @@ public class Profile {
     protected String phone;
     protected int sportsid;
     protected int level;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public int getGender() {
+        return gender;
+    }
+
+    public int getLocationid() {
+        return locationid;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public int getSportsid() {
+        return sportsid;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    @Override
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("username="+username)
+                .append(", sportsid="+sportsid)
+                .append(", locationid="+locationid)
+                .append(", age="+age)
+                .append(", gender="+gender)
+                .append(", phone="+phone)
+                .append(", level="+level);
+        return sb.toString();
+    }
 }
