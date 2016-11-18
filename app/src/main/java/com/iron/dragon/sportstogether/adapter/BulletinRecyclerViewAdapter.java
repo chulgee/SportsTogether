@@ -12,7 +12,7 @@ import com.iron.dragon.sportstogether.R;
  * Created by seungyong on 2016-11-03.
  */
 
-public class BoardRecyclerViewAdapter extends RecyclerView.Adapter<BoardRecyclerViewAdapter.ViewHolder>{
+public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<BulletinRecyclerViewAdapter.ViewHolder>{
     public static class ViewHolder extends RecyclerView.ViewHolder {
         View mView;
         TextView mtvNickName;
@@ -28,13 +28,13 @@ public class BoardRecyclerViewAdapter extends RecyclerView.Adapter<BoardRecycler
     }
 
     @Override
-    public BoardRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
+    public BulletinRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bulletin_list_item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(BoardRecyclerViewAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(BulletinRecyclerViewAdapter.ViewHolder holder, int position) {
 
     }
 
