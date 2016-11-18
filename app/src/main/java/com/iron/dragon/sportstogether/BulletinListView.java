@@ -15,7 +15,7 @@ public class BulletinListView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bulletin_list_view);
         InitLayout();
-		//
+		
     }
 
     private void InitLayout() {
