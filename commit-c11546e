@@ -1,0 +1,18 @@
+From c11546e0a9cc6acad61c92074646d8a271918eae Mon Sep 17 00:00:00 2001
+From: seungyong <lsy4630@gmail.com>
+Date: Fri, 18 Nov 2016 18:48:42 +0900
+Subject: test3
+
+
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+index e1f0157..71942dd 100644
+--- a/app/src/main/AndroidManifest.xml
++++ b/app/src/main/AndroidManifest.xml
+@@ -4,6 +4,7 @@
+ 
+ 	
+ 	<!-- test2 -->
++	<!-- test3 -->
+     <!-- To auto-complete the email text field in the login form with the user's emails -->
+     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+     <uses-permission android:name="android.permission.READ_PROFILE" />
