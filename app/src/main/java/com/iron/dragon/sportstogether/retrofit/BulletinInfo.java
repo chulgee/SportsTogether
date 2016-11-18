@@ -11,7 +11,7 @@ public class BulletinInfo {
     int sportsid;
     int comment;
     String date;////tes//zz
-    //
+
     BulletinInfo(Builder builder){
         locationid = builder.locationid;
         sportsid = builder.sportsid;
@@ -46,4 +46,3 @@ public class BulletinInfo {
         }
     }
 }
-//////
