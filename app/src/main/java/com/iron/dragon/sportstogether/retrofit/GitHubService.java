@@ -49,6 +49,17 @@ public interface GitHubService {
             @Path("id") int id
     );
 
+    @GET("bulletin")
+    Call<List<BulletinInfo>> getBulletin(
+    );
+
+    @GET("bulletin")
+    Call<List<BulletinInfo>> getBulletin(
+            @Query("sportsid") int sportsid, @Query("locationid") int locationid, @Query("numOfComment") int numOfComment
+    );
+
+
+
     static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
     public static final Retrofit retrofit = new Retrofit.Builder()
             .baseUrl("http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com/")
