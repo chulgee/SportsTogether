@@ -6,7 +6,7 @@ import com.iron.dragon.sportstogether.abs.Sports;
  * Created by chulchoice on 2016-11-02.
  */
 public class ConcreteSports extends Sports {
-//
+
     protected int id;
     protected String name;
 
