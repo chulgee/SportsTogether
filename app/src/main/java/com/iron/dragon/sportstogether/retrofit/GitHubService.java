@@ -58,6 +58,10 @@ public interface GitHubService {
             @Query("sportsid") int sportsid, @Query("locationid") int locationid, @Query("reqNum") int reqNum
     );
 
+    @DELETE("bulletin/{id}")
+    Call<Bulletin> deleteBulletin(
+            @Path("id") int id
+    );
 
 
     static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
