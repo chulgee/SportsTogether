@@ -15,10 +15,18 @@ import android.widget.Toast;
 import com.iron.dragon.sportstogether.MainActivity;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.abs.Sports;
+import com.iron.dragon.sportstogether.retrofit.Bulletin;
+import com.iron.dragon.sportstogether.retrofit.GitHubService;
+import com.iron.dragon.sportstogether.retrofit.ProfileWithId;
+
 import static com.iron.dragon.sportstogether.util.Const.SPORTS;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>{
@@ -79,6 +87,22 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>{
             @Override
             public void onClick(View v) {
                 Toast.makeText(mContext, ""+position, Toast.LENGTH_SHORT).show();
+                /*GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
+                final Call<Bulletin> call =
+                        gitHubService.deleteBulletin(2);
+                call.enqueue(new Callback<Bulletin>() {
+                    @Override
+                    public void onResponse(Call<Bulletin> call, Response<Bulletin> response) {
+                        android.util.Log.d("Test", "code = " + response.code() + " issuccessful = " + response.isSuccessful());
+                        android.util.Log.d("Test", "body = " + response.body().toString());
+                        android.util.Log.d("Test", "message = " + response.message());
+                    }
+
+                    @Override
+                    public void onFailure(Call<Bulletin> call, Throwable t) {
+                        android.util.Log.d("Test", "error message = " + t.getMessage());
+                    }
+                });*/
             }
         });
     }

@@ -41,7 +41,7 @@ public class SplashActivity extends Activity {
                     finish();
                 }
             }
-        }, 3000);
+        }, 2000);
     }
     private boolean IsLogged() {
         return LoginPreferences.GetInstance().CheckLogin(this);
