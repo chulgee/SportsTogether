@@ -112,31 +112,7 @@ public class LoginActivity extends ProfileActivity {
                 });
             }
         });
-        findViewById(R.id.bt_cancel1).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
-                final Call<List<ProfileWithId>> call = gitHubService.getProfiles();
-                call.enqueue(new Callback<List<ProfileWithId>>() {
-                    @Override
-                    public void onResponse(Call<List<ProfileWithId>> call, Response<List<ProfileWithId>> response) {
-                        if (response.isSuccessful()) {
-                            android.util.Log.d("Test", "body = " + response.body().toString());
-                        } else {
-                            Error err = ErrorUtil.parse(response);
-                            ToastUtil.show(getApplicationContext(), err.getStatusCode()+", "+err.getMessage());
-                        }
-                        //test
 
-                    }
-
-                    @Override
-                    public void onFailure(Call<List<ProfileWithId>> call, Throwable t) {
-
-                    }
-                });
-            }
-        });
     }
 
     private void saveLocalProfile(ProfileItem pi) {
