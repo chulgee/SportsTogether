@@ -50,11 +50,11 @@ public interface GitHubService {
     );
 
     @GET("bulletin")
-    Call<List<BulletinInfo>> getBulletin(
+    Call<List<Bulletin>> getBulletin(
     );
 
     @GET("bulletin")
-    Call<List<BulletinInfo>> getBulletin(
+    Call<List<Bulletin>> getBulletin(
             @Query("sportsid") int sportsid, @Query("locationid") int locationid, @Query("reqNum") int reqNum
     );
 
