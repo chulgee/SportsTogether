@@ -1,5 +1,6 @@
 package com.iron.dragon.sportstogether.adapter;
 
+import android.content.ClipData;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,10 +12,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.iron.dragon.sportstogether.MainActivity;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.abs.Sports;
 import static com.iron.dragon.sportstogether.util.Const.SPORTS;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -53,7 +56,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>{
         id = (int)getItemId(position);
         SPORTS sports = SPORTS.values()[position];
         if(sports.equals(SPORTS.BADMINTON)){
-            res = R.drawable.badminton_c;
+            res = R.drawable.badminton;
         }else if(sports.equals(SPORTS.TENNIS)){
             res = R.drawable.tennis;
         }else if(sports.equals(SPORTS.TABLE_TENNIS)){
@@ -63,7 +66,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>{
         }else if(sports.equals(SPORTS.BASEBALL)){
             res = R.drawable.baseball;
         }else if(sports.equals(SPORTS.BASKETBALL)) {
-            res = R.drawable.basketball_c;
+            res = R.drawable.basketball;
         }else{
             res = R.drawable.t;
         }
