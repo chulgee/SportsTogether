@@ -1,4 +1,3 @@
-package com.iron.dragon.sportstogether.retrofit;
 
 import android.net.Uri;
 
