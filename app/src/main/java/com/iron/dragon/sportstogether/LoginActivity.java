@@ -9,15 +9,12 @@ import android.widget.EditText;
 
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.ProfileItem;
-import com.iron.dragon.sportstogether.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.retrofit.Error;
+import com.iron.dragon.sportstogether.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.retrofit.Profile;
-import com.iron.dragon.sportstogether.retrofit.ProfileWithId;
 import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.ErrorUtil;
 import com.iron.dragon.sportstogether.util.ToastUtil;
-
-import java.util.List;
 
 import fr.ganfra.materialspinner.MaterialSpinner;
 import retrofit2.Call;
@@ -94,7 +91,7 @@ public class LoginActivity extends ProfileActivity {
         findViewById(R.id.bt_cancel).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
+                /*GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
                 final Call<List<ProfileWithId>> call =
                         gitHubService.getProfiles("김한용1", 0, 0);
                 call.enqueue(new Callback<List<ProfileWithId>>() {
@@ -109,7 +106,11 @@ public class LoginActivity extends ProfileActivity {
                     public void onFailure(Call<List<ProfileWithId>> call, Throwable t) {
                         android.util.Log.d("Test", "error message = " + t.getMessage());
                     }
-                });
+                });*/
+                Intent i = new Intent();
+                i.setClass(LoginActivity.this, BulletinListView.class);
+                startActivity(i);
+
             }
         });
 
