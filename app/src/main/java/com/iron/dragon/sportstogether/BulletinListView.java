@@ -6,6 +6,15 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 
 import com.iron.dragon.sportstogether.adapter.BulletinRecyclerViewAdapter;
+import com.iron.dragon.sportstogether.retrofit.BulletinInfo;
+import com.iron.dragon.sportstogether.retrofit.GitHubService;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class BulletinListView extends AppCompatActivity {
 
@@ -15,14 +24,38 @@ public class BulletinListView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bulletin_list_view);
         InitLayout();
-		
+	    LoadData();
+    }
+
+    private void LoadData() {
+        GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
+        final Call<List<BulletinInfo>> call =
+                gitHubService.getBulletin(1, 1, 10);
+        call.enqueue(new Callback<List<BulletinInfo>>() {
+            @Override
+            public void onResponse(Call<List<BulletinInfo>> call, Response<List<BulletinInfo>> response) {
+                android.util.Log.d("Test", "code = " + response.code() + " issuccessful = " + response.isSuccessful());
+                android.util.Log.d("Test", "body = " + response.body().toString());
+                android.util.Log.d("Test", "message = " + response.message());
+                List<BulletinInfo> list = response.body();
+                ArrayList<BulletinInfo> listOfStrings = new ArrayList<>(list.size());
+                listOfStrings.addAll(listOfStrings);
+                mRecyclerView.setAdapter(new BulletinRecyclerViewAdapter(BulletinListView.this, listOfStrings));
+            }
+
+            @Override
+            public void onFailure(Call<List<BulletinInfo>> call, Throwable t) {
+                android.util.Log.d("Test", "error message = " + t.getMessage());
+            }
+        });
     }
 
     private void InitLayout() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolBar);
         setSupportActionBar(toolbar);
         mRecyclerView = (RecyclerView) findViewById(R.id.board_recyclerviewer);
-        mRecyclerView.setAdapter(new BulletinRecyclerViewAdapter());
+
     }
+
 
 }

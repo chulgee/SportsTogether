@@ -35,7 +35,10 @@ public class LoginPreferences {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getBoolean(LoginPreferences.USER_AUTHENTICATED, false);
     }
-
+    public String GetLocalProfileUserName(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getString(PROFILE_NICKNAME, null);
+    }
     public void SetLogin(Context context) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sharedPreferences.edit();
