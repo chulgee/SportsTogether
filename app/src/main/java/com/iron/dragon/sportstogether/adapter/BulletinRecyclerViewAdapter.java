@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * Created by seungyong on 2016-11-03.
  */
 
-public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<BulletinRecyclerViewAdapter.ViewHolder>{
+public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private ArrayList<BulletinInfo> malBulletin;
 
     private Context mContext;
@@ -26,12 +26,24 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<BulletinRe
         this.malBulletin = malBulletin;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolderMe extends RecyclerView.ViewHolder {
+        View mView;
+        TextView mtvComment;
+        TextView mtvDate;
+        public ViewHolderMe(View itemView) {
+            super(itemView);
+            mView = itemView;
+            mtvComment = (TextView) itemView.findViewById(R.id.tvComment);
+            mtvDate = (TextView) itemView.findViewById(R.id.tvDate);
+        }
+    }
+
+    public class ViewHolderThem extends RecyclerView.ViewHolder {
         View mView;
         TextView mtvNickName;
         TextView mtvComment;
         TextView mtvDate;
-        public ViewHolder(View itemView) {
+        public ViewHolderThem(View itemView) {
             super(itemView);
             mView = itemView;
             mtvNickName = (TextView) itemView.findViewById(R.id.tvNickName);
@@ -49,22 +61,31 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<BulletinRe
 
 
     @Override
-    public BulletinRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = null;
         if(viewType == 1) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bulletin_list_item_me, parent, false);
+            return new ViewHolderMe(view);
         } else {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bulletin_list_item_them, parent, false);
+            return new ViewHolderThem(view);
         }
 
-        return new ViewHolder(view);
+
     }
 
     @Override
-    public void onBindViewHolder(BulletinRecyclerViewAdapter.ViewHolder holder, int position) {
-        holder.mtvNickName.setText(malBulletin.get(position).getUsername());
-        holder.mtvComment.setText(malBulletin.get(position).getComment());
-        holder.mtvDate.setText(malBulletin.get(position).getDate());
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        if(holder.getItemViewType() == 1) {
+            ViewHolderMe viewHolderMe = (ViewHolderMe)holder;
+            viewHolderMe.mtvComment.setText(malBulletin.get(position).getComment());
+            viewHolderMe.mtvDate.setText(malBulletin.get(position).getDate());
+        } else {
+            ViewHolderThem viewHolderThem = (ViewHolderThem)holder;
+            viewHolderThem.mtvNickName.setText(malBulletin.get(position).getUsername());
+            viewHolderThem.mtvComment.setText(malBulletin.get(position).getComment());
+            viewHolderThem.mtvDate.setText(malBulletin.get(position).getDate());
+        }
     }
 
     @Override
