@@ -55,7 +55,7 @@ public interface GitHubService {
 
     @GET("bulletin")
     Call<List<BulletinInfo>> getBulletin(
-            @Query("sportsid") int sportsid, @Query("locationid") int locationid, @Query("numOfComment") int numOfComment
+            @Query("sportsid") int sportsid, @Query("locationid") int locationid, @Query("reqNum") int reqNum
     );
 
 
