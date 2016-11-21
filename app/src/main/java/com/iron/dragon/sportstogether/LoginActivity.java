@@ -107,9 +107,6 @@ public class LoginActivity extends ProfileActivity {
                         android.util.Log.d("Test", "error message = " + t.getMessage());
                     }
                 });*/
-                Intent i = new Intent();
-                i.setClass(LoginActivity.this, BulletinListView.class);
-                startActivity(i);
 
             }
         });
