@@ -26,7 +26,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<BulletinRe
         this.malBulletin = malBulletin;
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         View mView;
         TextView mtvNickName;
         TextView mtvComment;
@@ -38,9 +38,8 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<BulletinRe
             mtvComment = (TextView) itemView.findViewById(R.id.tvComment);
             mtvDate = (TextView) itemView.findViewById(R.id.tvDate);
         }
-
-
     }
+
 
     @Override
     public int getItemViewType(int position)
@@ -65,7 +64,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<BulletinRe
     public void onBindViewHolder(BulletinRecyclerViewAdapter.ViewHolder holder, int position) {
         holder.mtvNickName.setText(malBulletin.get(position).getUsername());
         holder.mtvComment.setText(malBulletin.get(position).getComment());
-        holder.mtvDate.setText(malBulletin.get(position).getComment());
+        holder.mtvDate.setText(malBulletin.get(position).getDate());
     }
 
     @Override

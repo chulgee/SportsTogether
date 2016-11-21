@@ -8,7 +8,7 @@ public class BulletinInfo {
     String username;
     private int locationid;
     private int sportsid;
-    private int comment;
+    private String comment;
     private String date;////tes//zz
 
     //
@@ -31,7 +31,7 @@ public class BulletinInfo {
         return sportsid;
     }
 
-    public int getComment() {
+    public String getComment() {
         return comment;
     }
 
@@ -43,7 +43,7 @@ public class BulletinInfo {
         String username;
         int locationid;
         int sportsid;
-        int comment;
+        String comment;
         String date;
 
         public void setUsername(String username) {this.username = username;}
@@ -55,7 +55,7 @@ public class BulletinInfo {
             this.sportsid = sportsid;
         }
 
-        public void setComment(int comment) {
+        public void setComment(String comment) {
             this.comment = comment;
         }
 
