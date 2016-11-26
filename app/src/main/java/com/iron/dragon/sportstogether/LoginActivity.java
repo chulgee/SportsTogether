@@ -27,7 +27,7 @@ public class LoginActivity extends ProfileActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("Test", "LoginActivity");
+        Log.d("Test", "LoginActivity2");
         setContentView(R.layout.activity_profile);
         InitLayout();
 
