@@ -79,6 +79,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>{
             public void onClick(View v) {
                 Intent i = new Intent();
                 i.setClass(mContext, BulletinListView.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 mContext.startActivity(i);
 //                Toast.makeText(mContext, ""+position, Toast.LENGTH_SHORT).show();
             }
