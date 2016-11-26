@@ -1,7 +1,7 @@
 package com.iron.dragon.sportstogether.adapter;
 
-import android.content.ClipData;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,23 +10,14 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.iron.dragon.sportstogether.MainActivity;
+import com.iron.dragon.sportstogether.BulletinListView;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.abs.Sports;
-import com.iron.dragon.sportstogether.retrofit.Bulletin;
-import com.iron.dragon.sportstogether.retrofit.GitHubService;
-import com.iron.dragon.sportstogether.retrofit.ProfileWithId;
 
-import static com.iron.dragon.sportstogether.util.Const.SPORTS;
-
-import java.util.ArrayList;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import static com.iron.dragon.sportstogether.util.Const.SPORTS;
 
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>{
@@ -66,13 +57,13 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>{
         if(sports.equals(SPORTS.BADMINTON)){
             res = R.drawable.badminton;
         }else if(sports.equals(SPORTS.TENNIS)){
-            res = R.drawable.tennis;
+            res = R.drawable.badminton;
         }else if(sports.equals(SPORTS.TABLE_TENNIS)){
-            res = R.drawable.table_tennis;
+            res = R.drawable.basketball;
         }else if(sports.equals(SPORTS.SOCCER)){
-            res = R.drawable.soccer;
+            res = R.drawable.basketball;
         }else if(sports.equals(SPORTS.BASEBALL)){
-            res = R.drawable.baseball;
+            res = R.drawable.basketball;
         }else if(sports.equals(SPORTS.BASKETBALL)) {
             res = R.drawable.basketball;
         }else{
@@ -86,23 +77,11 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>{
         holder.iv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(mContext, ""+position, Toast.LENGTH_SHORT).show();
-                /*GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
-                final Call<Bulletin> call =
-                        gitHubService.deleteBulletin(2);
-                call.enqueue(new Callback<Bulletin>() {
-                    @Override
-                    public void onResponse(Call<Bulletin> call, Response<Bulletin> response) {
-                        android.util.Log.d("Test", "code = " + response.code() + " issuccessful = " + response.isSuccessful());
-                        android.util.Log.d("Test", "body = " + response.body().toString());
-                        android.util.Log.d("Test", "message = " + response.message());
-                    }
-
-                    @Override
-                    public void onFailure(Call<Bulletin> call, Throwable t) {
-                        android.util.Log.d("Test", "error message = " + t.getMessage());
-                    }
-                });*/
+                Intent i = new Intent();
+                i.setClass(mContext, BulletinListView.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mContext.startActivity(i);
+//                Toast.makeText(mContext, ""+position, Toast.LENGTH_SHORT).show();
             }
         });
     }
