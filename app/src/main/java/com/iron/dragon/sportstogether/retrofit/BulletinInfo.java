@@ -10,14 +10,16 @@ public class BulletinInfo {
     private int sportsid;
     private String comment;
     private String date;////tes//zz
+    private int type;
 
     //
-    BulletinInfo(Builder builder){
+    public BulletinInfo(Builder builder){
         username = builder.username;
         locationid = builder.locationid;
         sportsid = builder.sportsid;
         comment = builder.comment;
         date = builder.date;
+        type = builder.type;
     }
     public String getUsername() {
         return username;
@@ -39,32 +41,46 @@ public class BulletinInfo {
         return date;
     }
 
-    public class Builder{
-        String username;
-        int locationid;
-        int sportsid;
-        String comment;
-        String date;
+    public static class Builder{
+        private String username;
+        private  int locationid;
+        private  int sportsid;
+        private  String comment;
+        private  String date;
+        private  int type;
 
-        public void setUsername(String username) {this.username = username;}
-        public void setLocationid(int locationid) {
+
+        public Builder setType(int type) {
+            this.type = type;
+            return this;
+        }
+
+
+
+        public Builder setUsername(String username) {this.username = username;
+            return this;}
+        public Builder setLocationid(int locationid) {
             this.locationid = locationid;
+            return this;
         }
 
-        public void setSportsid(int sportsid) {
+        public Builder setSportsid(int sportsid) {
             this.sportsid = sportsid;
+            return this;
         }
 
-        public void setComment(String comment) {
+        public Builder setComment(String comment) {
             this.comment = comment;
+            return this;
         }
 
         public BulletinInfo build(){
             return new BulletinInfo(this);
         }
 
-        public void setDate(String date) {
+        public Builder setDate(String date) {
             this.date = date;
+            return this;
         }
     }
 

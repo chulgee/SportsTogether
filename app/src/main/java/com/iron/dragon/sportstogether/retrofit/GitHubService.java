@@ -58,6 +58,11 @@ public interface GitHubService {
             @Query("sportsid") int sportsid, @Query("locationid") int locationid, @Query("reqNum") int reqNum
     );
 
+    @POST("bulletin")
+    Call<BulletinInfo> postBulletin(
+            @Body BulletinInfo BulletinInfo
+    );
+
 
 
     static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
