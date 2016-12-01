@@ -26,6 +26,11 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         this.malBulletin = malBulletin;
     }
 
+    public void addItem(BulletinInfo bulletin) {
+        malBulletin.add(bulletin);
+        notifyDataSetChanged();
+    }
+
     public class ViewHolderMe extends RecyclerView.ViewHolder {
         View mView;
         TextView mtvComment;
