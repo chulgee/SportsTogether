@@ -37,7 +37,7 @@ public class LoginActivity extends ProfileActivity {
     protected void InitLayout() {
         super.InitLayout();
         final EditText etNickName = (EditText) findViewById(R.id.etNickName);
-        final EditText etAge = (EditText) findViewById(R.id.etAge);
+        final MaterialSpinner spAge = (MaterialSpinner) findViewById(R.id.spAge);
         final MaterialSpinner spGender = (MaterialSpinner) findViewById(R.id.spGender);
 
         final MaterialSpinner spLocation = (MaterialSpinner) findViewById(R.id.spLocation);
@@ -52,7 +52,7 @@ public class LoginActivity extends ProfileActivity {
                 GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
                 final ProfileItem pi = new ProfileItem();
                 pi.set_mNickName(etNickName.getText().toString());
-                pi.set_mAge(etAge.getText().length() == 0 ? 0 : Integer.parseInt(etAge.getText().toString()));
+                pi.set_mAge(spAge.getSelectedItemPosition());
                 pi.set_mGender(spGender.getSelectedItemPosition());
                 pi.set_mLocation(spLocation.getSelectedItemPosition());
                 pi.set_mPhoneNum(etPhoneNum.getText().toString());

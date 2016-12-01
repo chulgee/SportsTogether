@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 
 import com.iron.dragon.sportstogether.adapter.BulletinRecyclerViewAdapter;
+import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.retrofit.BulletinInfo;
 import com.iron.dragon.sportstogether.retrofit.GitHubService;
 
@@ -30,9 +31,11 @@ public class BulletinListView extends AppCompatActivity {
     }
 
     private void LoadData() {
+        int sports_id = getIntent().getIntExtra("Extra_Sports", 0);
+        int location = LoginPreferences.GetInstance().GetLocalProfileLocation(this);
         GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
         final Call<List<BulletinInfo>> call =
-                gitHubService.getBulletin(1, 1, 10);
+                gitHubService.getBulletin(sports_id, location, 10);
         call.enqueue(new Callback<List<BulletinInfo>>() {
             @Override
             public void onResponse(Call<List<BulletinInfo>> call, Response<List<BulletinInfo>> response) {
