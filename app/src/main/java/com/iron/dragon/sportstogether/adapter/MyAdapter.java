@@ -29,6 +29,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>{
         mContext = context;
     }
 
+
     public static class ViewHolder extends RecyclerView.ViewHolder{
         public ImageView iv;
         public TextView tv;
@@ -50,7 +51,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>{
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         //holder.iv.setImageResource(R.drawable.a);
-        int id;
+        final int id;
         int res = 0;
         id = (int)getItemId(position);
         SPORTS sports = SPORTS.values()[position];
@@ -80,6 +81,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>{
                 Intent i = new Intent();
                 i.setClass(mContext, BulletinListView.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                i.putExtra("Extra_Sports", id);
+
                 mContext.startActivity(i);
 //                Toast.makeText(mContext, ""+position, Toast.LENGTH_SHORT).show();
             }

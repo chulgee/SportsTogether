@@ -62,7 +62,7 @@ public interface GitHubService {
 
     static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
     public static final Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl("http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com/")
+            .baseUrl("http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/")
             .client(httpClient.build())
             .addConverterFactory(GsonConverterFactory.create())
             .build();
