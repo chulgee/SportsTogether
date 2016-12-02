@@ -30,11 +30,13 @@ public class MainActivity extends AppCompatActivity {
         mList.setLayoutManager(mLayoutManager);
 
         String[] sports = getResources().getStringArray(R.array.sportstype);
+//        int[] sports_img = getResources().getIntArray(R.array.sportsimg);
+// get resource ID by index
         mFactory = new SportsFactory();
-        for(String type:sports) {
-            mFactory.create(type);
-
+        for(int i = 0; i < sports.length; i++){
+            mFactory.create(sports[i]);
         }
+
         mAdapter = new MyAdapter(getApplicationContext(), mFactory.getList());
         mList.setAdapter(mAdapter);
 

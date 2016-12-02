@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">SportsTogether</string>
 
     <string name="title_activity_fullscreen">FullscreenActivity</string>
@@ -30,4 +30,7 @@
     <string name="phonenum">PhoneNumber</string>
     <string name="sports_type">Sports Type</string>
     <string name="level">Level</string>
+
+    <string name="bulletin">Bulletin</string>
+    <string name="bulletin_num">Total :  <xliff:g id="total">%d</xliff:g> </string>
 </resources>

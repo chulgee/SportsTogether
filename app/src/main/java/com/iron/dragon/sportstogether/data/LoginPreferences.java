@@ -46,7 +46,8 @@ public class LoginPreferences {
     public void SetLogin(Context context) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(USER_AUTHENTICATED, false);
+        editor.putBoolean(USER_AUTHENTICATED, true);
+        editor.apply();
     }
 
     public void SetLocalProfile(Context context, ProfileItem profile) {
