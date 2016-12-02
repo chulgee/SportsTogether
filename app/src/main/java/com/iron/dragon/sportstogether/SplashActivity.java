@@ -1,20 +1,12 @@
 package com.iron.dragon.sportstogether;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
 
-import com.iron.dragon.sportstogether.abs.Sports;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
-
-import java.util.List;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -27,7 +19,7 @@ public class SplashActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        FirebaseMessaging.getInstance().subscribeToTopic("notice");
         setContentView(R.layout.activity_fullscreen);
 
         handler.postDelayed(new Runnable() {

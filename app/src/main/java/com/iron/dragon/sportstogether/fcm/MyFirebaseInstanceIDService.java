@@ -8,8 +8,6 @@ import com.google.firebase.iid.FirebaseInstanceIdService;
 import static com.google.android.gms.internal.zzs.TAG;
 
 public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
-    public MyFirebaseInstanceIDService() {
-    }
 
     @Override
     public void onTokenRefresh() {

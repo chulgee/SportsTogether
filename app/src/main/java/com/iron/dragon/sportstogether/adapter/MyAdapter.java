@@ -75,6 +75,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>{
         holder.iv.setImageResource(res);
         Animation animation = AnimationUtils.loadAnimation(mContext, android.R.anim.slide_in_left);
         holder.iv.setAnimation(animation);
+        final int finalRes = res;
         holder.iv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,6 +83,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>{
                 i.setClass(mContext, BulletinListView.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 i.putExtra("Extra_Sports", id);
+                i.putExtra("Extra_SportsImg", finalRes);
 
                 mContext.startActivity(i);
 //                Toast.makeText(mContext, ""+position, Toast.LENGTH_SHORT).show();
