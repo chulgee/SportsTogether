@@ -4,7 +4,9 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     >
-
+<View
+    android:layout_width="match_parent"
+    android:layout_height="20dip"/>
     <TextView android:id="@+id/tvNickName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -16,12 +18,14 @@
         <TextView android:id="@+id/tvComment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-                  android:background="@drawable/inbox2"
             />
         <TextView android:id="@+id/tvDate"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   />
     </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="20dip"/>
 
 </LinearLayout>

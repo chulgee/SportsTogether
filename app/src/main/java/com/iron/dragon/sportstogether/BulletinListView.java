@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.iron.dragon.sportstogether.adapter.BulletinRecyclerViewAdapter;
+import com.iron.dragon.sportstogether.adapter.DividerItemDecoration;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.retrofit.BulletinInfo;
 import com.iron.dragon.sportstogether.retrofit.GitHubService;
@@ -46,6 +47,8 @@ public class BulletinListView extends AppCompatActivity {
     Button mBtSend;
     @BindView(R.id.board_recyclerviewer)
     RecyclerView mBoardRecyclerviewer;
+    @BindView(R.id.tvLocation)
+    TextView mTvLocation;
     private int mSportsId;
     private int mLocationId;
     BulletinRecyclerViewAdapter mAdapter;
@@ -123,10 +126,9 @@ public class BulletinListView extends AppCompatActivity {
         Intent intent = getIntent();
         mSportsId = intent.getIntExtra("Extra_Sports", 0);
         mLocationId = LoginPreferences.GetInstance().GetLocalProfileLocation(this);
-        mSportsImg = intent.getIntExtra("Extra_SportsImg" , 0);
+        mSportsImg = intent.getIntExtra("Extra_SportsImg", 0);
         getBulletinData();
         Log.d("Test", "mSportsImg = " + mSportsImg);
-
 
 
     }
@@ -139,7 +141,8 @@ public class BulletinListView extends AppCompatActivity {
         Log.d("Test", "iv = " + mSportsImg + "resource = " + R.drawable.badminton);
         Const.SPORTS sports = Const.SPORTS.values()[mSportsId];
         mTvSportsName.setText(sports.name());
-//        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+        mTvLocation.setText(getString(R.string.bulletin_location, getResources().getStringArray(R.array.location)[mLocationId]));
+        mBoardRecyclerviewer.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
     }
 
 
@@ -164,6 +167,7 @@ public class BulletinListView extends AppCompatActivity {
                 Log.d("Test", "message = " + response.message());
                 if (response.isSuccessful()) {
                     mAdapter.addItem(response.body());
+                    mEtContent.setText("");
                 }
             }
 

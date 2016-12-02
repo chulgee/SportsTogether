@@ -1,6 +1,7 @@
 package com.iron.dragon.sportstogether.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,8 @@ import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.retrofit.BulletinInfo;
 
 import java.util.ArrayList;
+
+import static com.iron.dragon.sportstogether.util.Util.getStringDate;
 
 /**
  * Created by seungyong on 2016-11-03.
@@ -68,20 +71,20 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = null;
-        if(viewType == 1) {
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bulletin_list_item_me, parent, false);
-            return new ViewHolderMe(view);
-        } else {
+//        if(viewType == 1) {
+//            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bulletin_list_item_me, parent, false);
+//            return new ViewHolderMe(view);
+//        } else {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bulletin_list_item_them, parent, false);
             return new ViewHolderThem(view);
-        }
+//        }
 
 
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if(holder.getItemViewType() == 1) {
+        /*if(holder.getItemViewType() == 1) {
             ViewHolderMe viewHolderMe = (ViewHolderMe)holder;
             viewHolderMe.mtvComment.setText(malBulletin.get(position).getComment());
             viewHolderMe.mtvDate.setText(malBulletin.get(position).getDate());
@@ -90,7 +93,16 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             viewHolderThem.mtvNickName.setText(malBulletin.get(position).getUsername());
             viewHolderThem.mtvComment.setText(malBulletin.get(position).getComment());
             viewHolderThem.mtvDate.setText(malBulletin.get(position).getDate());
+        }*/
+        ViewHolderThem viewHolderThem = (ViewHolderThem)holder;
+        if(holder.getItemViewType() == 1) {
+            viewHolderThem.itemView.setBackgroundColor(Color.YELLOW);
+        } else {
+            viewHolderThem.itemView.setBackgroundColor(Color.GRAY);
         }
+        viewHolderThem.mtvNickName.setText(malBulletin.get(position).getUsername());
+        viewHolderThem.mtvComment.setText(malBulletin.get(position).getComment());
+        viewHolderThem.mtvDate.setText(getStringDate(Long.parseLong(malBulletin.get(position).getDate())));
     }
 
     @Override
