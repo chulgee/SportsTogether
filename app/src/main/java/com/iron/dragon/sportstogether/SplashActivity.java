@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.os.Handler;
 
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.iron.dragon.sportstogether.data.LoginPreferences;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -25,19 +24,12 @@ public class SplashActivity extends Activity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if(IsLogged()) {
                 startActivity(new Intent(SplashActivity.this, MainActivity.class));
                 finish();
-                } else {
-                    startActivity(new Intent(SplashActivity.this, LoginActivity.class));
-                    finish();
-                }
             }
         }, 2000);
     }
-    private boolean IsLogged() {
-        return LoginPreferences.GetInstance().CheckLogin(this);
-    }
+
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);

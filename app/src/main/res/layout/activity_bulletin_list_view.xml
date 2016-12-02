@@ -29,6 +29,11 @@
             android:id="@+id/tvSportsName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/tvLocation"
+                android:text="@string/bulletin_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
         <TextView
             android:id="@+id/tvTotalNum"
             android:text="@string/bulletin_num"
@@ -55,7 +60,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
-            android:text="Name"
+            android:hint="comment"
             android:ems="10"
             android:id="@+id/etContent"
             android:layout_weight="1"/>

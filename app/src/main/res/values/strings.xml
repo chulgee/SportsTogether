@@ -32,5 +32,6 @@
     <string name="level">Level</string>
 
     <string name="bulletin">Bulletin</string>
+    <string name="bulletin_location">Location :  <xliff:g id="location">%s</xliff:g> </string>
     <string name="bulletin_num">Total :  <xliff:g id="total">%d</xliff:g> </string>
 </resources>

@@ -12,8 +12,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.iron.dragon.sportstogether.BulletinListView;
+import com.iron.dragon.sportstogether.LoginActivity;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.abs.Sports;
+import com.iron.dragon.sportstogether.data.LoginPreferences;
 
 import java.util.List;
 
@@ -80,17 +82,24 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>{
             @Override
             public void onClick(View v) {
                 Intent i = new Intent();
-                i.setClass(mContext, BulletinListView.class);
+
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 i.putExtra("Extra_Sports", id);
                 i.putExtra("Extra_SportsImg", finalRes);
-
-                mContext.startActivity(i);
+                if(IsLogged()) {
+                    i.setClass(mContext, BulletinListView.class);
+                    mContext.startActivity(i);
+                } else {
+                    i.setClass(mContext, LoginActivity.class);
+                    mContext.startActivity(i);
+                }
 //                Toast.makeText(mContext, ""+position, Toast.LENGTH_SHORT).show();
             }
         });
     }
-
+    private boolean IsLogged() {
+        return LoginPreferences.GetInstance().CheckLogin(mContext);
+    }
     @Override
     public int getItemCount() {
         int ret = 0;

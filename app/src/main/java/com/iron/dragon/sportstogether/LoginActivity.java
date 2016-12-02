@@ -23,16 +23,23 @@ import retrofit2.Response;
 
 public class LoginActivity extends ProfileActivity {
     private final String TAG = getClass().getName();
+    private int mSportsId;
+    private int mSportsImg;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("Test", "LoginActivity2");
         setContentView(R.layout.activity_profile);
+        LoadData();
         InitLayout();
 
     }
-
+    private void LoadData() {
+        Intent intent = getIntent();
+        mSportsId = intent.getIntExtra("Extra_Sports", 0);
+        mSportsImg = intent.getIntExtra("Extra_SportsImg", 0);
+    }
     @Override
     protected void InitLayout() {
         super.InitLayout();
@@ -121,8 +128,12 @@ public class LoginActivity extends ProfileActivity {
 
     private void ToBoardListView() {
         Intent i = new Intent();
-        i.setClass(this, MainActivity.class);
+        i.setClass(this, BulletinListView.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.putExtra("Extra_Sports", mSportsId);
+        i.putExtra("Extra_SportsImg", mSportsImg);
         startActivity(i);
+        finish();
     }
 
 
