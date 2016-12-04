@@ -6,9 +6,9 @@
     </string-array>
 
     <string-array name="age">
-        <item>20 ~ 30</item>
-        <item>30 ~ 40</item>
-        <item>40 ~ 50</item>
+        <item>20 ~ 30 대</item>
+        <item>30 ~ 40 대</item>
+        <item>40 ~ 50 대</item>
     </string-array>
 
     <string-array name="location">
