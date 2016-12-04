@@ -8,18 +8,19 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
-        <TextView android:layout_width="wrap_content"
+        <TextView android:layout_width="74dip"
             android:layout_height="wrap_content"
-            android:text="@string/nickname"/>
+            android:text="@string/nickname"
+            />
         <EditText android:id="@+id/etNickName"
-            android:layout_width="match_parent"
+            android:layout_width="200dip"
             android:layout_height="wrap_content"
             />
     </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
-        <TextView android:layout_width="wrap_content"
+        <TextView android:layout_width="74dp"
             android:layout_height="wrap_content"
             android:text="@string/age"/>
         <fr.ganfra.materialspinner.MaterialSpinner
@@ -35,7 +36,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
-        <TextView android:layout_width="wrap_content"
+        <TextView android:layout_width="74dp"
             android:layout_height="wrap_content"
             android:text="@string/gender"/>
         <fr.ganfra.materialspinner.MaterialSpinner
@@ -51,7 +52,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
-        <TextView android:layout_width="wrap_content"
+        <TextView android:layout_width="74dp"
             android:layout_height="wrap_content"
             android:text="@string/location"/>
         <fr.ganfra.materialspinner.MaterialSpinner
@@ -67,12 +68,13 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
-        <TextView android:layout_width="wrap_content"
+        <TextView android:layout_width="74dp"
             android:layout_height="wrap_content"
             android:text="@string/phonenum"/>
         <EditText android:id="@+id/etPhoneNum"
-            android:layout_width="match_parent"
+            android:layout_width="200dip"
             android:layout_height="wrap_content"
+            android:inputType="phone"
             />
     </LinearLayout>
     <LinearLayout
@@ -95,7 +97,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
-        <TextView android:layout_width="wrap_content"
+        <TextView android:layout_width="74dp"
             android:layout_height="wrap_content"
             android:text="@string/level"/>
         <fr.ganfra.materialspinner.MaterialSpinner

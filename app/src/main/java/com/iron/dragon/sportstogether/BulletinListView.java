@@ -7,16 +7,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.iron.dragon.sportstogether.adapter.BulletinRecyclerViewAdapter;
-import com.iron.dragon.sportstogether.adapter.DividerItemDecoration;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.retrofit.BulletinInfo;
 import com.iron.dragon.sportstogether.retrofit.GitHubService;
@@ -118,8 +121,7 @@ public class BulletinListView extends AppCompatActivity {
     }
 
     private void initListView(ArrayList<BulletinInfo> listOfStrings) {
-        mAdapter = new BulletinRecyclerViewAdapter(BulletinListView.this, listOfStrings);
-        mBoardRecyclerviewer.setAdapter(mAdapter);
+        mAdapter.setItem(listOfStrings);
     }
 
     private void LoadData() {
@@ -142,7 +144,17 @@ public class BulletinListView extends AppCompatActivity {
         Const.SPORTS sports = Const.SPORTS.values()[mSportsId];
         mTvSportsName.setText(sports.name());
         mTvLocation.setText(getString(R.string.bulletin_location, getResources().getStringArray(R.array.location)[mLocationId]));
-        mBoardRecyclerviewer.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+
+        mAdapter = new BulletinRecyclerViewAdapter(BulletinListView.this);
+        mBoardRecyclerviewer.setAdapter(mAdapter);
+        mAdapter.setOnItemLongClickListener(new BulletinRecyclerViewAdapter.OnItemLongClickListener() {
+            @Override
+            public void onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                registerForContextMenu( view );
+                openContextMenu( view );
+            }
+        });
+
     }
 
 
@@ -176,5 +188,23 @@ public class BulletinListView extends AppCompatActivity {
                 Log.d("Test", "error message = " + t.getMessage());
             }
         });
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_context, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.action_chat:
+                //some code
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
     }
 }

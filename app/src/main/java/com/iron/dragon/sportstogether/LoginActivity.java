@@ -99,6 +99,7 @@ public class LoginActivity extends ProfileActivity {
         findViewById(R.id.bt_cancel).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+                finish();
                 /*GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
                 final Call<List<ProfileWithId>> call =
                         gitHubService.getProfiles("김한용1", 0, 0);
