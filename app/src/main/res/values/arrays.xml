@@ -35,10 +35,10 @@
     </string-array>
     <integer-array name="sportsimg">
         <item>@drawable/badminton</item>
-        <item>@drawable/badminton</item>
-        <item>@drawable/pingpong</item>
-        <item>@drawable/basketball</item>
-        <item>@drawable/basketball</item>
+        <item>@drawable/tennis</item>
+        <item>@drawable/table_tennis</item>
+        <item>@drawable/soccer</item>
+        <item>@drawable/baseball</item>
         <item>@drawable/basketball</item>
     </integer-array>
 
