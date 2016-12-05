@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">SportsTogether</string>
+    <string name="app_name">함께 운동해요</string>
 
-    <string name="title_activity_fullscreen">FullscreenActivity</string>
+    <string name="title_activity_fullscreen">함께 운동해요</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="title_activity_board_list_view">BoardListView</string>
@@ -30,4 +30,8 @@
     <string name="phonenum">PhoneNumber</string>
     <string name="sports_type">Sports Type</string>
     <string name="level">Level</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_settings">Settings</string>
 </resources>

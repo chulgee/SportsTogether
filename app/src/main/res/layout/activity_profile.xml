@@ -14,7 +14,7 @@
         <EditText android:id="@+id/etNickName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            />
+            android:text=" asdf" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"
@@ -22,15 +22,10 @@
         <TextView android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/age"/>
-        <fr.ganfra.materialspinner.MaterialSpinner
-            android:id="@+id/spAge"
-            android:layout_width="200dip"
+        <EditText android:id="@+id/etAge"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:ms_arrowColor="#0000FF"
-            app:ms_arrowSize="16dp"
-            app:ms_floatingLabelColor="#00FF00"
-            app:ms_multiline="true"
-            android:entries="@array/age" />
+            android:text="2" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"
@@ -73,7 +68,7 @@
         <EditText android:id="@+id/etPhoneNum"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            />
+            android:text="01234567" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"
