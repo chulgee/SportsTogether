@@ -34,13 +34,13 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-scalars:2.1.0'
     compile 'com.github.ganfra:material-spinner:1.1.1'
     testCompile 'junit:junit:4.12'
-    // FCM »ç¿ëÀ» À§ÇÑ ¼³Á¤
+    // FCM ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     compile 'com.google.firebase:firebase-messaging:9.6.1'
-    // µ¥ÀÌÅÍ ¼Û¼ö½ÅÀ» À§ÇÑ ¼³Á¤
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Û¼ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     compile 'com.android.volley:volley:1.0.0'
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'io.socket:socket.io-client:0.8.2'
 }
 
-// FCM »ç¿ëÀ» À§ÇÑ ¼³Á¤
+// FCM ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 apply plugin: 'com.google.gms.google-services'

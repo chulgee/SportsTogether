@@ -27,9 +27,12 @@
     <string name="age">Age</string>
     <string name="gender">Gender</string>
     <string name="location">Location</string>
-    <string name="phonenum">PhoneNumber</string>
+    <string name="phonenum">Phone</string>
     <string name="sports_type">Sports Type</string>
     <string name="level">Level</string>
+    <string name="bulletin">Bulletin</string>
+    <string name="bulletin_location">Location :  <xliff:g id="location">%s</xliff:g> </string>
+    <string name="bulletin_num">Total :  <xliff:g id="total">%d</xliff:g> </string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
