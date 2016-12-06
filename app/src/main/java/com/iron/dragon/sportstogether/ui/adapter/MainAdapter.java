@@ -99,13 +99,13 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
                 // else 로그인안되어 있으면 profile edit창으로
                 Intent i = new Intent();
                 if(login){
-                    /*Profile profile = LoginPreferences.GetInstance().getLocalProfile(mContext);
+                    Profile profile = LoginPreferences.GetInstance().getLocalProfile(mContext);
                     i.putExtra("MyProfile", profile);
                     i.putExtra("Extra_Sports", id);
                     i.putExtra("Extra_SportsImg", finalRes);
                     i.setClass(mContext, BulletinListActivity.class);
-                    mContext.startActivity(i);*/
-                    requestFriends();
+                    mContext.startActivity(i);
+                    //requestFriends();
                     Toast.makeText(mContext.getApplicationContext(), "Logged in", Toast.LENGTH_SHORT).show();
                 }else{
                     i.setClass(mContext, LoginActivity.class);
