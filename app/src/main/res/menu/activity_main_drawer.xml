@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_setting"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="설정" />
+        <item
+            android:id="@+id/nav_myinfo"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="회원관리" />
+        <item
+            android:id="@+id/nav_announcement"
+            android:icon="@drawable/ic_menu_slideshow"
+            android:title="공지사항" />
+        <item
+            android:id="@+id/nav_cs"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="고객센터" />
+    </group>
+    <item android:title="공유">
+        <menu>
+            <item
+                android:id="@+id/nav_share"
+                android:icon="@drawable/ic_menu_share"
+                android:title="다른사람에게 알려주기" />
+            <item
+                android:id="@+id/nav_send"
+                android:icon="@drawable/ic_menu_send"
+                android:title="전송하기" />
+        </menu>
+    </item>
+
+</menu>
