@@ -72,6 +72,7 @@ public class BulletinListActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP
                 | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
         LoadData();
@@ -86,6 +87,11 @@ public class BulletinListActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home: {
+                return true;
+            }
+        }
         return super.onOptionsItemSelected(item);
     }
 

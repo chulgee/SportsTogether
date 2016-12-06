@@ -87,7 +87,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
         holder.iv.setAnimation(animation);
         final int finalRes = res;
         final int id = (int)getItemId(position);
-        Log.d("Test", "id = " + id);
         holder.iv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
