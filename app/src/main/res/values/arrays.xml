@@ -33,13 +33,13 @@
         <item>야구</item>
         <item>농구</item>
     </string-array>
-    <integer-array name="sportsimg">
-        <item>@drawable/badminton</item>
-        <item>@drawable/tennis</item>
-        <item>@drawable/table_tennis</item>
-        <item>@drawable/soccer</item>
-        <item>@drawable/baseball</item>
-        <item>@drawable/basketball</item>
+    <integer-array name="sportsimg_bulletin">
+        <item>@drawable/badminton_166415_640</item>
+        <item>@drawable/tennis_934841_640</item>
+        <item>@drawable/table_tennis_1208377_640</item>
+        <item>@drawable/soccer_ball_1285164_640</item>
+        <item>@drawable/hit_1407826_640</item>
+        <item>@drawable/basketball_1081882_640</item>
     </integer-array>
 
     <string-array name="level">
