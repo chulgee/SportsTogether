@@ -19,12 +19,12 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
-import com.iron.dragon.sportstogether.ui.activity.BuddyListActivity;
 import com.iron.dragon.sportstogether.R;
-import com.iron.dragon.sportstogether.factory.Sports;
-import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
+import com.iron.dragon.sportstogether.data.bean.Profile;
+import com.iron.dragon.sportstogether.factory.Sports;
 import com.iron.dragon.sportstogether.http.retropit.GitHubService;
+import com.iron.dragon.sportstogether.ui.activity.BuddyListActivity;
 import com.iron.dragon.sportstogether.ui.activity.BulletinListActivity;
 import com.iron.dragon.sportstogether.ui.activity.LoginActivity;
 import com.iron.dragon.sportstogether.util.Const;
@@ -85,6 +85,9 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
         holder.iv.setImageResource(res);
         Animation animation = AnimationUtils.loadAnimation(mContext, android.R.anim.slide_in_left);
         holder.iv.setAnimation(animation);
+        final int finalRes = res;
+        final int id = (int)getItemId(position);
+        Log.d("Test", "id = " + id);
         holder.iv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,6 +101,8 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
                 if(login){
                     Profile profile = LoginPreferences.GetInstance().getLocalProfile(mContext);
                     i.putExtra("MyProfile", profile);
+                    i.putExtra("Extra_Sports", id);
+                    i.putExtra("Extra_SportsImg", finalRes);
                     i.setClass(mContext, BulletinListActivity.class);
                     mContext.startActivity(i);
                     Toast.makeText(mContext.getApplicationContext(), "Logged in", Toast.LENGTH_SHORT).show();
@@ -233,7 +238,11 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
     public int getItemCount() {
         return mDataset.size();
     }
-
+    @Override
+    public long getItemId(int position) {
+        Sports sports = mDataset.get(position);
+        return sports.getId();
+    }
     public static class ViewHolder extends RecyclerView.ViewHolder{
         ImageView iv;
         TextView tv;

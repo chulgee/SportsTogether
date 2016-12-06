@@ -36,7 +36,7 @@ public class Bulletin {
         return date;
     }
 
-    Bulletin(Builder builder){
+    public Bulletin(Builder builder){
         locationid = builder.locationid;
         sportsid = builder.sportsid;
         type = builder.type;
@@ -45,7 +45,7 @@ public class Bulletin {
         date = builder.date;
     }
 
-    public class Builder{
+    public static class Builder{
         int locationid;
         int sportsid;
         int type;
@@ -53,32 +53,39 @@ public class Bulletin {
         String comment;
         long date;
 
-        public void setLocationid(int locationid) {
+        public Builder  setLocationid(int locationid) {
             this.locationid = locationid;
+            return this;
         }
 
-        public void setSportsid(int sportsid) {
+        public Builder  setSportsid(int sportsid) {
             this.sportsid = sportsid;
+            return this;
         }
 
-        public void setType(int type) {
+        public Builder  setType(int type) {
             this.type = type;
+            return this;
         }
 
-        public void setUsername(String username) {
+        public Builder  setUsername(String username) {
+
             this.username = username;
+            return this;
         }
 
-        public void setComment(String comment) {
+        public Builder  setComment(String comment) {
             this.comment = comment;
+            return this;
         }
 
         public Bulletin build(){
             return new Bulletin(this);
         }
 
-        public void setDate(long date) {
+        public Builder  setDate(long date) {
             this.date = date;
+            return this;
         }
     }
 }

@@ -3,7 +3,6 @@ package com.iron.dragon.sportstogether.ui.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.renderscript.RenderScript;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -14,9 +13,9 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.SportsApplication;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
+import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.data.bean.ProfileItem;
 import com.iron.dragon.sportstogether.http.retropit.GitHubService;
-import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.util.Const;
 
 import fr.ganfra.materialspinner.MaterialSpinner;
@@ -30,19 +29,22 @@ public class LoginActivity extends ProfileActivity {
     private final String TAG = getClass().getName();
 
     Handler handler = new Handler();
+    private int mSportsId;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("Test", "LoginActivity");
         setContentView(R.layout.activity_profile);
-        InitLayout();
 
         Intent i = getIntent();
         processIntent(i);
+
+        InitLayout();
     }
 
     private void processIntent(Intent i){
+        mSportsId = i.getIntExtra("Extra_Sports", 0);
         final Profile myprofile = (Profile)i.getSerializableExtra("MyProfile");
         if(myprofile != null){
             handler.post(new Runnable() {
@@ -129,7 +131,7 @@ public class LoginActivity extends ProfileActivity {
 
                             setLogged();
                             saveLocalProfile(p);
-                            ToBoardListView();
+                            toBulletinListActivity();
                             Log.v(TAG, "pi="+p.toString());
                             finish();
                             return;
@@ -145,7 +147,7 @@ public class LoginActivity extends ProfileActivity {
                             Toast.makeText(getApplicationContext(), ""+response.code(), Toast.LENGTH_SHORT).show();
                             if(response.code() == 409){
                                 setLogged();
-                                ToBoardListView();
+                                toBulletinListActivity();
                                 finish();
                                 return;
                             }
@@ -166,22 +168,6 @@ public class LoginActivity extends ProfileActivity {
         findViewById(R.id.bt_cancel).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
-                final Call<List<ProfileWithId>> call =
-                        gitHubService.getProfiles("김한용1", 0, 0);
-                call.enqueue(new Callback<List<ProfileWithId>>() {
-                    @Override
-                    public void onResponse(Call<List<ProfileWithId>> call, Response<List<ProfileWithId>> response) {
-                        android.util.Log.d("Test", "code = " + response.code() + " issuccessful = " + response.isSuccessful());
-                        android.util.Log.d("Test", "body = " + response.body().toString());
-                        android.util.Log.d("Test", "message = " + response.message());
-                    }
-
-                    @Override
-                    public void onFailure(Call<List<ProfileWithId>> call, Throwable t) {
-                        android.util.Log.d("Test", "error message = " + t.getMessage());
-                    }
-                });*/
 
             }
         });
@@ -193,10 +179,13 @@ public class LoginActivity extends ProfileActivity {
         LoginPreferences.GetInstance().SetLocalProfile(this, p);
     }
 
-    private void ToBoardListView() {
+    private void toBulletinListActivity() {
         Intent i = new Intent();
-        i.setClass(this, MainActivity.class);
+        i.setClass(this, BulletinListActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.putExtra("Extra_Sports", mSportsId);
         startActivity(i);
+        finish();
     }
 
 
