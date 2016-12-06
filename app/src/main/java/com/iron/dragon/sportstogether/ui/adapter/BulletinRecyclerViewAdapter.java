@@ -43,6 +43,10 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         notifyDataSetChanged();
     }
 
+    public Bulletin getItem(int position){
+        return malBulletin.get(position);
+    }
+
     public class ViewHolderMe extends RecyclerView.ViewHolder {
         View mView;
         TextView mtvComment;
@@ -67,6 +71,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             mtvComment = (TextView) itemView.findViewById(R.id.tvComment);
             mtvDate = (TextView) itemView.findViewById(R.id.tvDate);
             itemView.setOnLongClickListener(this);
+
         }
 
         @Override

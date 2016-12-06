@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
@@ -41,6 +42,7 @@ import retrofit2.Response;
 
 public class BulletinListActivity extends AppCompatActivity {
 
+    private static final String TAG = "BulletinListActivity";
     @BindView(R.id.ivBulletin)
     ImageView mIvBulletin;
     @BindView(R.id.tvSportsName)
@@ -82,6 +84,7 @@ public class BulletinListActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -144,15 +147,19 @@ public class BulletinListActivity extends AppCompatActivity {
 
         mAdapter = new com.iron.dragon.sportstogether.ui.adapter.BulletinRecyclerViewAdapter(BulletinListActivity.this);
         mBoardRecyclerviewer.setAdapter(mAdapter);
+
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL_LIST);
         mBoardRecyclerviewer.addItemDecoration(dividerItemDecoration);
         mAdapter.setOnItemLongClickListener(new BulletinRecyclerViewAdapter.OnItemLongClickListener() {
             @Override
             public void onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                registerForContextMenu( view );
+                //registerForContextMenu( view );
                 openContextMenu( view );
+
             }
         });
+        registerForContextMenu(mBoardRecyclerviewer);
+
 
     }
 
@@ -193,20 +200,23 @@ public class BulletinListActivity extends AppCompatActivity {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getMenuInflater();
+
         menu.setHeaderIcon(android.R.drawable.ic_menu_share);
         menu.setHeaderTitle("Menu");
-        inflater.inflate(R.menu.menu_context, menu);
+        menu.add(0, v.getId(), 0, "Chatting");
+        //inflater.inflate(R.menu.menu_context, menu);
+
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
+        Log.v(TAG, "info="+info.position);
 
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case R.id.action_chat:
-                //some code
-                return true;
-            default:
-                return super.onContextItemSelected(item);
-        }
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+//        mAdapter.getItem()
+        int position = item.getItemId();
+        Toast.makeText(BulletinListActivity.this, "item : "+position, Toast.LENGTH_SHORT).show();
+        return true;
     }
 }
