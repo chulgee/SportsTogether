@@ -9,7 +9,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -64,7 +63,7 @@ public class BulletinListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
-        setContentView(R.layout.activity_bulletin_list_view_1);
+        setContentView(R.layout.activity_bulletin_list_view);
 
         ButterKnife.bind(this);
 
@@ -79,12 +78,6 @@ public class BulletinListActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -200,7 +193,10 @@ public class BulletinListActivity extends AppCompatActivity {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getMenuInflater();
+        menu.setHeaderIcon(android.R.drawable.ic_menu_share);
+        menu.setHeaderTitle("Menu");
         inflater.inflate(R.menu.menu_context, menu);
+
     }
 
     @Override

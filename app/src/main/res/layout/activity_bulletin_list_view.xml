@@ -1,60 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:fitsSystemWindows="true"
-              tools:context="com.iron.dragon.sportstogether.BulletinListView"
-              android:orientation="vertical">
-    <LinearLayout
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                 xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                 xmlns:tools="http://schemas.android.com/tools"
+                                                 android:layout_width="match_parent"
+                                                 android:layout_height="match_parent"
+                                                 android:fitsSystemWindows="true"
+                                                 tools:context="com.iron.dragon.sportstogether.ui.activity.BulletinListActivity">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/main.appbar"
         android:layout_width="match_parent"
-        android:layout_height="100dip">
-        <ImageView
-            android:id="@+id/ivBulletin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <View
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            />
+        android:layout_height="250dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:fitsSystemWindows="true"
+        >
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/main.collapsing"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_scrollFlags="scroll|snap"
+            android:fitsSystemWindows="true"
+            app:contentScrim="?attr/colorPrimary"
+            app:expandedTitleMarginStart="48dp"
+            app:expandedTitleMarginEnd="64dp"
+            >
 
-        <TextView
-            android:id="@+id/tvSportsName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-            <TextView
-                android:id="@+id/tvLocation"
-                android:text="@string/bulletin_location"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        <TextView
-            android:id="@+id/tvTotalNum"
-            android:text="@string/bulletin_num"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        </LinearLayout>
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/main.toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                app:layout_scrollFlags="scroll|snap"
+                />
+            <ImageView
+                android:id="@+id/ivBulletin"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="100dip"
+                app:layout_scrollFlags="scroll|enterAlways">
+                <View
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    />
 
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
-    </LinearLayout>
+                    <TextView
+                        android:id="@+id/tvSportsName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black"/>
+                    <TextView
+                        android:id="@+id/tvLocation"
+                        android:text="@string/bulletin_location"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black"/>
+                    <TextView
+                        android:id="@+id/tvTotalNum"
+                        android:text="@string/bulletin_num"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black"/>
+                </LinearLayout>
+            </LinearLayout>
+
+        </android.support.design.widget.CollapsingToolbarLayout>
+    </android.support.design.widget.AppBarLayout>
+
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/board_recyclerviewer"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        >
     </android.support.v7.widget.RecyclerView>
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:visibility="gone">
 
         <EditText
             android:layout_width="wrap_content"
@@ -73,5 +110,4 @@
             />
     </LinearLayout>
 
-
-</LinearLayout>
+</android.support.design.widget.CoordinatorLayout>
