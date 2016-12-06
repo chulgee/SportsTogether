@@ -135,7 +135,7 @@ public class BulletinListActivity extends AppCompatActivity {
     private void InitLayout() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mBoardRecyclerviewer.setLayoutManager(layoutManager);
-
+        mTvTotalNum.setText("");
         getBuddyCount();
         TypedArray imgs = getResources().obtainTypedArray(R.array.sportsimg_bulletin);
         mIvBulletin.setImageResource(imgs.getResourceId(mSportsId, -1));
@@ -168,7 +168,7 @@ public class BulletinListActivity extends AppCompatActivity {
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
-                String num = null;
+                String num = ""+0;
                 try {
                     JSONArray jsonArray = new JSONArray(response.body());
                     for(int i=0; i < jsonArray.length(); i++){
@@ -178,7 +178,8 @@ public class BulletinListActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                mTvTotalNum.setText(getString(R.string.bulletin_num, num==null?0:num));
+                Log.d("Test", "num = " + num);
+                mTvTotalNum.setText(getString(R.string.bulletin_num, num));
             }
             @Override
             public void onFailure(Call<String> call, Throwable t) {
