@@ -27,6 +27,10 @@ import com.iron.dragon.sportstogether.ui.adapter.BulletinRecyclerViewAdapter;
 import com.iron.dragon.sportstogether.ui.view.DividerItemDecoration;
 import com.iron.dragon.sportstogether.util.Const;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -126,14 +130,13 @@ public class BulletinListActivity extends AppCompatActivity {
         mLocationId = LoginPreferences.GetInstance().GetLocalProfileLocation(this);
         getBulletinData();
 
-
     }
 
     private void InitLayout() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mBoardRecyclerviewer.setLayoutManager(layoutManager);
-        mTvTotalNum.setText(getString(R.string.bulletin_num, 5));
 
+        getBuddyCount();
         TypedArray imgs = getResources().obtainTypedArray(R.array.sportsimg_bulletin);
         mIvBulletin.setImageResource(imgs.getResourceId(mSportsId, -1));
         imgs.recycle();
@@ -154,6 +157,34 @@ public class BulletinListActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void getBuddyCount() {
+
+        GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
+        final Call<String> call =
+                gitHubService.getBuddyCount(mSportsId, mLocationId);
+
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                String num = null;
+                try {
+                    JSONArray jsonArray = new JSONArray(response.body());
+                    for(int i=0; i < jsonArray.length(); i++){
+                        JSONObject jObject = jsonArray.getJSONObject(i);
+                        num = jObject.get("COUNT(*)").toString();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                mTvTotalNum.setText(getString(R.string.bulletin_num, num==null?0:num));
+            }
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                Log.d("Test", "error message = " + t.getMessage());
+            }
+        });
     }
 
 
