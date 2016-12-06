@@ -99,12 +99,13 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
                 // else 로그인안되어 있으면 profile edit창으로
                 Intent i = new Intent();
                 if(login){
-                    Profile profile = LoginPreferences.GetInstance().getLocalProfile(mContext);
+                    /*Profile profile = LoginPreferences.GetInstance().getLocalProfile(mContext);
                     i.putExtra("MyProfile", profile);
                     i.putExtra("Extra_Sports", id);
                     i.putExtra("Extra_SportsImg", finalRes);
                     i.setClass(mContext, BulletinListActivity.class);
-                    mContext.startActivity(i);
+                    mContext.startActivity(i);*/
+                    requestFriends();
                     Toast.makeText(mContext.getApplicationContext(), "Logged in", Toast.LENGTH_SHORT).show();
                 }else{
                     i.setClass(mContext, LoginActivity.class);
@@ -117,117 +118,114 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
 
     void requestFriends(){
         final Profile myProfile = LoginPreferences.GetInstance().getLocalProfile(mContext);
-        GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
-                /*final Call<JSONObject> call =
-                        gitHubService.getProfiles(username, position, 0, 1);
-                call.enqueue(new Callback<JSONObject>() {
+        String url = Const.MAIN_URL + "/profiles?" + "username=" + myProfile.getUsername() + "&sportsid=" + myProfile.getSportsid()
+                                                                + "&locationid=" + myProfile.getLocationid() + "&reqFriends=" + "true";
+        Log.v(TAG, "url="+url);
+        final String urlPath = Const.MAIN_URL + "/profiles";
+        StringRequest request = new StringRequest(
+                Request.Method.GET,
+                urlPath,
+                new com.android.volley.Response.Listener<String>() {
                     @Override
-                    public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
-                        int code = response.code();
-                        android.util.Log.d(TAG, "code = " + response.code() + " issuccessful = " + response.isSuccessful());
-                        if(code == 200){
-                            Log.v(TAG, "onResponse : "+response.toString());
-                            Log.v(TAG, "onResponse : "+response.body());
-                            *//*JSONArray jArr = new JSONArray(response.body());
-                            Log.v(TAG, response.body().toString());
-                            Gson gson = new Gson();
-                            ArrayList<Profile> pArr = new ArrayList<Profile>();
-                            for(int i=0; i<jArr.length(); i++){
-                                Profile p = null;
-                                try {
-                                    p = gson.fromJson(jArr.get(i).toString(), Profile.class);
-                                    Log.v(TAG, "profile["+i+"] : "+p.toString());
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                pArr.add(p);
-                            }*//*
-                        }else{
-                            Log.v(TAG, response.errorBody().toString());
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<JSONObject> call, Throwable t) {
-                        android.util.Log.d(TAG, "error message = " + t.getMessage());
-                    }
-                });*/
-
-                String url = Const.MAIN_URL + "/profiles?" + "username=" + myProfile.getUsername() + "&sportsid=" + myProfile.getSportsid()
-                        + "&locationid=" + myProfile.getLocationid() + "&reqFriends=" + "true";
-                Log.v(TAG, "url="+url);
-                String url_ = Const.MAIN_URL + "/profiles?" + "username=" + myProfile.getUsername();
-                final String urlPath = Const.MAIN_URL + "/profiles";
-                StringRequest request = new StringRequest(
-                        Request.Method.GET,
-                        urlPath,
-                        new com.android.volley.Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                println("onResponse() 호출됨 : " + response);
-
-                                Gson gson = new Gson();
-                                try {
-                                    JSONObject obj = new JSONObject(response);
-                                    String command = obj.getString("command");
-                                    String code = obj.getString("code");
-                                    JSONArray arr = obj.getJSONArray("message");
-                                    ArrayList<Profile> al = new ArrayList<Profile>();
-                                    for(int i=0; i<arr.length(); i++){
-                                        Profile p = gson.fromJson(arr.get(i).toString(), Profile.class);
-                                        al.add(p);
-                                        Log.v(TAG, "p="+p.toString());
-                                    }
-                                    Intent i = new Intent(mContext, BuddyListActivity.class);
-                                    HashMap<String, Object> map = new HashMap<String, Object>();
-                                    map.put("data", al);
-                                    i.putExtra("buddyList", map);
-                                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                    mContext.startActivity(i);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                //println("응답 command : " + chatData.command);
-                            }
-                        },
-                        new com.android.volley.Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                println("onErrorResponse() 호출됨 : " + error.getMessage());
-                            }
-                        }
-                ) {
-                    @Override
-                    protected Map<String, String> getParams() throws AuthFailureError {
-                        return super.getParams();
-                    }
-
-                    @Override
-                    public Map<String, String> getHeaders() throws AuthFailureError {
-                        return super.getHeaders();
-                    }
-
-                    @Override
-                    public String getUrl() {
-                        StringBuilder sb = new StringBuilder(urlPath);
+                    public void onResponse(String response) {
+                        println("onResponse() 호출됨 : " + response);
+                        Gson gson = new Gson();
                         try {
-                            String  param1 = URLEncoder.encode(myProfile.getUsername(), "UTF-8");
-                            sb.append("?username=").append(param1)
-                                    .append("&sportsid=").append(myProfile.getSportsid())
-                                    .append("&locationid=").append(myProfile.getLocationid())
-                                    .append("&reqFriends=").append("true");
-                        } catch (UnsupportedEncodingException e) {
+                            JSONObject obj = new JSONObject(response);
+                            String command = obj.getString("command");
+                            String code = obj.getString("code");
+                            JSONArray arr = obj.getJSONArray("message");
+                            ArrayList<Profile> al = new ArrayList<Profile>();
+                            for(int i=0; i<arr.length(); i++){
+                                Profile p = gson.fromJson(arr.get(i).toString(), Profile.class);
+                                al.add(p);
+                                Log.v(TAG, "p="+p.toString());
+                            }
+                            Intent i = new Intent(mContext, BuddyListActivity.class);
+                            HashMap<String, Object> map = new HashMap<String, Object>();
+                            map.put("data", al);
+                            i.putExtra("buddyList", map);
+                            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            mContext.startActivity(i);
+                        } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        Log.v(TAG, "getUrl="+sb.toString());
-                        return sb.toString();
+                        //println("응답 command : " + chatData.command);
                     }
-                };
+                },
+                new com.android.volley.Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        println("onErrorResponse() 호출됨 : " + error.getMessage());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                return super.getParams();
+            }
 
-                request.setShouldCache(false);
-                Volley.newRequestQueue(mContext).add(request);
-                println("웹서버에 요청함 : " + Const.MAIN_URL);
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return super.getHeaders();
+            }
 
+            @Override
+            public String getUrl() {
+                StringBuilder sb = new StringBuilder(urlPath);
+                try {
+                    String  param1 = URLEncoder.encode(myProfile.getUsername(), "UTF-8");
+                    sb.append("?username=").append(param1)
+                            .append("&sportsid=").append(myProfile.getSportsid())
+                            .append("&locationid=").append(myProfile.getLocationid())
+                            .append("&reqFriends=").append("true");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                Log.v(TAG, "getUrl="+sb.toString());
+                return sb.toString();
+            }
+        };
+
+        request.setShouldCache(false);
+        Volley.newRequestQueue(mContext).add(request);
+        println("웹서버에 요청함 : " + Const.MAIN_URL);
+
+        /*
+        GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
+        final Call<JSONObject> call = gitHubService.getProfiles(username, position, 0, 1);
+        call.enqueue(new Callback<JSONObject>() {
+            @Override
+            public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
+                int code = response.code();
+                android.util.Log.d(TAG, "code = " + response.code() + " issuccessful = " + response.isSuccessful());
+                if(code == 200){
+                    Log.v(TAG, "onResponse : "+response.toString());
+                    Log.v(TAG, "onResponse : "+response.body());
+                    *//*JSONArray jArr = new JSONArray(response.body());
+                    Log.v(TAG, response.body().toString());
+                    Gson gson = new Gson();
+                    ArrayList<Profile> pArr = new ArrayList<Profile>();
+                    for(int i=0; i<jArr.length(); i++){
+                        Profile p = null;
+                        try {
+                            p = gson.fromJson(jArr.get(i).toString(), Profile.class);
+                            Log.v(TAG, "profile["+i+"] : "+p.toString());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        pArr.add(p);
+                    }*//*
+                }else{
+                    Log.v(TAG, response.errorBody().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JSONObject> call, Throwable t) {
+                android.util.Log.d(TAG, "error message = " + t.getMessage());
+            }
+        });*/
     }
 
     void println(String data){
