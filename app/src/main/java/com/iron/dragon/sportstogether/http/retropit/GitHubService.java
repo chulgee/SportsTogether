@@ -70,6 +70,11 @@ public interface GitHubService {
             @Path("id") int id
     );
 
+    @POST("bulletin")
+    Call<Bulletin> postBulletin(
+            @Body Bulletin BulletinInfo
+    );
+
 
     static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
     public static final Retrofit retrofit = new Retrofit.Builder()
