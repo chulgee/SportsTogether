@@ -50,6 +50,10 @@ public class LoginPreferences {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getString(PROFILE_NICKNAME, null);
     }
+    public int GetLocalProfileLocation(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getInt(PROFILE_LOCATION, 0);
+    }
     public boolean GetLogin(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getBoolean(LoginPreferences.USER_AUTHENTICATED, false);

@@ -31,7 +31,7 @@
         <activity
             android:name=".ui.activity.BulletinListActivity"
             android:label="@string/title_activity_board_list_view"
-            android:theme="@style/AppTheme.NoActionBar" />
+             />
         <activity
             android:name=".ui.activity.LoginActivity"
             android:label="@string/title_activity_login"></activity>
