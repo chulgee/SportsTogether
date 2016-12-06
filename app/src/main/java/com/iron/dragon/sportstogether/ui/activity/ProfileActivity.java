@@ -1,15 +1,15 @@
 package com.iron.dragon.sportstogether.ui.activity;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.avast.android.dialogs.fragment.SimpleDialogFragment;
+import com.avast.android.dialogs.iface.ISimpleDialogListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.SportsApplication;
@@ -25,7 +25,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class ProfileActivity extends LoginActivity  {
+public class ProfileActivity extends LoginActivity  implements ISimpleDialogListener {
     private final String TAG = getClass().getName();
 
     public void onCreate(Bundle savedInstanceState) {
@@ -118,27 +118,30 @@ public class ProfileActivity extends LoginActivity  {
     }
 
     private void ShowExitEditorDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.edit)
-                .setMessage(R.string.edit_cancel_message).
-                setPositiveButton("Positive", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
-                        finish();
-                    }
-                }).
-                setNegativeButton("Negative", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
-                    }
-                })
+        SimpleDialogFragment.createBuilder(this, getSupportFragmentManager()).setTitle(R.string.edit)
+                .setMessage(R.string.edit_cancel_message)
+                .setPositiveButtonText(android.R.string.yes)
+                .setNegativeButtonText(android.R.string.no)
                 .show();
     }
     protected void InitLayout() {
         super.InitLayout();
         ButterKnife.apply(nameViews, DISABLE);
         ButterKnife.apply(buttonViews, INVISIBLE);
+    }
+
+    @Override
+    public void onPositiveButtonClicked(int requestCode) {
+        finish();
+    }
+
+    @Override
+    public void onNegativeButtonClicked(int requestCode) {
+
+    }
+
+    @Override
+    public void onNeutralButtonClicked(int requestCode) {
+
     }
 }

@@ -37,6 +37,7 @@ dependencies {
     compile 'com.google.firebase:firebase-core:9.6.0'
     compile 'com.jakewharton:butterknife:8.3.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.3.0'
+    compile 'com.avast:android-styled-dialogs:2.3.3'
 
     testCompile 'junit:junit:4.12'
 }
