@@ -12,6 +12,7 @@ import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
@@ -48,12 +49,12 @@ public interface GitHubService {
 
     @PUT("profiles/{id}")
     Call<Profile> putProfiles(
-            @Path("id") int id, @Body Profile profile
+            @Path("id") String id, @Body Profile profile
     );
 
     @DELETE("profiles/{id}")
     Call<Profile> deleteProfiles(
-            @Path("id") int id
+            @Path("id") String id
     );
 
     @GET("bulletin")
@@ -75,11 +76,18 @@ public interface GitHubService {
             @Body Bulletin BulletinInfo
     );
 
+    @GET("buddy_count")
+    Call<String> getBuddyCount(
+            @Query("sportsid") int sportsid, @Query("locationid") int locationid
+    );
+
+
 
     static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
     public static final Retrofit retrofit = new Retrofit.Builder()
             .baseUrl(Const.MAIN_URL)
             .client(httpClient.build())
+            .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
             .build();
 }

@@ -6,6 +6,7 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="title_activity_board_list_view">BoardListView</string>
     <string name="title_activity_login">Sign in</string>
+    <string name="title_activity_profile">My Profile</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
@@ -32,9 +33,12 @@
     <string name="level">Level</string>
     <string name="bulletin">Bulletin</string>
     <string name="bulletin_location">Location :  <xliff:g id="location">%s</xliff:g> </string>
-    <string name="bulletin_num">Total :  <xliff:g id="total">%d</xliff:g> </string>
+    <string name="bulletin_num">Total :  <xliff:g id="total">%s</xliff:g> </string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_settings">Settings</string>
+
+    <string name="edit">Edit</string>
+    <string name="edit_cancel_message">Are you realy cancel?</string>
 </resources>
