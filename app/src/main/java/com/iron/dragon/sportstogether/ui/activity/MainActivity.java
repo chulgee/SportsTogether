@@ -195,16 +195,11 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_setting) {
             // Handle the camera action
         } else if (id == R.id.nav_myinfo) {
-            if(login){
-                Profile profile = LoginPreferences.GetInstance().getLocalProfile(this);
-                i.putExtra("MyProfile", profile);
-                i.setClass(this, LoginActivity.class);
-                startActivity(i);
-                Toast.makeText(getApplicationContext(), "Logged in", Toast.LENGTH_SHORT).show();
-            }else{
-                i.setClass(this, LoginActivity.class);
-                startActivity(i);
-            }
+            Profile profile = LoginPreferences.GetInstance().getLocalProfile(this);
+            i.putExtra("MyProfile", profile);
+            i.setClass(this, ProfileActivity.class);
+            startActivity(i);
+            Toast.makeText(getApplicationContext(), "Logged in", Toast.LENGTH_SHORT).show();
 
         } else if (id == R.id.nav_announcement) {
 

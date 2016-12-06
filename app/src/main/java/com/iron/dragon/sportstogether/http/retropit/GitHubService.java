@@ -49,12 +49,12 @@ public interface GitHubService {
 
     @PUT("profiles/{id}")
     Call<Profile> putProfiles(
-            @Path("id") int id, @Body Profile profile
+            @Path("id") String id, @Body Profile profile
     );
 
     @DELETE("profiles/{id}")
     Call<Profile> deleteProfiles(
-            @Path("id") int id
+            @Path("id") String id
     );
 
     @GET("bulletin")
