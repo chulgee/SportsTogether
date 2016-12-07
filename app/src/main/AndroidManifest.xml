@@ -31,15 +31,22 @@
         <activity
             android:name=".ui.activity.BulletinListActivity"
             android:label="@string/title_activity_board_list_view"
-            android:parentActivityName="ui.activity.MainActivity"
-             />
+            android:parentActivityName="com.iron.dragon.sportstogether.ui.activity.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.iron.dragon.sportstogether.ui.activity.MainActivity" />
+            </activity>
         <activity
             android:name=".ui.activity.LoginActivity"
             android:label="@string/title_activity_login"></activity>
         <activity
             android:name=".ui.activity.ProfileActivity"
             android:label="@string/title_activity_profile"
-            android:parentActivityName="ui.activity.MainActivity" >
+            android:parentActivityName="com.iron.dragon.sportstogether.ui.activity.MainActivity">
+            >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.iron.dragon.sportstogether.ui.activity.MainActivity" />
         </activity>
 
         <activity android:name=".ui.activity.BuddyListActivity"/>

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -52,13 +53,16 @@ public class LoginActivity extends AppCompatActivity {
     Button mBtCommit;
     @BindView(R.id.bt_cancel)
     Button mBtCancel;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
     private int mSportsId;
 
-    @BindViews({ R.id.etNickName, R.id.etPhoneNum, R.id.spAge, R.id.spGender,R.id. spLocation, R.id.spSportsType, R.id.spLevel })
+    @BindViews({R.id.etNickName, R.id.etPhoneNum, R.id.spAge, R.id.spGender, R.id.spLocation, R.id.spSportsType, R.id.spLevel})
     List<View> nameViews;
 
-    @BindViews({ R.id.bt_commit, R.id.bt_cancel})
+    @BindViews({R.id.bt_commit, R.id.bt_cancel})
     List<View> buttonViews;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,26 +88,31 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     static final ButterKnife.Action<View> DISABLE = new ButterKnife.Action<View>() {
-        @Override public void apply(View view, int index) {
+        @Override
+        public void apply(View view, int index) {
             view.setEnabled(false);
         }
     };
     static final ButterKnife.Setter<View, Boolean> ENABLED = new ButterKnife.Setter<View, Boolean>() {
-        @Override public void set(View view, Boolean value, int index) {
+        @Override
+        public void set(View view, Boolean value, int index) {
             view.setEnabled(true);
         }
     };
 
     static final ButterKnife.Action<View> INVISIBLE = new ButterKnife.Action<View>() {
-        @Override public void apply(View view, int index) {
+        @Override
+        public void apply(View view, int index) {
             view.setVisibility(View.GONE);
         }
     };
     static final ButterKnife.Setter<View, Boolean> VISIBLE = new ButterKnife.Setter<View, Boolean>() {
-        @Override public void set(View view, Boolean value, int index) {
+        @Override
+        public void set(View view, Boolean value, int index) {
             view.setVisibility(View.VISIBLE);
         }
     };
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
