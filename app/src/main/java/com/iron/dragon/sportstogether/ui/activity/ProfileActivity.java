@@ -1,7 +1,6 @@
 package com.iron.dragon.sportstogether.ui.activity;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,10 +29,12 @@ public class ProfileActivity extends LoginActivity  implements ISimpleDialogList
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP
-                | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
+//        ActionBar actionBar = getSupportActionBar();
+//        actionBar.setDisplayHomeAsUpEnabled(true);
+//        actionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP
+//                | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
+        setSupportActionBar(mToolbar);
+//        getSupportActionBar().setCustomView(R.menu.profile_menu);
         InitLayout();
     }
 
@@ -47,13 +48,12 @@ public class ProfileActivity extends LoginActivity  implements ISimpleDialogList
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_edit: {
-//                startActivity(new Intent(ProfileActivity.this, EditProfileActivity.class));
-//                finish();
                 ButterKnife.apply(nameViews, ENABLED, false);
                 ButterKnife.apply(buttonViews, VISIBLE, false);
                 return true;
             }
             case android.R.id.home: {
+//                NavUtils.navigateUpFromSameTask(this);
                 finish();
                 return true;
             }

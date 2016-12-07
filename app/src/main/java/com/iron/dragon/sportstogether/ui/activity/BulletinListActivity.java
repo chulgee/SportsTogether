@@ -3,16 +3,16 @@ package com.iron.dragon.sportstogether.ui.activity;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -42,6 +42,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.iron.dragon.sportstogether.R.id.collapsingToolbarLayout;
+
 
 public class BulletinListActivity extends AppCompatActivity {
 
@@ -59,22 +61,22 @@ public class BulletinListActivity extends AppCompatActivity {
     RecyclerView mBoardRecyclerviewer;
     @BindView(R.id.tvLocation)
     TextView mTvLocation;
+    @BindView(collapsingToolbarLayout)
+    CollapsingToolbarLayout mCollapsingToolbarLayout;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
     private int mSportsId;
     private int mLocationId;
 
     BulletinRecyclerViewAdapter mAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_bulletin_list_view);
-
         ButterKnife.bind(this);
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP
-                | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
+        setSupportActionBar(mToolbar);
         LoadData();
         InitLayout();
 
@@ -89,6 +91,9 @@ public class BulletinListActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home: {
+//                NavUtils.navigateUpFromSameTask(this);
+                finish();
+
                 return true;
             }
         }
@@ -148,18 +153,18 @@ public class BulletinListActivity extends AppCompatActivity {
         imgs.recycle();
 
         Const.SPORTS sports = Const.SPORTS.values()[mSportsId];
-        mTvSportsName.setText(sports.name());
+        mCollapsingToolbarLayout.setTitle(sports.name());
         mTvLocation.setText(getString(R.string.bulletin_location, getResources().getStringArray(R.array.location)[mLocationId]));
 
-        mAdapter = new com.iron.dragon.sportstogether.ui.adapter.BulletinRecyclerViewAdapter(BulletinListActivity.this);
+        mAdapter = new BulletinRecyclerViewAdapter(BulletinListActivity.this);
         mBoardRecyclerviewer.setAdapter(mAdapter);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL_LIST);
         mBoardRecyclerviewer.addItemDecoration(dividerItemDecoration);
         mAdapter.setOnItemLongClickListener(new BulletinRecyclerViewAdapter.OnItemLongClickListener() {
             @Override
             public void onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                registerForContextMenu( view );
-                openContextMenu( view );
+                registerForContextMenu(view);
+                openContextMenu(view);
             }
         });
 
@@ -174,10 +179,10 @@ public class BulletinListActivity extends AppCompatActivity {
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
-                String num = ""+0;
+                String num = "" + 0;
                 try {
                     JSONArray jsonArray = new JSONArray(response.body());
-                    for(int i=0; i < jsonArray.length(); i++){
+                    for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject jObject = jsonArray.getJSONObject(i);
                         num = jObject.get("COUNT(*)").toString();
                     }
@@ -187,6 +192,7 @@ public class BulletinListActivity extends AppCompatActivity {
                 Log.d("Test", "num = " + num);
                 mTvTotalNum.setText(getString(R.string.bulletin_num, num));
             }
+
             @Override
             public void onFailure(Call<String> call, Throwable t) {
                 Log.d("Test", "error message = " + t.getMessage());
@@ -239,7 +245,7 @@ public class BulletinListActivity extends AppCompatActivity {
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
             case R.id.action_chat:
                 //some code
                 return true;
