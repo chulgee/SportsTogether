@@ -24,16 +24,20 @@ import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Bulletin;
 import com.iron.dragon.sportstogether.http.retropit.GitHubService;
 import com.iron.dragon.sportstogether.ui.adapter.BulletinRecyclerViewAdapter;
+import com.iron.dragon.sportstogether.ui.adapter.item.EventItem;
+import com.iron.dragon.sportstogether.ui.adapter.item.HeaderItem;
+import com.iron.dragon.sportstogether.ui.adapter.item.ListItem;
 import com.iron.dragon.sportstogether.ui.view.DividerItemDecoration;
 import com.iron.dragon.sportstogether.util.Const;
+import com.iron.dragon.sportstogether.util.Util;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.TreeMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -69,6 +73,7 @@ public class BulletinListActivity extends AppCompatActivity {
     private int mLocationId;
 
     BulletinRecyclerViewAdapter mAdapter;
+    TreeMap<String,List<Bulletin>> mTMBulletinMap = new TreeMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,15 +117,8 @@ public class BulletinListActivity extends AppCompatActivity {
                 Log.d("Test", "body = " + response.body().toString());
                 Log.d("Test", "message = " + response.message());
                 List<Bulletin> list = response.body();
-                ArrayList<Bulletin> listOfStrings = new ArrayList<Bulletin>(list.size());
-                Iterator<Bulletin> itrTemp = list.iterator();
 
-                while (itrTemp.hasNext()) {
-                    listOfStrings.add(itrTemp.next());
-                }
-                Log.d("Test", "Bulletin Size = " + list.size());
-                Log.d("Test", "BulletinlistOfStrings Size = " + listOfStrings.size());
-                initListView(listOfStrings);
+                initListView(list);
             }
 
             @Override
@@ -131,8 +129,33 @@ public class BulletinListActivity extends AppCompatActivity {
 
     }
 
-    private void initListView(ArrayList<Bulletin> listOfStrings) {
-        mAdapter.setItem(listOfStrings);
+    private void initListView(List<Bulletin> listOfStrings) {
+        if(listOfStrings.size() != 0) {
+            String tempDate = Util.getStringDate(listOfStrings.get(0).getDate());
+            ArrayList items = new ArrayList();
+            ArrayList<ListItem> listItems;
+            listItems = new ArrayList<>();
+
+            for (Bulletin bulletin : listOfStrings) {
+                if (tempDate.equals(Util.getStringDate(bulletin.getDate()))) {
+                    items.add(bulletin);
+                } else {
+                    mTMBulletinMap.put(tempDate, items);
+                    tempDate = Util.getStringDate((bulletin.getDate()));
+                }
+            }
+            for (String date : mTMBulletinMap.keySet()) {
+                HeaderItem header = new HeaderItem();
+                header.setDate(date);
+                listItems.add(header);
+                for (Bulletin event : mTMBulletinMap.get(date)) {
+                    EventItem item = new EventItem();
+                    item.setBulletin(event);
+                    listItems.add(item);
+                }
+            }
+            mAdapter.setItem(listItems);
+        }
     }
 
     private void LoadData() {
@@ -221,8 +244,15 @@ public class BulletinListActivity extends AppCompatActivity {
                 Log.d("Test", "body = " + response.body().toString());
                 Log.d("Test", "message = " + response.message());
                 if (response.isSuccessful()) {
-                    mAdapter.addItem(response.body());
-                    mEtContent.setText("");
+                    Bulletin res_bulletin = response.body();
+
+                    HeaderItem header = new HeaderItem();
+                    header.setDate(Util.getStringDate(res_bulletin.getDate()));
+                    EventItem item = new EventItem();
+                    item.setBulletin(res_bulletin);
+                    mAdapter.addItem(header);
+                    mAdapter.addItem(item);
+
                 }
             }
 
