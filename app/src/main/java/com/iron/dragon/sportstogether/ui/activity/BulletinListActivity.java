@@ -30,6 +30,7 @@ import com.iron.dragon.sportstogether.ui.adapter.item.ListItem;
 import com.iron.dragon.sportstogether.ui.view.DividerItemDecoration;
 import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.Util;
+import com.orhanobut.logger.Logger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -73,7 +74,7 @@ public class BulletinListActivity extends AppCompatActivity {
     private int mLocationId;
 
     BulletinRecyclerViewAdapter mAdapter;
-    TreeMap<String,List<Bulletin>> mTMBulletinMap = new TreeMap<>();
+    TreeMap<String,ArrayList<Bulletin>> mTMBulletinMap = new TreeMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,20 +132,22 @@ public class BulletinListActivity extends AppCompatActivity {
 
     private void initListView(List<Bulletin> listOfStrings) {
         if(listOfStrings.size() != 0) {
-            String tempDate = Util.getStringDate(listOfStrings.get(0).getDate());
-            ArrayList items = new ArrayList();
-            ArrayList<ListItem> listItems;
-            listItems = new ArrayList<>();
 
             for (Bulletin bulletin : listOfStrings) {
-                if (tempDate.equals(Util.getStringDate(bulletin.getDate()))) {
+                String sDate = Util.getStringDate(bulletin.getDate());
+                if(mTMBulletinMap.get(sDate) == null) {
+                    ArrayList<Bulletin> items = new ArrayList<>();
                     items.add(bulletin);
+                    mTMBulletinMap.put(sDate, items);
                 } else {
-                    mTMBulletinMap.put(tempDate, items);
-                    tempDate = Util.getStringDate((bulletin.getDate()));
+                    mTMBulletinMap.get(sDate).add(bulletin);
                 }
             }
+
+            ArrayList<ListItem> listItems = new ArrayList<>();
+
             for (String date : mTMBulletinMap.keySet()) {
+                Logger.d("convert data = " + date);
                 HeaderItem header = new HeaderItem();
                 header.setDate(date);
                 listItems.add(header);
@@ -165,9 +168,9 @@ public class BulletinListActivity extends AppCompatActivity {
         getBulletinData();
 
     }
-
+    LinearLayoutManager layoutManager;
     private void InitLayout() {
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+         layoutManager = new LinearLayoutManager(this);
         mBoardRecyclerviewer.setLayoutManager(layoutManager);
         mTvTotalNum.setText("");
         getBuddyCount();
@@ -212,7 +215,6 @@ public class BulletinListActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Log.d("Test", "num = " + num);
                 mTvTotalNum.setText(getString(R.string.bulletin_num, num));
             }
 
@@ -252,7 +254,8 @@ public class BulletinListActivity extends AppCompatActivity {
                     item.setBulletin(res_bulletin);
                     mAdapter.addItem(header);
                     mAdapter.addItem(item);
-
+                    mBoardRecyclerviewer.smoothScrollToPosition(mBoardRecyclerviewer.getAdapter().getItemCount());
+                    mEtContent.setText("");
                 }
             }
 
