@@ -39,6 +39,12 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_settings">Settings</string>
 
-    <string name="edit">Edit</string>
+    <string name="title_edit">Edit</string>
     <string name="edit_cancel_message">Are you realy cancel?</string>
+
+    <string name="title_change_profile_image">Change Title Image</string>
+    <string name="profile_image_through_capture">Capture Photo</string>
+    <string name="profile_image_through_select">Select Photo</string>
+    <string name="crop_error">Crop was Failed</string>
+    <string name="capture_error">Capture was Failed</string>
 </resources>
