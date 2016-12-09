@@ -3,38 +3,42 @@ package com.iron.dragon.sportstogether.ui.activity;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Bulletin;
 import com.iron.dragon.sportstogether.http.retropit.GitHubService;
 import com.iron.dragon.sportstogether.ui.adapter.BulletinRecyclerViewAdapter;
+import com.iron.dragon.sportstogether.ui.adapter.item.EventItem;
+import com.iron.dragon.sportstogether.ui.adapter.item.HeaderItem;
+import com.iron.dragon.sportstogether.ui.adapter.item.ListItem;
 import com.iron.dragon.sportstogether.ui.view.DividerItemDecoration;
 import com.iron.dragon.sportstogether.util.Const;
+import com.iron.dragon.sportstogether.util.Util;
+import com.orhanobut.logger.Logger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.TreeMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -43,10 +47,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.iron.dragon.sportstogether.R.id.collapsingToolbarLayout;
+
 
 public class BulletinListActivity extends AppCompatActivity {
 
-    private static final String TAG = "BulletinListActivity";
     @BindView(R.id.ivBulletin)
     ImageView mIvBulletin;
     @BindView(R.id.tvSportsName)
@@ -61,21 +66,23 @@ public class BulletinListActivity extends AppCompatActivity {
     RecyclerView mBoardRecyclerviewer;
     @BindView(R.id.tvLocation)
     TextView mTvLocation;
+    @BindView(collapsingToolbarLayout)
+    CollapsingToolbarLayout mCollapsingToolbarLayout;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
     private int mSportsId;
     private int mLocationId;
 
     BulletinRecyclerViewAdapter mAdapter;
+    TreeMap<String,ArrayList<Bulletin>> mTMBulletinMap = new TreeMap<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_bulletin_list_view);
-
         ButterKnife.bind(this);
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP
-                | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
+        setSupportActionBar(mToolbar);
         LoadData();
         InitLayout();
 
@@ -88,7 +95,14 @@ public class BulletinListActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home: {
+//                NavUtils.navigateUpFromSameTask(this);
+                finish();
 
+                return true;
+            }
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -104,15 +118,8 @@ public class BulletinListActivity extends AppCompatActivity {
                 Log.d("Test", "body = " + response.body().toString());
                 Log.d("Test", "message = " + response.message());
                 List<Bulletin> list = response.body();
-                ArrayList<Bulletin> listOfStrings = new ArrayList<Bulletin>(list.size());
-                Iterator<Bulletin> itrTemp = list.iterator();
 
-                while (itrTemp.hasNext()) {
-                    listOfStrings.add(itrTemp.next());
-                }
-                Log.d("Test", "Bulletin Size = " + list.size());
-                Log.d("Test", "BulletinlistOfStrings Size = " + listOfStrings.size());
-                initListView(listOfStrings);
+                initListView(list);
             }
 
             @Override
@@ -123,8 +130,35 @@ public class BulletinListActivity extends AppCompatActivity {
 
     }
 
-    private void initListView(ArrayList<Bulletin> listOfStrings) {
-        mAdapter.setItem(listOfStrings);
+    private void initListView(List<Bulletin> listOfStrings) {
+        if(listOfStrings.size() != 0) {
+
+            for (Bulletin bulletin : listOfStrings) {
+                String sDate = Util.getStringDate(bulletin.getDate());
+                if(mTMBulletinMap.get(sDate) == null) {
+                    ArrayList<Bulletin> items = new ArrayList<>();
+                    items.add(bulletin);
+                    mTMBulletinMap.put(sDate, items);
+                } else {
+                    mTMBulletinMap.get(sDate).add(bulletin);
+                }
+            }
+
+            ArrayList<ListItem> listItems = new ArrayList<>();
+
+            for (String date : mTMBulletinMap.keySet()) {
+                Logger.d("convert data = " + date);
+                HeaderItem header = new HeaderItem();
+                header.setDate(date);
+                listItems.add(header);
+                for (Bulletin event : mTMBulletinMap.get(date)) {
+                    EventItem item = new EventItem();
+                    item.setBulletin(event);
+                    listItems.add(item);
+                }
+            }
+            mAdapter.setItem(listItems);
+        }
     }
 
     private void LoadData() {
@@ -134,9 +168,9 @@ public class BulletinListActivity extends AppCompatActivity {
         getBulletinData();
 
     }
-
+    LinearLayoutManager layoutManager;
     private void InitLayout() {
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+         layoutManager = new LinearLayoutManager(this);
         mBoardRecyclerviewer.setLayoutManager(layoutManager);
         mTvTotalNum.setText("");
         getBuddyCount();
@@ -145,24 +179,20 @@ public class BulletinListActivity extends AppCompatActivity {
         imgs.recycle();
 
         Const.SPORTS sports = Const.SPORTS.values()[mSportsId];
-        mTvSportsName.setText(sports.name());
+        mCollapsingToolbarLayout.setTitle(sports.name());
         mTvLocation.setText(getString(R.string.bulletin_location, getResources().getStringArray(R.array.location)[mLocationId]));
 
-        mAdapter = new com.iron.dragon.sportstogether.ui.adapter.BulletinRecyclerViewAdapter(BulletinListActivity.this);
+        mAdapter = new BulletinRecyclerViewAdapter(BulletinListActivity.this);
         mBoardRecyclerviewer.setAdapter(mAdapter);
-
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL_LIST);
         mBoardRecyclerviewer.addItemDecoration(dividerItemDecoration);
         mAdapter.setOnItemLongClickListener(new BulletinRecyclerViewAdapter.OnItemLongClickListener() {
             @Override
             public void onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                //registerForContextMenu( view );
-                openContextMenu( view );
-
+                registerForContextMenu(view);
+                openContextMenu(view);
             }
         });
-        registerForContextMenu(mBoardRecyclerviewer);
-
 
     }
 
@@ -175,19 +205,19 @@ public class BulletinListActivity extends AppCompatActivity {
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
-                String num = ""+0;
+                String num = "" + 0;
                 try {
                     JSONArray jsonArray = new JSONArray(response.body());
-                    for(int i=0; i < jsonArray.length(); i++){
+                    for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject jObject = jsonArray.getJSONObject(i);
                         num = jObject.get("COUNT(*)").toString();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Log.d("Test", "num = " + num);
                 mTvTotalNum.setText(getString(R.string.bulletin_num, num));
             }
+
             @Override
             public void onFailure(Call<String> call, Throwable t) {
                 Log.d("Test", "error message = " + t.getMessage());
@@ -216,7 +246,15 @@ public class BulletinListActivity extends AppCompatActivity {
                 Log.d("Test", "body = " + response.body().toString());
                 Log.d("Test", "message = " + response.message());
                 if (response.isSuccessful()) {
-                    mAdapter.addItem(response.body());
+                    Bulletin res_bulletin = response.body();
+
+                    HeaderItem header = new HeaderItem();
+                    header.setDate(Util.getStringDate(res_bulletin.getDate()));
+                    EventItem item = new EventItem();
+                    item.setBulletin(res_bulletin);
+                    mAdapter.addItem(header);
+                    mAdapter.addItem(item);
+                    mBoardRecyclerviewer.smoothScrollToPosition(mBoardRecyclerviewer.getAdapter().getItemCount());
                     mEtContent.setText("");
                 }
             }
@@ -232,23 +270,20 @@ public class BulletinListActivity extends AppCompatActivity {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getMenuInflater();
-
         menu.setHeaderIcon(android.R.drawable.ic_menu_share);
         menu.setHeaderTitle("Menu");
-        menu.add(0, v.getId(), 0, "Chatting");
-        //inflater.inflate(R.menu.menu_context, menu);
-
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
-        Log.v(TAG, "info="+info.position);
+        inflater.inflate(R.menu.menu_context, menu);
 
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
-//        mAdapter.getItem()
-        int position = item.getItemId();
-        Toast.makeText(BulletinListActivity.this, "item : "+position, Toast.LENGTH_SHORT).show();
-        return true;
+        switch (item.getItemId()) {
+            case R.id.action_chat:
+                //some code
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
     }
 }
