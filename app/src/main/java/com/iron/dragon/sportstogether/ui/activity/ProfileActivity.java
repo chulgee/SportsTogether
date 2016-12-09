@@ -1,14 +1,15 @@
 package com.iron.dragon.sportstogether.ui.activity;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.avast.android.dialogs.fragment.SimpleDialogFragment;
-import com.avast.android.dialogs.iface.ISimpleDialogListener;
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.SportsApplication;
@@ -24,7 +25,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class ProfileActivity extends LoginActivity  implements ISimpleDialogListener {
+public class ProfileActivity extends LoginActivity  {
     private final String TAG = getClass().getName();
 
     public void onCreate(Bundle savedInstanceState) {
@@ -95,12 +96,10 @@ public class ProfileActivity extends LoginActivity  implements ISimpleDialogList
                             Log.d("Test", "body = " + response.body().toString());
                             Profile p = response.body();
                             finish();
-                            return;
                         } else {
                             Toast.makeText(getApplicationContext(), "" + response.code(), Toast.LENGTH_SHORT).show();
                             if (response.code() == 409) {
                                 finish();
-                                return;
                             }
                         }
                     }
@@ -118,10 +117,22 @@ public class ProfileActivity extends LoginActivity  implements ISimpleDialogList
     }
 
     private void ShowExitEditorDialog() {
-        SimpleDialogFragment.createBuilder(this, getSupportFragmentManager()).setTitle(R.string.edit)
-                .setMessage(R.string.edit_cancel_message)
-                .setPositiveButtonText(android.R.string.yes)
-                .setNegativeButtonText(android.R.string.no)
+        new MaterialDialog.Builder(this)
+                .title(R.string.title_edit)
+                .content(R.string.edit_cancel_message)
+                .positiveText(android.R.string.yes)
+                .negativeText(android.R.string.no)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            finish();
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                    }
+                })
                 .show();
     }
     protected void InitLayout() {
@@ -130,18 +141,4 @@ public class ProfileActivity extends LoginActivity  implements ISimpleDialogList
         ButterKnife.apply(buttonViews, INVISIBLE);
     }
 
-    @Override
-    public void onPositiveButtonClicked(int requestCode) {
-        finish();
-    }
-
-    @Override
-    public void onNegativeButtonClicked(int requestCode) {
-
-    }
-
-    @Override
-    public void onNeutralButtonClicked(int requestCode) {
-
-    }
 }
