@@ -11,6 +11,7 @@ public class Bulletin {
     int type;
     String comment;
     long date;
+    String image;
 
     public int getLocationid() {
         return locationid;
@@ -26,6 +27,9 @@ public class Bulletin {
 
     public String getUsername() {
         return username;
+    }
+    public String getImage() {
+        return image;
     }
 
     public String getComment() {
@@ -43,6 +47,7 @@ public class Bulletin {
         username = builder.username;
         comment = builder.comment;
         date = builder.date;
+        image = builder.image;
     }
 
     public static class Builder{
@@ -52,6 +57,7 @@ public class Bulletin {
         String username;
         String comment;
         long date;
+        String image;
 
         public Builder  setLocationid(int locationid) {
             this.locationid = locationid;
@@ -85,6 +91,11 @@ public class Bulletin {
 
         public Builder  setDate(long date) {
             this.date = date;
+            return this;
+        }
+
+        public Builder  setImage(String image) {
+            this.image = image;
             return this;
         }
     }

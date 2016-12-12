@@ -13,6 +13,7 @@ public class ProfileItem {
     private String _mPhoneNum;
     private int _mSportsType;
     private int _mLevel;
+    private String _Image;
 
     public ProfileItem() {
     }
@@ -98,5 +99,17 @@ public class ProfileItem {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void set_mImage(String image) {
+        try {
+            this._Image = (image);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String get_mImage() {
+        return _Image;
     }
 }

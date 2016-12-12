@@ -2,9 +2,12 @@ package com.iron.dragon.sportstogether.ui.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -28,8 +31,14 @@ import com.iron.dragon.sportstogether.http.retropit.GitHubService;
 import com.iron.dragon.sportstogether.util.Const;
 import com.orhanobut.logger.Logger;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 
 import butterknife.BindView;
@@ -160,7 +169,6 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private void saveLocalProfile(Profile p) {
-
         LoginPreferences.GetInstance().SetLocalProfile(this, p);
     }
 
@@ -187,7 +195,8 @@ public class LoginActivity extends AppCompatActivity {
                 LoginPreferences.GetInstance().SetRegid(getApplicationContext(), regid);
                 SportsApplication app = (SportsApplication) getApplication();
                 app.setRegid(regid);
-                GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
+                gitHubService = GitHubService.retrofit.create(GitHubService.class);
+//                GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
                 final ProfileItem pi = new ProfileItem();
                 pi.set_mNickName(mEtNickName.getText().toString());
                 pi.set_mAge(mSpAge.getSelectedItemPosition());
@@ -196,6 +205,8 @@ public class LoginActivity extends AppCompatActivity {
                 pi.set_mPhoneNum(mEtPhoneNum.getText().toString());
                 pi.set_mSportsType(mSpSportsType.getSelectedItemPosition());
                 pi.set_mLevel(mSpLevel.getSelectedItemPosition());
+                pi.set_mImage("");
+
 
                 Profile p = new Profile(pi);
                 p.setRegid(regid);
@@ -211,15 +222,21 @@ public class LoginActivity extends AppCompatActivity {
                         if (response.isSuccessful()) {
                             Log.d("Test", "body = " + response.body().toString());
                             Profile p = response.body();
+                            saveLocalProfile(p);
                             Log.v(TAG, Const.SPORTS.BADMINTON.name());
                             Log.v(TAG, "" + Const.SPORTS.values());
 
                             setLogged();
-                            saveLocalProfile(p);
-                            toBulletinListActivity();
-                            uploadFile(mCropImagedUri);
-                            Log.v(TAG, "pi=" + p.toString());
-                            finish();
+
+                            if(mCropImagedUri == null) {
+
+                                toBulletinListActivity();
+
+                                Log.v(TAG, "pi=" + p.toString());
+                                finish();
+                            } else {
+                                uploadFile(p, mCropImagedUri);
+                            }
                         } else {
                             Log.v(TAG, "response=" + response);
                             Log.v(TAG, "response=" + response.message());
@@ -240,6 +257,7 @@ public class LoginActivity extends AppCompatActivity {
                                 ToastUtil.show(getApplicationContext(), err.getStatusCode()+", "+err.getMessage());*/
                         }
                     }
+
 
                     @Override
                     public void onFailure(Call<Profile> call, Throwable t) {
@@ -327,41 +345,115 @@ public class LoginActivity extends AppCompatActivity {
 
         return file;
     }
-
-    private void uploadFile(Uri fileUri) {
+    GitHubService gitHubService;
+    private void uploadFile(Profile p, Uri fileUri) {
         // create upload service client
-        GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
+//        GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
 
-        File file = new File(fileUri.getPath());//Util.getFileFromUri(getContentResolver(), fileUri);
+        new ResizeBitmapTask(p).execute(new File(fileUri.getPath()));//Util.getFileFromUri(getContentResolver(), fileUri);
 
-        // create RequestBody instance from file
-        RequestBody requestFile =
-                RequestBody.create(MediaType.parse("multipart/form-data"), file);
+    }
 
-        // MultipartBody.Part is used to send also the actual file name
-        MultipartBody.Part body =
-                MultipartBody.Part.createFormData("picture", file.getName(), requestFile);
+    class ResizeBitmapTask extends AsyncTask<File, Void, File> {
+        Profile profile;
+        public ResizeBitmapTask(Profile p) {
+            profile = p;
+        }
 
-        // add another part within the multipart request
-        String descriptionString = "hello, this is description speaking";
-        RequestBody description =
-                RequestBody.create(
-                        MediaType.parse("multipart/form-data"), descriptionString);
-
-        // finally, execute the request
-        Call<ResponseBody> call = gitHubService.upload(description, body);
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call,
-                                   Response<ResponseBody> response) {
-                Log.v("Upload", "success");
+        @Override
+        protected File doInBackground(File... params) {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            long fileSize = params[0].length();
+            if (fileSize > 2 * 1024 * 1024) {
+                options.inSampleSize = 4;
+            } else if (fileSize < 700 * 1024) {
+                return params[0];
+            } else {
+                options.inSampleSize = 2;
             }
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.e("Upload error:", t.getMessage());
+            Bitmap bitmap = BitmapFactory.decodeFile(params[0].getAbsolutePath(), options);
+
+
+            OutputStream out = null;
+            try {
+                out = new FileOutputStream(params[0]);
+
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        });
+
+            return params[0];
+        }
+
+        @Override
+        protected void onPostExecute(File s) {
+            super.onPostExecute(s);
+            requestThumbImage(s);
+            Log.d(TAG, "requestThumbImage path " + s.getAbsolutePath() + " size " + s.length());
+        }
+
+        private void requestThumbImage(File file) {
+            // create RequestBody instance from file
+            RequestBody requestFile =
+                    RequestBody.create(MediaType.parse("image/JPEG"), file);
+
+            // MultipartBody.Part is used to send also the actual file name
+            MultipartBody.Part body =
+                    MultipartBody.Part.createFormData("picture", file.getName(), requestFile);
+
+            // add another part within the multipart request
+            String descriptionString = LoginPreferences.GetInstance().GetRegid(LoginActivity.this);
+            RequestBody description =
+                    RequestBody.create(
+                            MediaType.parse("text/html"), descriptionString);
+
+            // finally, execute the request
+            Call<ResponseBody> call = gitHubService.upload(description, body);
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call,
+                                       Response<ResponseBody> response) {
+                    Log.v("Upload", "success");
+                    try {
+                        Log.v(TAG, "response=" + response.body().string());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    JSONArray jsonArray = null;
+                    try {
+                        jsonArray = new JSONArray(response.body().string());
+
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject jObject = null;
+                            jObject = jsonArray.getJSONObject(i);
+                            String image = jObject.get("data").toString();
+                            profile.setImage(image);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    toBulletinListActivity();
+                    finish();
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    Log.e("Upload error:", t.getMessage());
+                }
+            });
+        }
     }
 
 
@@ -410,6 +502,7 @@ public class LoginActivity extends AppCompatActivity {
                 } else {
                     requestThumbImage(mFile);
                 }*/
+
 
             } else {
                 Toast.makeText(getApplicationContext(), getString(R.string.crop_error), Toast.LENGTH_SHORT).show();

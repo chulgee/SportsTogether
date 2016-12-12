@@ -29,4 +29,15 @@ public class Util {
         cursor.close();
         return new File(path);
     }
+
+    public static String getImageName(String path) {
+        if(path == null) {
+            return null;
+        }
+        int cut = path.lastIndexOf('/');
+        if (cut != -1) {
+            path = path.substring(cut + 1);
+        }
+        return path;
+    }
 }
