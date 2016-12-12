@@ -236,6 +236,7 @@ public class BulletinListActivity extends AppCompatActivity {
                 .setUsername(LoginPreferences.GetInstance().GetLocalProfileUserName(BulletinListActivity.this))
                 .setComment(content)
                 .setDate(System.currentTimeMillis())
+                .setImage(LoginPreferences.GetInstance().getLocalProfile(this).getImage())
                 .setType(1).build();
         final Call<Bulletin> call =
                 gitHubService.postBulletin(bulletin);
@@ -252,8 +253,15 @@ public class BulletinListActivity extends AppCompatActivity {
                     header.setDate(Util.getStringDate(res_bulletin.getDate()));
                     EventItem item = new EventItem();
                     item.setBulletin(res_bulletin);
-                    mAdapter.addItem(header);
-                    mAdapter.addItem(item);
+                    if(mAdapter.getItemCount() == 0) {
+                        ArrayList<ListItem> listItems = new ArrayList<>();
+                        listItems.add(header);
+                        listItems.add(item);
+                        mAdapter.setItem(listItems);
+                    } else {
+                        mAdapter.addItem(header);
+                        mAdapter.addItem(item);
+                    }
                     mBoardRecyclerviewer.smoothScrollToPosition(mBoardRecyclerviewer.getAdapter().getItemCount());
                     mEtContent.setText("");
                 }

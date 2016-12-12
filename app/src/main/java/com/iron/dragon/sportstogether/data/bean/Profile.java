@@ -15,8 +15,9 @@ public class Profile implements Serializable{
         this.gender = profile.get_mGender();
         this.phone = profile.get_mPhoneNum();
         this.level = profile.get_mLevel();
+        this.image = profile.get_mImage();
     }
-    public Profile(String regid, String username, int sportsid, int locationid, int age, int gender, String phone, int level){
+    public Profile(String regid, String username, int sportsid, int locationid, int age, int gender, String phone, int level, String image){
         this.regid = regid;
         this.username = username;
         this.sportsid = sportsid;
@@ -25,6 +26,7 @@ public class Profile implements Serializable{
         this.gender = gender;
         this.phone = phone;
         this.level = level;
+        this.image = image;
     }
 
     protected String regid;
@@ -35,6 +37,7 @@ public class Profile implements Serializable{
     protected int gender;
     protected String phone;
     protected int level;
+    protected String image;
 
 
     public String getRegid() {
@@ -70,6 +73,14 @@ public class Profile implements Serializable{
 
     public int getLevel() {
         return level;
+    }
+
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+    public String getImage() {
+        return image;
     }
 
     @Override

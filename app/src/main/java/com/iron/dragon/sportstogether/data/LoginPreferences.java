@@ -28,6 +28,7 @@ public class LoginPreferences {
     private static final String PROFILE_GENDER = "gender";
     private static final String PROFILE_PHONE = "phone";
     private static final String PROFILE_LEVEL = "level";
+    private static final String PROFILE_IMAGE = "image";
 
 
     private LoginPreferences(){
@@ -84,6 +85,7 @@ public class LoginPreferences {
         editor.putInt(PROFILE_GENDER, profile.getGender());
         editor.putString(PROFILE_PHONE, profile.getPhone());
         editor.putInt(PROFILE_LEVEL, profile.getLevel());
+        editor.putString(PROFILE_IMAGE, profile.getImage());
         editor.apply();
 
         SportsApplication app = (SportsApplication)((Activity)context).getApplication();
@@ -100,8 +102,8 @@ public class LoginPreferences {
         int gender = sharedPreferences.getInt(PROFILE_GENDER, 0);
         String phone = sharedPreferences.getString(PROFILE_PHONE, "");
         int level = sharedPreferences.getInt(PROFILE_LEVEL, 0);
-        Profile profile = new Profile(regid, username, sportsid, locationid, age, gender, phone, level);
-        return profile;
+        String image = sharedPreferences.getString(PROFILE_IMAGE, "");
+        return new Profile(regid, username, sportsid, locationid, age, gender, phone, level, image);
     }
 
     public void clear(Context context){
