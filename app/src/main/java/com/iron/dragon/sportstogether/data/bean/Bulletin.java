@@ -12,6 +12,9 @@ public class Bulletin {
     String comment;
     long date;
     String image;
+    public String getRegid() {
+        return regid;
+    }
 
     public int getLocationid() {
         return locationid;
@@ -48,6 +51,20 @@ public class Bulletin {
         comment = builder.comment;
         date = builder.date;
         image = builder.image;
+    }
+
+    @Override
+    public String toString() {
+        return "Bulletin{" +
+                "regid='" + regid + '\'' +
+                ", username='" + username + '\'' +
+                ", sportsid=" + sportsid +
+                ", locationid=" + locationid +
+                ", type=" + type +
+                ", comment='" + comment + '\'' +
+                ", date=" + date +
+                ", image='" + image + '\'' +
+                '}';
     }
 
     public static class Builder{

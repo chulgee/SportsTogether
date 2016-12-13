@@ -87,11 +87,6 @@ public class ChatActivity extends AppCompatActivity {
         });
 
 
-        //chatListAdapter.addItem(new ChatItem(ChatItem.WRITER_TYPE_YOU, "test01", "윤정", "어디쯤이야?", new Date()));
-        //chatListAdapter.addItem(new ChatItem(ChatItem.WRITER_TYPE_YOU, "test01", "윤정", "다들 기다리고 있어. 빨리 와~", new Date()));
-        //chatListAdapter.addItem(new ChatItem(ChatItem.WRITER_TYPE_ME, "test02", "종철이", "거의 다왔어 ^^ 보고싶다\n친구들!", new Date()));
-
-
         Intent intent = getIntent();
         processIntent(intent);
     }

@@ -2,6 +2,7 @@ package com.iron.dragon.sportstogether.gcm;
 
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -25,6 +26,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         String contents = data.get("contents");
 
         println("수신데이터 -> sender: "+sender+", receiver: "+receiver+", contents: "+contents);
+
+        Toast.makeText(getApplicationContext(), contents+" from "+receiver, Toast.LENGTH_SHORT).show();
 
         sendDataToChatActivity(sender, receiver, contents);
     }

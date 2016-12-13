@@ -25,6 +25,15 @@ import java.util.ArrayList;
  */
 
 public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+    private int index; // Position in adapter
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
     private ArrayList<ListItem> malBulletin;
     private OnItemLongClickListener IonItemLongClickListener;
     private Context mContext;
@@ -45,6 +54,9 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         notifyDataSetChanged();
     }
 
+    public ListItem getItem(int index){
+        return malBulletin.get(index);
+    }
     public class ViewHolderItem extends RecyclerView.ViewHolder implements View.OnLongClickListener {
         private final ImageView mivProfileImage;
         private final View mView;
@@ -64,6 +76,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         @Override
         public boolean onLongClick(View view) {
             onItemHolderLongClick(this);
+            index = getAdapterPosition();
             return true;
         }
     }
