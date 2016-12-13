@@ -17,7 +17,7 @@ import com.iron.dragon.sportstogether.R;
  */
 public class SplashActivity extends AppCompatActivity {
 
-    private static final String TAG = "SplashActivity";
+    private static final String TAG = "SplashActivity_";
 
     private static final int MY_PERMISSIONS_WRITE_EXTERNAL_STORAGE = 1;
 
