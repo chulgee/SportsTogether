@@ -20,17 +20,15 @@ public class LoginPreferences {
     private static volatile LoginPreferences mLoginPreferences;
 
     private static final String PROFILE_NICKNAME = "_nickname";
-    private static final String PROFILE_SPORTSTYPE = "_sprotstype";
-    private static final String PROFILE_LOCATION = "_location";
 
     private static final String PROFILE_REGID = "regid";
-    private static final String PROFILE_USERNAME = "username";
     private static final String PROFILE_SPORTSID = "sportsid";
     private static final String PROFILE_LOCATIONID = "locationid";
     private static final String PROFILE_AGE = "age";
     private static final String PROFILE_GENDER = "gender";
     private static final String PROFILE_PHONE = "phone";
     private static final String PROFILE_LEVEL = "level";
+    private static final String PROFILE_IMAGE = "image";
 
 
     private LoginPreferences(){
@@ -52,7 +50,7 @@ public class LoginPreferences {
     }
     public int GetLocalProfileLocation(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getInt(PROFILE_LOCATION, 0);
+        return preferences.getInt(PROFILE_LOCATIONID, 0);
     }
     public boolean GetLogin(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -80,13 +78,14 @@ public class LoginPreferences {
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         editor.putString(PROFILE_REGID, profile.getRegid());
-        editor.putString(PROFILE_USERNAME, profile.getUsername());
-        editor.putInt(PROFILE_SPORTSTYPE, profile.getSportsid());
+        editor.putString(PROFILE_NICKNAME, profile.getUsername());
+        editor.putInt(PROFILE_SPORTSID, profile.getSportsid());
         editor.putInt(PROFILE_LOCATIONID,  profile.getLocationid());
         editor.putInt(PROFILE_AGE, profile.getAge());
         editor.putInt(PROFILE_GENDER, profile.getGender());
         editor.putString(PROFILE_PHONE, profile.getPhone());
         editor.putInt(PROFILE_LEVEL, profile.getLevel());
+        editor.putString(PROFILE_IMAGE, profile.getImage());
         editor.apply();
 
         SportsApplication app = (SportsApplication)((Activity)context).getApplication();
@@ -96,15 +95,15 @@ public class LoginPreferences {
     public Profile getLocalProfile(Context context){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         String regid = sharedPreferences.getString(PROFILE_REGID, "");
-        String username = sharedPreferences.getString(PROFILE_USERNAME, "");
+        String username = sharedPreferences.getString(PROFILE_NICKNAME, "");
         int sportsid = sharedPreferences.getInt(PROFILE_SPORTSID, 0);
         int locationid = sharedPreferences.getInt(PROFILE_LOCATIONID, 0);
         int age = sharedPreferences.getInt(PROFILE_AGE, 0);
         int gender = sharedPreferences.getInt(PROFILE_GENDER, 0);
         String phone = sharedPreferences.getString(PROFILE_PHONE, "");
         int level = sharedPreferences.getInt(PROFILE_LEVEL, 0);
-        Profile profile = new Profile(regid, username, sportsid, locationid, age, gender, phone, level);
-        return profile;
+        String image = sharedPreferences.getString(PROFILE_IMAGE, "");
+        return new Profile(regid, username, sportsid, locationid, age, gender, phone, level, image);
     }
 
     public void clear(Context context){

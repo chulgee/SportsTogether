@@ -8,15 +8,21 @@ import org.json.JSONObject;
 
 import java.util.List;
 
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -48,12 +54,12 @@ public interface GitHubService {
 
     @PUT("profiles/{id}")
     Call<Profile> putProfiles(
-            @Path("id") int id, @Body Profile profile
+            @Path("id") String id, @Body Profile profile
     );
 
     @DELETE("profiles/{id}")
     Call<Profile> deleteProfiles(
-            @Path("id") int id
+            @Path("id") String id
     );
 
     @GET("bulletin")
@@ -75,11 +81,21 @@ public interface GitHubService {
             @Body Bulletin BulletinInfo
     );
 
+    @GET("buddy_count")
+    Call<String> getBuddyCount(
+            @Query("sportsid") int sportsid, @Query("locationid") int locationid
+    );
+
+    @Multipart
+    @POST("upload")
+    Call<ResponseBody> upload(@Part("description") RequestBody description,
+                              @Part MultipartBody.Part file);
 
     static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
     public static final Retrofit retrofit = new Retrofit.Builder()
             .baseUrl(Const.MAIN_URL)
             .client(httpClient.build())
+            .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
             .build();
 }
