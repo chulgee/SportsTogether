@@ -20,12 +20,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
-import com.iron.dragon.sportstogether.ui.fragment.SportsFragment;
-import com.iron.dragon.sportstogether.ui.fragment.NewsFragment;
 import com.iron.dragon.sportstogether.ui.fragment.BookFragment;
-import com.iron.dragon.sportstogether.R;
+import com.iron.dragon.sportstogether.ui.fragment.NewsFragment;
+import com.iron.dragon.sportstogether.ui.fragment.SportsFragment;
 
 import java.util.ArrayList;
 
@@ -195,10 +195,15 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_setting) {
             // Handle the camera action
         } else if (id == R.id.nav_myinfo) {
-            Profile profile = LoginPreferences.GetInstance().getLocalProfile(this);
-            i.putExtra("MyProfile", profile);
-            i.setClass(this, ProfileActivity.class);
-            startActivity(i);
+            if(login) {
+                Profile profile = LoginPreferences.GetInstance().getLocalProfile(this);
+                i.putExtra("MyProfile", profile);
+                i.setClass(this, ProfileActivity.class);
+                startActivity(i);
+            } else {
+                i.setClass(this, LoginActivity.class);
+                startActivity(i);
+            }
             Toast.makeText(getApplicationContext(), "Logged in", Toast.LENGTH_SHORT).show();
 
         } else if (id == R.id.nav_announcement) {

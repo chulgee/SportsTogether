@@ -1,5 +1,6 @@
 package com.iron.dragon.sportstogether.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -17,6 +18,8 @@ import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.data.bean.ProfileItem;
 import com.iron.dragon.sportstogether.http.retropit.GitHubService;
+import com.iron.dragon.sportstogether.util.StringUtil;
+import com.squareup.picasso.Picasso;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -32,6 +35,47 @@ public class ProfileActivity extends LoginActivity  {
         super.onCreate(savedInstanceState);
         setSupportActionBar(mToolbar);
         InitLayout();
+        Intent i = getIntent();
+        processIntent(i);
+    }
+    private void processIntent(Intent i) {
+        mSportsId = i.getIntExtra("Extra_Sports", 0);
+        final Profile myprofile = (Profile) i.getSerializableExtra("MyProfile");
+        if (myprofile != null) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    ProfileActivity.this.setCurrentProfile(myprofile);
+                }
+            });
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        processIntent(intent);
+    }
+
+    private void setCurrentProfile(Profile profile) {
+        mEtNickName.setText(profile.getUsername());
+        mSpSportsType.setSelection(profile.getSportsid());
+        mSpLocation.setSelection(profile.getLocationid());
+        mSpAge.setSelection(profile.getAge());
+        mSpGender.setSelection(profile.getGender());
+        mEtPhoneNum.setText(profile.getPhone());
+        mSpLevel.setSelection(profile.getLevel());
+        if(StringUtil.isEmpty(profile.getImage())) {
+            Picasso.with(this).load(R.drawable.default_user).resize(50, 50)
+                    .centerCrop()
+                    .into(mIvProfileImage);
+        } else {
+            String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload?filename=" + profile.getImage();
+            Picasso.with(this).load(url).resize(50, 50)
+                    .centerCrop()
+                    .into(mIvProfileImage);
+        }
     }
 
     @Override

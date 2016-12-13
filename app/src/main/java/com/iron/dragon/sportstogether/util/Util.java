@@ -17,7 +17,7 @@ public class Util {
 
     public static String getStringTime(long time){
         Date date=new Date(time);
-        SimpleDateFormat df2 = new SimpleDateFormat("hh-mm-ss", Locale.KOREA);
+        SimpleDateFormat df2 = new SimpleDateFormat("hh:mm:ss", Locale.KOREA);
         return df2.format(date);
     }
 
