@@ -50,12 +50,14 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         private final View mView;
         private final TextView mtvNickName;
         private final TextView mtvComment;
+        private final TextView mtvTime;
         public ViewHolderItem(View itemView) {
             super(itemView);
             mView = itemView;
             mtvNickName = (TextView) itemView.findViewById(R.id.tvNickName);
             mtvComment = (TextView) itemView.findViewById(R.id.tvComment);
             mivProfileImage = (ImageView) itemView.findViewById(R.id.ivProfileImage);
+            mtvTime = (TextView)itemView.findViewById(R.id.tvTime);
             itemView.setOnLongClickListener(this);
         }
 
@@ -107,6 +109,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             EventItem item = (EventItem) malBulletin.get(position);
             viewHolderItem.mtvNickName.setText(item.getBulletin().getUsername());
             viewHolderItem.mtvComment.setText(item.getBulletin().getComment());
+            viewHolderItem.mtvTime.setText(Util.getStringTime(item.getBulletin().getDate()));
             if(StringUtil.isEmpty(((EventItem) malBulletin.get(position)).getBulletin().getImage())) {
                 Picasso.with(mContext).load(R.drawable.default_user).resize(50, 50)
                         .centerCrop()
@@ -114,7 +117,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             } else {
                 String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload?filename=" + Util.getImageName(((EventItem) malBulletin.get(position)).getBulletin().getImage());
                 Logger.d("url = " + url);
-                Picasso.with(mContext).load(url).resize(150, 150)
+                Picasso.with(mContext).load(url).resize(50, 50)
                         .centerCrop()
                         .into(viewHolderItem.mivProfileImage);
             }

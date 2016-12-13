@@ -95,14 +95,21 @@ public class LoginActivity extends AppCompatActivity {
     protected Uri mCropImagedUri;
     private int mSportsId;
     Handler handler = new Handler();
+
+    GitHubService gitHubService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("Test", "LoginActivity");
         setContentView(R.layout.activity_profile);
+        InitData();
         ButterKnife.bind(this);
         Intent i = getIntent();
         processIntent(i);
+    }
+
+    private void InitData() {
+            gitHubService = GitHubService.retrofit.create(GitHubService.class);
     }
 
     private void processIntent(Intent i) {
@@ -172,7 +179,7 @@ public class LoginActivity extends AppCompatActivity {
         LoginPreferences.GetInstance().SetLocalProfile(this, p);
     }
 
-    private void toBulletinListActivity() {
+    protected void toBulletinListActivity() {
         Intent i = new Intent();
         i.setClass(this, BulletinListActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -345,13 +352,13 @@ public class LoginActivity extends AppCompatActivity {
 
         return file;
     }
-    GitHubService gitHubService;
-    private void uploadFile(Profile p, Uri fileUri) {
+
+    protected void uploadFile(Profile p, Uri fileUri) {
         // create upload service client
 //        GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
 
         new ResizeBitmapTask(p).execute(new File(fileUri.getPath()));//Util.getFileFromUri(getContentResolver(), fileUri);
-
+        mCropImagedUri = null;
     }
 
     class ResizeBitmapTask extends AsyncTask<File, Void, File> {
@@ -445,7 +452,6 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
                     toBulletinListActivity();
-                    finish();
                 }
 
                 @Override

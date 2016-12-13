@@ -16,7 +16,6 @@ import com.iron.dragon.sportstogether.SportsApplication;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.data.bean.ProfileItem;
-import com.iron.dragon.sportstogether.http.retropit.GitHubService;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -30,12 +29,7 @@ public class ProfileActivity extends LoginActivity  {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        ActionBar actionBar = getSupportActionBar();
-//        actionBar.setDisplayHomeAsUpEnabled(true);
-//        actionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP
-//                | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
         setSupportActionBar(mToolbar);
-//        getSupportActionBar().setCustomView(R.menu.profile_menu);
         InitLayout();
     }
 
@@ -71,7 +65,7 @@ public class ProfileActivity extends LoginActivity  {
                 LoginPreferences.GetInstance().SetRegid(getApplicationContext(), regid);
                 SportsApplication app = (SportsApplication) getApplication();
                 app.setRegid(regid);
-                GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
+
                 final ProfileItem pi = new ProfileItem();
                 pi.set_mNickName(mEtNickName.getText().toString());
                 pi.set_mAge(mSpAge.getSelectedItemPosition());
@@ -95,6 +89,11 @@ public class ProfileActivity extends LoginActivity  {
                         if (response.isSuccessful()) {
                             Log.d("Test", "body = " + response.body().toString());
                             Profile p = response.body();
+                            if(mCropImagedUri == null) {
+                                finish();
+                            } else {
+                                uploadFile(p, mCropImagedUri);
+                            }
                             finish();
                         } else {
                             Toast.makeText(getApplicationContext(), "" + response.code(), Toast.LENGTH_SHORT).show();
@@ -114,6 +113,11 @@ public class ProfileActivity extends LoginActivity  {
                 ShowExitEditorDialog();
                 break;
         }
+    }
+
+    @Override
+    protected void toBulletinListActivity() {
+        finish();
     }
 
     private void ShowExitEditorDialog() {
