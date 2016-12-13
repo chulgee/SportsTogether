@@ -29,9 +29,7 @@ import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.data.bean.ProfileItem;
 import com.iron.dragon.sportstogether.http.retropit.GitHubService;
 import com.iron.dragon.sportstogether.util.Const;
-import com.iron.dragon.sportstogether.util.StringUtil;
 import com.orhanobut.logger.Logger;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -94,7 +92,7 @@ public class LoginActivity extends AppCompatActivity {
     protected List<View> buttonViews;
 
     protected Uri mCropImagedUri;
-    private int mSportsId;
+    protected int mSportsId;
     Handler handler = new Handler();
 
     GitHubService gitHubService;
@@ -105,26 +103,13 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
         InitData();
         ButterKnife.bind(this);
-        Intent i = getIntent();
-        processIntent(i);
+
     }
 
     private void InitData() {
             gitHubService = GitHubService.retrofit.create(GitHubService.class);
     }
 
-    private void processIntent(Intent i) {
-        mSportsId = i.getIntExtra("Extra_Sports", 0);
-        final Profile myprofile = (Profile) i.getSerializableExtra("MyProfile");
-        if (myprofile != null) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    LoginActivity.this.setCurrentProfile(myprofile);
-                }
-            });
-        }
-    }
 
     static final ButterKnife.Action<View> DISABLE = new ButterKnife.Action<View>() {
         @Override
@@ -151,34 +136,6 @@ public class LoginActivity extends AppCompatActivity {
             view.setVisibility(View.VISIBLE);
         }
     };
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-
-        processIntent(intent);
-    }
-
-    private void setCurrentProfile(Profile profile) {
-        mEtNickName.setText(profile.getUsername());
-        mSpSportsType.setSelection(profile.getSportsid());
-        mSpLocation.setSelection(profile.getLocationid());
-        mSpAge.setSelection(profile.getAge());
-        mSpGender.setSelection(profile.getGender());
-        mEtPhoneNum.setText(profile.getPhone());
-        mSpLevel.setSelection(profile.getLevel());
-
-        if(StringUtil.isEmpty(profile.getImage())) {
-            Picasso.with(this).load(R.drawable.default_user).resize(50, 50)
-                    .centerCrop()
-                    .into(mIvProfileImage);
-        } else {
-            String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload?filename=" + profile.getImage();
-            Picasso.with(this).load(url).resize(50, 50)
-                    .centerCrop()
-                    .into(mIvProfileImage);
-        }
-    }
 
     protected void InitLayout() {
         ButterKnife.apply(nameViews, ENABLED, false);
