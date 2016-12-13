@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.iron.dragon.sportstogether.R;
@@ -19,6 +18,8 @@ import com.orhanobut.logger.Logger;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by seungyong on 2016-11-03.
@@ -46,7 +47,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     }
 
     public class ViewHolderItem extends RecyclerView.ViewHolder implements View.OnLongClickListener {
-        private final ImageView mivProfileImage;
+        private final CircleImageView mivProfileImage;
         private final View mView;
         private final TextView mtvNickName;
         private final TextView mtvComment;
@@ -56,7 +57,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             mView = itemView;
             mtvNickName = (TextView) itemView.findViewById(R.id.tvNickName);
             mtvComment = (TextView) itemView.findViewById(R.id.tvComment);
-            mivProfileImage = (ImageView) itemView.findViewById(R.id.ivProfileImage);
+            mivProfileImage = (CircleImageView) itemView.findViewById(R.id.ivProfileImage);
             mtvTime = (TextView)itemView.findViewById(R.id.tvTime);
             itemView.setOnLongClickListener(this);
         }
@@ -115,7 +116,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
                         .centerCrop()
                         .into(viewHolderItem.mivProfileImage);
             } else {
-                String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload?filename=" + Util.getImageName(((EventItem) malBulletin.get(position)).getBulletin().getImage());
+                String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload?filename=" + ((EventItem) malBulletin.get(position)).getBulletin().getImage();
                 Logger.d("url = " + url);
                 Picasso.with(mContext).load(url).resize(50, 50)
                         .centerCrop()

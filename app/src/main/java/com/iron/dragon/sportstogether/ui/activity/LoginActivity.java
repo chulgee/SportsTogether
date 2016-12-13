@@ -29,9 +29,10 @@ import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.data.bean.ProfileItem;
 import com.iron.dragon.sportstogether.http.retropit.GitHubService;
 import com.iron.dragon.sportstogether.util.Const;
+import com.iron.dragon.sportstogether.util.StringUtil;
 import com.orhanobut.logger.Logger;
+import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -84,9 +85,9 @@ public class LoginActivity extends AppCompatActivity {
     protected Button mBtCancel;
     @BindView(R.id.toolbar)
     protected Toolbar mToolbar;
-    @BindView(R.id.profile_image)
-    protected CircleImageView mProfileImage;
-    @BindViews({R.id.etNickName, R.id.etPhoneNum, R.id.spAge, R.id.spGender, R.id.spLocation, R.id.spSportsType, R.id.spLevel, R.id.profile_image})
+    @BindView(R.id.ivProfile_image)
+    protected CircleImageView mIvProfileImage;
+    @BindViews({R.id.etNickName, R.id.etPhoneNum, R.id.spAge, R.id.spGender, R.id.spLocation, R.id.spSportsType, R.id.spLevel, R.id.ivProfile_image})
     protected List<View> nameViews;
 
     @BindViews({R.id.bt_commit, R.id.bt_cancel})
@@ -167,6 +168,16 @@ public class LoginActivity extends AppCompatActivity {
         mEtPhoneNum.setText(profile.getPhone());
         mSpLevel.setSelection(profile.getLevel());
 
+        if(StringUtil.isEmpty(profile.getImage())) {
+            Picasso.with(this).load(R.drawable.default_user).resize(50, 50)
+                    .centerCrop()
+                    .into(mIvProfileImage);
+        } else {
+            String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload?filename=" + profile.getImage();
+            Picasso.with(this).load(url).resize(50, 50)
+                    .centerCrop()
+                    .into(mIvProfileImage);
+        }
     }
 
     protected void InitLayout() {
@@ -175,7 +186,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-    private void saveLocalProfile(Profile p) {
+    protected void saveLocalProfile(Profile p) {
         LoginPreferences.GetInstance().SetLocalProfile(this, p);
     }
 
@@ -203,7 +214,6 @@ public class LoginActivity extends AppCompatActivity {
                 SportsApplication app = (SportsApplication) getApplication();
                 app.setRegid(regid);
                 gitHubService = GitHubService.retrofit.create(GitHubService.class);
-//                GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
                 final ProfileItem pi = new ProfileItem();
                 pi.set_mNickName(mEtNickName.getText().toString());
                 pi.set_mAge(mSpAge.getSelectedItemPosition());
@@ -229,18 +239,17 @@ public class LoginActivity extends AppCompatActivity {
                         if (response.isSuccessful()) {
                             Log.d("Test", "body = " + response.body().toString());
                             Profile p = response.body();
-                            saveLocalProfile(p);
+
                             Log.v(TAG, Const.SPORTS.BADMINTON.name());
                             Log.v(TAG, "" + Const.SPORTS.values());
 
                             setLogged();
 
                             if(mCropImagedUri == null) {
-
+                                saveLocalProfile(p);
                                 toBulletinListActivity();
 
                                 Log.v(TAG, "pi=" + p.toString());
-                                finish();
                             } else {
                                 uploadFile(p, mCropImagedUri);
                             }
@@ -277,7 +286,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    @OnClick(R.id.profile_image)
+    @OnClick(R.id.ivProfile_image)
     public void onClick() {
         ShowChangeImageActionDialog();
     }
@@ -431,23 +440,13 @@ public class LoginActivity extends AppCompatActivity {
                                        Response<ResponseBody> response) {
                     Log.v("Upload", "success");
                     try {
-                        Log.v(TAG, "response=" + response.body().string());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    JSONArray jsonArray = null;
-                    try {
-                        jsonArray = new JSONArray(response.body().string());
 
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject jObject = null;
-                            jObject = jsonArray.getJSONObject(i);
-                            String image = jObject.get("data").toString();
-                            profile.setImage(image);
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
+                        JSONObject jObject = new JSONObject(response.body().string());//jsonArray.getJSONObject(i);
+                        String image = jObject.get("data").toString();
+                        profile.setImage(image);
+
+                        saveLocalProfile(profile);
+                    } catch (JSONException | IOException e) {
                         e.printStackTrace();
                     }
 
@@ -500,7 +499,7 @@ public class LoginActivity extends AppCompatActivity {
                 mCropImagedUri = data.getData();
                 Log.d(TAG, "cropresult " + mCropImagedUri + " string " + mCropImagedUri.toString());
 
-                mProfileImage.setImageDrawable(BitmapDrawable.createFromPath(mCropImagedUri.getPath()));
+                mIvProfileImage.setImageDrawable(BitmapDrawable.createFromPath(mCropImagedUri.getPath()));
 
 //                requestThumbImage(mFile);
                /* if (mProfileDbId != -1) {

@@ -16,6 +16,7 @@ import com.iron.dragon.sportstogether.SportsApplication;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.data.bean.ProfileItem;
+import com.iron.dragon.sportstogether.http.retropit.GitHubService;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -65,7 +66,7 @@ public class ProfileActivity extends LoginActivity  {
                 LoginPreferences.GetInstance().SetRegid(getApplicationContext(), regid);
                 SportsApplication app = (SportsApplication) getApplication();
                 app.setRegid(regid);
-
+                gitHubService = GitHubService.retrofit.create(GitHubService.class);
                 final ProfileItem pi = new ProfileItem();
                 pi.set_mNickName(mEtNickName.getText().toString());
                 pi.set_mAge(mSpAge.getSelectedItemPosition());
@@ -75,11 +76,11 @@ public class ProfileActivity extends LoginActivity  {
                 pi.set_mSportsType(mSpSportsType.getSelectedItemPosition());
                 pi.set_mLevel(mSpLevel.getSelectedItemPosition());
 
-                Profile p = new Profile(pi);
-                p.setRegid(regid);
-                Log.v(TAG, "등록 profile=" + p.toString());
+                final Profile profile = new Profile(pi);
+                profile.setRegid(regid);
+                Log.v(TAG, "등록 profile=" + profile.toString());
                 final Call<Profile> call =
-                        gitHubService.putProfiles(regid, p);
+                        gitHubService.putProfiles(regid, profile);
 
                 call.enqueue(new Callback<Profile>() {
                     @Override
@@ -87,14 +88,13 @@ public class ProfileActivity extends LoginActivity  {
                         Log.v(TAG, "onResponse response.isSuccessful()=" + response.isSuccessful());
 
                         if (response.isSuccessful()) {
-                            Log.d("Test", "body = " + response.body().toString());
-                            Profile p = response.body();
                             if(mCropImagedUri == null) {
-                                finish();
+                                profile.setImage(LoginPreferences.GetInstance().GetLocalProfileImage(ProfileActivity.this));
+                                saveLocalProfile(profile);
+                                toBulletinListActivity();
                             } else {
-                                uploadFile(p, mCropImagedUri);
+                                uploadFile(profile, mCropImagedUri);
                             }
-                            finish();
                         } else {
                             Toast.makeText(getApplicationContext(), "" + response.code(), Toast.LENGTH_SHORT).show();
                             if (response.code() == 409) {
