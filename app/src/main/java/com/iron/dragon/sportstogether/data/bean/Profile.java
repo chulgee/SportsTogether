@@ -93,7 +93,8 @@ public class Profile implements Serializable{
                 .append(", age="+age)
                 .append(", gender="+gender)
                 .append(", phone="+phone)
-                .append(", level="+level);
+                .append(", level="+level)
+                .append(", image="+image);
         return sb.toString();
     }
 }

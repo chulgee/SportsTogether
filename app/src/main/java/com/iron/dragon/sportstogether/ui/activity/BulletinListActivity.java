@@ -83,7 +83,6 @@ public class BulletinListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bulletin_list_view);
         ButterKnife.bind(this);
-
         setSupportActionBar(mToolbar);
         LoadData();
         InitLayout();
@@ -247,7 +246,7 @@ public class BulletinListActivity extends AppCompatActivity {
                 .setUsername(LoginPreferences.GetInstance().GetLocalProfileUserName(BulletinListActivity.this))
                 .setComment(content)
                 .setDate(System.currentTimeMillis())
-                .setImage(LoginPreferences.GetInstance().getLocalProfile(this).getImage())
+                .setImage(LoginPreferences.GetInstance().GetLocalProfileImage(BulletinListActivity.this))
                 .setType(1).build();
         final Call<Bulletin> call =
                 gitHubService.postBulletin(bulletin);
