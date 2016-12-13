@@ -1,11 +1,12 @@
-<resources>
-    <string name="app_name">SportsTogether</string>
+<resources xmlns:xliff="http://schemas.android.com/tools">
+    <string name="app_name">함께 운동해요</string>
 
-    <string name="title_activity_fullscreen">FullscreenActivity</string>
+    <string name="title_activity_fullscreen">함께 운동해요</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="title_activity_board_list_view">BoardListView</string>
     <string name="title_activity_login">Sign in</string>
+    <string name="title_activity_profile">My Profile</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
@@ -27,7 +28,23 @@
     <string name="age">Age</string>
     <string name="gender">Gender</string>
     <string name="location">Location</string>
-    <string name="phonenum">PhoneNumber</string>
+    <string name="phonenum">Phone</string>
     <string name="sports_type">Sports Type</string>
     <string name="level">Level</string>
+    <string name="bulletin">Bulletin</string>
+    <string name="bulletin_location">Location :  <xliff:g id="location">%s</xliff:g> </string>
+    <string name="bulletin_num">Total :  <xliff:g id="total">%s</xliff:g> </string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="title_edit">Edit</string>
+    <string name="edit_cancel_message">Are you realy cancel?</string>
+
+    <string name="title_change_profile_image">Change Title Image</string>
+    <string name="profile_image_through_capture">Capture Photo</string>
+    <string name="profile_image_through_select">Select Photo</string>
+    <string name="crop_error">Crop was Failed</string>
+    <string name="capture_error">Capture was Failed</string>
 </resources>
