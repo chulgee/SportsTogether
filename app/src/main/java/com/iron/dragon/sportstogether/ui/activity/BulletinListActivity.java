@@ -37,6 +37,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -131,8 +133,10 @@ public class BulletinListActivity extends AppCompatActivity {
     }
 
     private void initListView(List<Bulletin> listOfStrings) {
+//        HashMap<String,Bulletin> map = new HashMap<String,Bulletin>();
+//        ValueComparator bvc =  new ValueComparator();
+//        TreeMap<String,Bulletin> sorted_map = new TreeMap<String,Bulletin>(bvc);
         if(listOfStrings.size() != 0) {
-
             for (Bulletin bulletin : listOfStrings) {
                 String sDate = Util.getStringDate(bulletin.getDate());
                 if(mTMBulletinMap.get(sDate) == null) {
@@ -143,7 +147,6 @@ public class BulletinListActivity extends AppCompatActivity {
                     mTMBulletinMap.get(sDate).add(bulletin);
                 }
             }
-
             ArrayList<ListItem> listItems = new ArrayList<>();
 
             for (String date : mTMBulletinMap.keySet()) {
@@ -151,7 +154,15 @@ public class BulletinListActivity extends AppCompatActivity {
                 HeaderItem header = new HeaderItem();
                 header.setDate(date);
                 listItems.add(header);
-                for (Bulletin event : mTMBulletinMap.get(date)) {
+                ArrayList<Bulletin> ar = mTMBulletinMap.get(date);
+                Collections.sort(ar, new Comparator<Bulletin>() {
+                    @Override
+                    public int compare(Bulletin bulletin, Bulletin t1) {
+                        return bulletin.getDate() < t1.getDate() ? -1 : bulletin.getDate() == t1.getDate() ? 0 : 1;
+                    }
+                });
+
+                for (Bulletin event : ar) {
                     EventItem item = new EventItem();
                     item.setBulletin(event);
                     listItems.add(item);
