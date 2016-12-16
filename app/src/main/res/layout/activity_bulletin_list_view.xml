@@ -9,11 +9,10 @@
     >
 
     <android.support.design.widget.CoordinatorLayout
-                                                     android:layout_width="match_parent"
-                                                     android:layout_height="match_parent"
-                                                     android:fitsSystemWindows="true"
-                                                     android:layout_above="@+id/commentLayout"
-                                                     >
+         android:layout_width="match_parent"
+         android:layout_height="match_parent"
+         android:fitsSystemWindows="true"
+         >
 
         <android.support.design.widget.AppBarLayout
             android:id="@+id/appBarLayout"
@@ -95,31 +94,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:fitsSystemWindows="true"
             >
         </android.support.v7.widget.RecyclerView>
+        <include  android:id="@+id/commentLayout" layout="@layout/content_bottom_sheet" />
     </android.support.design.widget.CoordinatorLayout>
-    <LinearLayout
-        android:id="@+id/commentLayout"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:useCompatPadding="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        >
-
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:hint="comment"
-            android:ems="10"
-            android:id="@+id/etContent"
-            android:layout_weight="1"/>
-
-        <Button
-            android:text="Send"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/bt_Send"
-            />
-    </LinearLayout>
+        android:src="@drawable/pencil" />
 </RelativeLayout>
