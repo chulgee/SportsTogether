@@ -449,7 +449,6 @@ public class LoginActivity extends AppCompatActivity {
                 dispatchCropIntent(mCropImagedUri);
             } else {
                 Toast.makeText(getApplicationContext(), getString(R.string.capture_error), Toast.LENGTH_SHORT).show();
-                return;
             }
         } else if (requestCode == REQ_CODE_CROP) {
             if (resultCode == Activity.RESULT_OK) {
@@ -468,10 +467,12 @@ public class LoginActivity extends AppCompatActivity {
 
             } else {
                 Toast.makeText(getApplicationContext(), getString(R.string.crop_error), Toast.LENGTH_SHORT).show();
-                return;
             }
         }
     }
+
+
+
 
     protected void dispatchCropIntent(Uri imageCaptureUri) {
         Intent intent = new Intent("com.android.camera.action.CROP");

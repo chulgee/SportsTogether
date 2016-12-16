@@ -41,6 +41,7 @@ public class Bulletin {
     }
 
     public Bulletin(Builder builder){
+        regid = builder.regid;
         locationid = builder.locationid;
         sportsid = builder.sportsid;
         type = builder.type;
@@ -51,14 +52,19 @@ public class Bulletin {
     }
 
     public static class Builder{
-        int locationid;
-        int sportsid;
-        int type;
-        String username;
-        String comment;
-        long date;
-        String image;
+        private int locationid;
+        private int sportsid;
+        private int type;
+        private String username;
+        private String comment;
+        private long date;
+        private String image;
+        private String regid;
 
+        public Builder  setRegid(String regid) {
+            this.regid = regid;
+            return this;
+        }
         public Builder  setLocationid(int locationid) {
             this.locationid = locationid;
             return this;
