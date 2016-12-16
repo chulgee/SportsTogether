@@ -90,6 +90,7 @@ public class ProfileActivity extends LoginActivity  {
             case R.id.action_edit: {
                 ButterKnife.apply(nameViews, ENABLED, false);
                 ButterKnife.apply(buttonViews, VISIBLE, false);
+                mEtNickName.setEnabled(false);
                 return true;
             }
             case android.R.id.home: {

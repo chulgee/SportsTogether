@@ -52,6 +52,7 @@ public class Bulletin {
     }
 
     public static class Builder{
+        private String regid;
         private int locationid;
         private int sportsid;
         private int type;
@@ -59,7 +60,6 @@ public class Bulletin {
         private String comment;
         private long date;
         private String image;
-        private String regid;
 
         public Builder  setRegid(String regid) {
             this.regid = regid;

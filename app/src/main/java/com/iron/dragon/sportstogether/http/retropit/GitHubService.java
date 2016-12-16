@@ -87,7 +87,7 @@ public interface GitHubService {
     );
 
     @Multipart
-    @POST("upload")
+    @POST("upload_profile")
     Call<ResponseBody> upload(@Part("description") RequestBody description,
                               @Part MultipartBody.Part file);
 

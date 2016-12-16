@@ -116,7 +116,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
                         .centerCrop()
                         .into(viewHolderItem.mivProfileImage);
             } else {
-                String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload?filename=" + ((EventItem) malBulletin.get(position)).getBulletin().getImage();
+                String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_profile?filename=" + ((EventItem) malBulletin.get(position)).getBulletin().getImage();
                 Logger.d("url = " + url);
                 Picasso.with(mContext).load(url).resize(50, 50)
                         .centerCrop()
