@@ -24,6 +24,7 @@ import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -362,8 +363,15 @@ public class BulletinListActivity extends AppCompatActivity {
                                 mAdapter.addItem(header);
                                 mAdapter.addItem(item);
                             }
-                            mBoardRecyclerviewer.smoothScrollToPosition(mBoardRecyclerviewer.getAdapter().getItemCount());
+
                             mEtContent.setText("");
+                            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                            View view = getCurrentFocus();
+                            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+                            mBoardRecyclerviewer.smoothScrollToPosition(mBoardRecyclerviewer.getAdapter().getItemCount());
+
                         }
                     }
 
