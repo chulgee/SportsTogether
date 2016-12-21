@@ -9,8 +9,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -34,9 +36,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.github.rahatarmanahmed.cpv.CircularProgressView;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Bulletin;
+import com.iron.dragon.sportstogether.data.bean.Bulletin_image;
 import com.iron.dragon.sportstogether.http.retropit.GitHubService;
 import com.iron.dragon.sportstogether.ui.adapter.BulletinRecyclerViewAdapter;
 import com.iron.dragon.sportstogether.ui.adapter.item.EventItem;
@@ -53,8 +57,10 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -62,8 +68,13 @@ import java.util.List;
 import java.util.TreeMap;
 
 import butterknife.BindView;
+import butterknife.BindViews;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -102,6 +113,8 @@ public class BulletinListActivity extends AppCompatActivity {
     LinearLayout mCommentLayout;
     @BindView(R.id.llAttachLayout)
     LinearLayout mllAttachLayout;
+    @BindView(R.id.progress_view)
+    CircularProgressView mProgressView;
     private int mSportsId;
     private int mLocationId;
 
@@ -109,8 +122,27 @@ public class BulletinListActivity extends AppCompatActivity {
     private TreeMap<String, ArrayList<Bulletin>> mTMBulletinMap = new TreeMap<>();
     private BottomSheetBehavior bottomSheetBehavior;
     private LinearLayoutManager layoutManager;
+    private ArrayList<Uri> mAlCropImageUri = new ArrayList<>();
     private Uri mCropImagedUri;
+    private GitHubService gitHubService;
+//    private Uri mCropImagedUri;
 //    Animation slideUpAnimation, slideDownAnimation;
+
+    @BindViews({R.id.bt_Send, R.id.btAttachImage})
+    protected List<View> buttonViews;
+
+    static final ButterKnife.Action<View> DISABLE = new ButterKnife.Action<View>() {
+        @Override
+        public void apply(View view, int index) {
+            view.setEnabled(false);
+        }
+    };
+    static final ButterKnife.Setter<View, Boolean> ENABLED = new ButterKnife.Setter<View, Boolean>() {
+        @Override
+        public void set(View view, Boolean value, int index) {
+            view.setEnabled(true);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,10 +174,8 @@ public class BulletinListActivity extends AppCompatActivity {
     }
 
     private void getBulletinData() {
-        GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
-        ArrayList<Bulletin> listOfStrings;
         final Call<List<Bulletin>> call =
-                gitHubService.getBulletin(mSportsId, mLocationId, 10);
+                gitHubService.getBulletin(mSportsId, mLocationId, 20);
         call.enqueue(new Callback<List<Bulletin>>() {
             @Override
             public void onResponse(Call<List<Bulletin>> call, Response<List<Bulletin>> response) {
@@ -200,12 +230,14 @@ public class BulletinListActivity extends AppCompatActivity {
                     item.setBulletin(event);
                     listItems.add(item);
                 }
+
             }
             mAdapter.setItem(listItems);
         }
     }
 
     private void LoadData() {
+        gitHubService = GitHubService.retrofit.create(GitHubService.class);
         Intent intent = getIntent();
         mSportsId = intent.getIntExtra("Extra_Sports", 0);
         mLocationId = LoginPreferences.GetInstance().GetLocalProfileLocation(this);
@@ -321,16 +353,17 @@ public class BulletinListActivity extends AppCompatActivity {
                 Log.d("Test", "error message = " + t.getMessage());
             }
         });
+
     }
 
 
     @OnClick({R.id.bt_Send, R.id.fab, R.id.btAttachImage})
-    public void onClick(View view) {
+    public void onClick(final View view) {
         switch (view.getId()) {
             case R.id.bt_Send:
                 String content = mEtContent.getText().toString();
                 GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
-                Bulletin bulletin = new Bulletin.Builder()
+                final Bulletin bulletin = new Bulletin.Builder()
                         .setRegid(LoginPreferences.GetInstance().GetRegid(this))
                         .setSportsid(mSportsId)
                         .setLocationid(mLocationId)
@@ -344,34 +377,14 @@ public class BulletinListActivity extends AppCompatActivity {
                 call.enqueue(new Callback<Bulletin>() {
                     @Override
                     public void onResponse(Call<Bulletin> call, Response<Bulletin> response) {
-                        Log.d("Test", "code = " + response.code() + " issuccessful = " + response.isSuccessful());
-                        Log.d("Test", "body = " + response.body().toString());
-                        Log.d("Test", "message = " + response.message());
                         if (response.isSuccessful()) {
                             Bulletin res_bulletin = response.body();
-
-                            HeaderItem header = new HeaderItem();
-                            header.setDate(Util.getStringDate(res_bulletin.getDate()));
-                            EventItem item = new EventItem();
-                            item.setBulletin(res_bulletin);
-                            if (mAdapter.getItemCount() == 0) {
-                                ArrayList<ListItem> listItems = new ArrayList<>();
-                                listItems.add(header);
-                                listItems.add(item);
-                                mAdapter.setItem(listItems);
+                            Logger.d("response Data = " + res_bulletin.getComment());
+                            if (mAlCropImageUri.size() == 0) {
+                                updatePosting(bulletin);
                             } else {
-                                mAdapter.addItem(header);
-                                mAdapter.addItem(item);
+                                uploadFile(res_bulletin.getid(), bulletin);
                             }
-
-                            mEtContent.setText("");
-                            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                            View view = getCurrentFocus();
-                            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-
-                            mBoardRecyclerviewer.smoothScrollToPosition(mBoardRecyclerviewer.getAdapter().getItemCount());
-
                         }
                     }
 
@@ -380,16 +393,46 @@ public class BulletinListActivity extends AppCompatActivity {
                         Log.d("Test", "error message = " + t.getMessage());
                     }
                 });
+
                 break;
             case R.id.fab:
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-//                mCommentLayout.setVisibility(View.VISIBLE);
-//                mCommentLayout.startAnimation(slideUpAnimation);
                 break;
             case R.id.btAttachImage:
                 ShowChangeImageActionDialog();
                 break;
         }
+    }
+
+    private void uploadFile(int getid, Bulletin bulletin) {
+        int count = mAlCropImageUri.size();
+        new ResizeBitmapTask(getid, bulletin).execute(mAlCropImageUri);//Util.getFileFromUri(getContentResolver(), fileUri);
+//            mCropImagedUri = null;
+    }
+
+    private void updatePosting(Bulletin res_bulletin) {
+        HeaderItem header = new HeaderItem();
+        header.setDate(Util.getStringDate(res_bulletin.getDate()));
+        EventItem item = new EventItem();
+        item.setBulletin(res_bulletin);
+        if (mAdapter.getItemCount() == 0) {
+            ArrayList<ListItem> listItems = new ArrayList<>();
+            listItems.add(header);
+            listItems.add(item);
+            mAdapter.setItem(listItems);
+        } else {
+            mAdapter.addItem(header);
+            mAdapter.addItem(item);
+        }
+
+        mEtContent.setText("");
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        View view = getCurrentFocus();
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+        mBoardRecyclerviewer.smoothScrollToPosition(mBoardRecyclerviewer.getAdapter().getItemCount());
+        mllAttachLayout.removeAllViews();
     }
 
     private void ShowChangeImageActionDialog() {
@@ -538,20 +581,12 @@ public class BulletinListActivity extends AppCompatActivity {
         } else if (requestCode == REQ_CODE_CROP) {
             if (resultCode == Activity.RESULT_OK) {
                 mCropImagedUri = data.getData();
-                Logger.d("cropresult " + mCropImagedUri );
+                Logger.d("cropresult " + mCropImagedUri);
+                mAlCropImageUri.add(mCropImagedUri);
                 ImageView iv = new ImageView(this);
 //                BitmapDrawable.createFromPath(mCropImagedUri.getPath());
                 iv.setImageBitmap(getDownsampledBitmap(this, mCropImagedUri, 150, 150));
                 mllAttachLayout.addView(iv);
-//                mIvProfileImage.setImageDrawable(BitmapDrawable.createFromPath(mCropImagedUri.getPath()));
-
-//                requestThumbImage(mFile);
-               /* if (mProfileDbId != -1) {
-                    requestUpdateThumbImage(mFile);
-                } else {
-                    requestThumbImage(mFile);
-                }*/
-
 
             } else {
                 Toast.makeText(getApplicationContext(), getString(R.string.crop_error), Toast.LENGTH_SHORT).show();
@@ -621,5 +656,134 @@ public class BulletinListActivity extends AppCompatActivity {
         is.close();
 
         return resizedBitmap;
+    }
+
+    class ResizeBitmapTask extends AsyncTask<ArrayList<Uri>, File, Void> {
+
+        private final int mPostId;
+        private final Bulletin mBulletin;
+        List<Bulletin_image> list_image = new ArrayList<>();
+
+        public ResizeBitmapTask(int getid, Bulletin bulletin) {
+            mPostId = getid;
+            mBulletin = bulletin;
+        }
+
+        @Override
+        protected Void doInBackground(ArrayList<Uri>... params) {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            ArrayList<Uri> uri_list = params[0];
+            Logger.d("url_list size = " + uri_list.size());
+            for (Uri uri : uri_list) {
+                File file = new File(uri.getPath());
+                long fileSize = file.length();
+                if (fileSize > 2 * 1024 * 1024) {
+                    options.inSampleSize = 4;
+                } else if (fileSize < 700 * 1024) {
+                    publishProgress(file);
+                    continue;
+                } else {
+                    options.inSampleSize = 2;
+                }
+
+                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+
+
+                OutputStream out = null;
+                try {
+                    out = new FileOutputStream(file);
+
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                publishProgress(file);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(File... values) {
+            super.onProgressUpdate(values);
+            Logger.d("onProgressUpdate values = " + values[0]);
+            requestThumbImage(values[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            mBulletin.setBulletinImage(list_image);
+
+            mProgressView.startAnimation();
+            mProgressView.setVisibility(View.VISIBLE);
+            ButterKnife.apply(buttonViews, DISABLE);
+            mProgressView.startAnimation();
+            new Handler().postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    updatePosting(mBulletin);
+                    mProgressView.stopAnimation();
+                    mProgressView.setVisibility(View.INVISIBLE);
+                    ButterKnife.apply(buttonViews, ENABLED, false);
+
+                }
+            }, 3000);
+
+        }
+
+        private void requestThumbImage(File file) {
+            // create RequestBody instance from file
+            RequestBody requestFile =
+                    RequestBody.create(MediaType.parse("image/JPEG"), file);
+
+            // MultipartBody.Part is used to send also the actual file name
+            MultipartBody.Part body =
+                    MultipartBody.Part.createFormData("picture", file.getName(), requestFile);
+
+            // add another part within the multipart request
+            String descriptionString = String.valueOf(mPostId);
+            RequestBody description =
+                    RequestBody.create(
+                            MediaType.parse("text/html"), descriptionString);
+
+            // finally, execute the request
+            Call<ResponseBody> call = gitHubService.upload_post(description, body);
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call,
+                                       Response<ResponseBody> response) {
+                    Log.v("Upload", "success");
+                    JSONObject jObject = null;//jsonArray.getJSONObject(i);
+                    try {
+                        jObject = new JSONObject(response.body().string());
+                        String image = jObject.get("data").toString();
+                        list_image.add(new Bulletin_image(image));
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    Log.e("Upload error:", t.getMessage());
+                }
+            });
+
+
+        }
+
+
     }
 }

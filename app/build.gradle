@@ -46,7 +46,7 @@ dependencies {
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'com.afollestad.material-dialogs:core:0.9.1.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
-
+    compile 'com.github.rahatarmanahmed:circularprogressview:2.5.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

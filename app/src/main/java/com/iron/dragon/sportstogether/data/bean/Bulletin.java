@@ -1,9 +1,12 @@
 package com.iron.dragon.sportstogether.data.bean;
 
+import java.util.List;
+
 /**
  * Created by chulchoice on 2016-11-18.
  */
 public class Bulletin {
+    int id;
     String regid;
     String username;
     int sportsid;
@@ -12,6 +15,15 @@ public class Bulletin {
     String comment;
     long date;
     String image;
+
+    public List<Bulletin_image> getBulletin_image() {
+        return bulletin_image;
+    }
+    public void setBulletinImage(List<Bulletin_image> bulletinImage) {
+        bulletin_image = bulletinImage;
+    }
+
+    List<Bulletin_image> bulletin_image;
 
     public int getLocationid() {
         return locationid;
@@ -50,6 +62,11 @@ public class Bulletin {
         date = builder.date;
         image = builder.image;
     }
+
+    public int getid() {
+        return id;
+    }
+
 
     public static class Builder{
         private String regid;
@@ -104,5 +121,19 @@ public class Bulletin {
             this.image = image;
             return this;
         }
+    }
+    @Override
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("regid="+regid)
+                .append(", username="+username)
+                .append(", sportsid="+sportsid)
+                .append(", locationid="+locationid)
+                .append(", image="+image);
+                if(bulletin_image != null) {
+                    for(Bulletin_image item :bulletin_image)
+                    sb.append(", Bulletin_image length=" + item.getBulletinImg() );
+                }
+        return sb.toString();
     }
 }

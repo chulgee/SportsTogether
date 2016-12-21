@@ -99,6 +99,15 @@ android:orientation="vertical"
             >
         </android.support.v7.widget.RecyclerView>
         <include  android:id="@+id/commentLayout" layout="@layout/content_bottom_sheet" />
+        <com.github.rahatarmanahmed.cpv.CircularProgressView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/progress_view"
+            android:layout_gravity="center"
+            android:visibility="invisible"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            app:cpv_animAutostart="true"
+            app:cpv_indeterminate="true" />
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab"
             android:layout_width="wrap_content"

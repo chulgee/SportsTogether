@@ -6,9 +6,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.iron.dragon.sportstogether.R;
+import com.iron.dragon.sportstogether.data.bean.Bulletin_image;
 import com.iron.dragon.sportstogether.ui.adapter.item.EventItem;
 import com.iron.dragon.sportstogether.ui.adapter.item.HeaderItem;
 import com.iron.dragon.sportstogether.ui.adapter.item.ListItem;
@@ -52,6 +55,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         private final TextView mtvNickName;
         private final TextView mtvComment;
         private final TextView mtvTime;
+        private final LinearLayout mllAttachImage;
         public ViewHolderItem(View itemView) {
             super(itemView);
             mView = itemView;
@@ -59,6 +63,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             mtvComment = (TextView) itemView.findViewById(R.id.tvComment);
             mivProfileImage = (CircleImageView) itemView.findViewById(R.id.ivProfileImage);
             mtvTime = (TextView)itemView.findViewById(R.id.tvTime);
+            mllAttachImage = (LinearLayout)itemView.findViewById(R.id.llAttachImage);
             itemView.setOnLongClickListener(this);
         }
 
@@ -116,12 +121,35 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
                         .centerCrop()
                         .into(viewHolderItem.mivProfileImage);
             } else {
-                String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_profile?filename=" + ((EventItem) malBulletin.get(position)).getBulletin().getImage();
+                String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_profile?filename=" + item.getBulletin().getImage();
                 Logger.d("url = " + url);
                 Picasso.with(mContext).load(url).resize(50, 50)
                         .centerCrop()
                         .into(viewHolderItem.mivProfileImage);
             }
+
+            if(item.getBulletin().getBulletin_image() != null && item.getBulletin().getBulletin_image().size() > 0 && viewHolderItem.mllAttachImage.getChildCount() == 0) {
+                for (Bulletin_image image : item.getBulletin().getBulletin_image()) {
+                    ImageView imageview = new ImageView(mContext);
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    lp.setMarginEnd(20);
+                    imageview.setLayoutParams(lp);
+                    String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_bulletin?filename=" + image.getBulletinImg();
+                    Picasso.with(mContext).load(url).resize(450, 450)
+                            .centerCrop()
+                            .into(imageview);
+                    viewHolderItem.mllAttachImage.addView(imageview);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onViewRecycled(RecyclerView.ViewHolder holder) {
+        super.onViewRecycled(holder);
+        if(holder.getItemViewType() == ListItem.TYPE_EVENT) {
+            final ViewHolderItem viewHolderItem = (ViewHolderItem) holder;
+            viewHolderItem.mllAttachImage.removeAllViews();
         }
     }
 
