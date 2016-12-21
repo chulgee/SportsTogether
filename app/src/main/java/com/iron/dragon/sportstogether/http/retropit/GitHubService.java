@@ -89,9 +89,13 @@ public interface GitHubService {
 
     @Multipart
     @POST("upload_profile")
-    Call<ResponseBody> upload(@Part("description") RequestBody description,
-                              @Part MultipartBody.Part file);
+    Call<ResponseBody> upload_profile(@Part("description") RequestBody description,
+                                      @Part MultipartBody.Part file);
 
+    @Multipart
+    @POST("upload_bulletin")
+    Call<ResponseBody> upload_post(@Part("description") RequestBody description,
+                                   @Part MultipartBody.Part file);
     static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
     public static final Retrofit retrofit = new Retrofit.Builder()
             .baseUrl(Const.MAIN_URL)
@@ -99,4 +103,6 @@ public interface GitHubService {
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
             .build();
+
+
 }

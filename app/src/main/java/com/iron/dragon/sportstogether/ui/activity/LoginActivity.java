@@ -320,7 +320,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     protected void uploadFile(Profile p, Uri fileUri) {
-        // create upload service client
+        // create upload_profile service client
 //        GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
 
         new ResizeBitmapTask(p).execute(new File(fileUri.getPath()));//Util.getFileFromUri(getContentResolver(), fileUri);
@@ -390,7 +390,7 @@ public class LoginActivity extends AppCompatActivity {
                             MediaType.parse("text/html"), descriptionString);
 
             // finally, execute the request
-            Call<ResponseBody> call = gitHubService.upload(description, body);
+            Call<ResponseBody> call = gitHubService.upload_profile(description, body);
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call,
