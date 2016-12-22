@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,11 +23,15 @@ import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.ui.adapter.MessageAdapter;
+import com.orhanobut.logger.Logger;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -158,6 +163,12 @@ public class ChatFragment extends Fragment {
             //mAdapter.addMessage(message);
             //mAdapter.notifyDataSetChanged();
         }
+        String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_profile?filename=" + message.getImage();
+        Log.v(TAG, "url...="+url);
+        Picasso.with(getActivity()).load(url).resize(50, 50)
+                .centerCrop()
+                .into((CircleImageView)getActivity().findViewById(R.id.buddyAvatar));
+
     }
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
