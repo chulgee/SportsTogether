@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+android:orientation="vertical"
     tools:context="com.iron.dragon.sportstogether.ui.activity.BulletinListActivity"
     >
 
     <android.support.design.widget.CoordinatorLayout
-                                                     android:layout_width="match_parent"
-                                                     android:layout_height="match_parent"
-                                                     android:fitsSystemWindows="true"
-                                                     android:layout_above="@+id/commentLayout"
-                                                     >
+         android:layout_width="match_parent"
+         android:layout_height="match_parent"
+         android:fitsSystemWindows="true"
+         >
 
         <android.support.design.widget.AppBarLayout
             android:id="@+id/appBarLayout"
@@ -95,31 +95,30 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
+
             >
         </android.support.v7.widget.RecyclerView>
+        <include  android:id="@+id/commentLayout" layout="@layout/content_bottom_sheet" />
+        <com.github.rahatarmanahmed.cpv.CircularProgressView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/progress_view"
+            android:layout_gravity="center"
+            android:visibility="invisible"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            app:cpv_animAutostart="true"
+            app:cpv_indeterminate="true" />
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:useCompatPadding="true"
+            android:layout_margin="16dp"
+            android:layout_gravity="bottom|end"
+            android:src="@drawable/pencil" />
     </android.support.design.widget.CoordinatorLayout>
-    <LinearLayout
-        android:id="@+id/commentLayout"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        >
 
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:hint="comment"
-            android:ems="10"
-            android:id="@+id/etContent"
-            android:layout_weight="1"/>
 
-        <Button
-            android:text="Send"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/bt_Send"
-            />
-    </LinearLayout>
-</RelativeLayout>
+
+
+</LinearLayout>

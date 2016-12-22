@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 
 import com.iron.dragon.sportstogether.SportsApplication;
 import com.iron.dragon.sportstogether.data.bean.Profile;
+import com.orhanobut.logger.Logger;
 
 /**
  * Created by P11872 on 2015-08-20.
@@ -52,6 +53,10 @@ public class LoginPreferences {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getInt(PROFILE_LOCATIONID, 0);
     }
+    public String GetLocalProfileImage(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getString(PROFILE_IMAGE, null);
+    }
     public boolean GetLogin(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getBoolean(LoginPreferences.USER_AUTHENTICATED, false);
@@ -77,6 +82,7 @@ public class LoginPreferences {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
+        Logger.d("profile = " + profile.toString());
         editor.putString(PROFILE_REGID, profile.getRegid());
         editor.putString(PROFILE_NICKNAME, profile.getUsername());
         editor.putInt(PROFILE_SPORTSID, profile.getSportsid());

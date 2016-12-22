@@ -31,7 +31,6 @@ import com.iron.dragon.sportstogether.http.retropit.GitHubService;
 import com.iron.dragon.sportstogether.util.Const;
 import com.orhanobut.logger.Logger;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -84,16 +83,16 @@ public class LoginActivity extends AppCompatActivity {
     protected Button mBtCancel;
     @BindView(R.id.toolbar)
     protected Toolbar mToolbar;
-    @BindView(R.id.profile_image)
-    protected CircleImageView mProfileImage;
-    @BindViews({R.id.etNickName, R.id.etPhoneNum, R.id.spAge, R.id.spGender, R.id.spLocation, R.id.spSportsType, R.id.spLevel, R.id.profile_image})
+    @BindView(R.id.ivProfile_image)
+    protected CircleImageView mIvProfileImage;
+    @BindViews({R.id.etNickName, R.id.etPhoneNum, R.id.spAge, R.id.spGender, R.id.spLocation, R.id.spSportsType, R.id.spLevel, R.id.ivProfile_image})
     protected List<View> nameViews;
 
     @BindViews({R.id.bt_commit, R.id.bt_cancel})
     protected List<View> buttonViews;
 
     protected Uri mCropImagedUri;
-    private int mSportsId;
+    protected int mSportsId;
     Handler handler = new Handler();
 
     GitHubService gitHubService;
@@ -104,26 +103,13 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
         InitData();
         ButterKnife.bind(this);
-        Intent i = getIntent();
-        processIntent(i);
+
     }
 
     private void InitData() {
             gitHubService = GitHubService.retrofit.create(GitHubService.class);
     }
 
-    private void processIntent(Intent i) {
-        mSportsId = i.getIntExtra("Extra_Sports", 0);
-        final Profile myprofile = (Profile) i.getSerializableExtra("MyProfile");
-        if (myprofile != null) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    LoginActivity.this.setCurrentProfile(myprofile);
-                }
-            });
-        }
-    }
 
     static final ButterKnife.Action<View> DISABLE = new ButterKnife.Action<View>() {
         @Override
@@ -151,31 +137,13 @@ public class LoginActivity extends AppCompatActivity {
         }
     };
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-
-        processIntent(intent);
-    }
-
-    private void setCurrentProfile(Profile profile) {
-        mEtNickName.setText(profile.getUsername());
-        mSpSportsType.setSelection(profile.getSportsid());
-        mSpLocation.setSelection(profile.getLocationid());
-        mSpAge.setSelection(profile.getAge());
-        mSpGender.setSelection(profile.getGender());
-        mEtPhoneNum.setText(profile.getPhone());
-        mSpLevel.setSelection(profile.getLevel());
-
-    }
-
     protected void InitLayout() {
         ButterKnife.apply(nameViews, ENABLED, false);
         ButterKnife.apply(buttonViews, VISIBLE, false);
     }
 
 
-    private void saveLocalProfile(Profile p) {
+    protected void saveLocalProfile(Profile p) {
         LoginPreferences.GetInstance().SetLocalProfile(this, p);
     }
 
@@ -203,7 +171,6 @@ public class LoginActivity extends AppCompatActivity {
                 SportsApplication app = (SportsApplication) getApplication();
                 app.setRegid(regid);
                 gitHubService = GitHubService.retrofit.create(GitHubService.class);
-//                GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
                 final ProfileItem pi = new ProfileItem();
                 pi.set_mNickName(mEtNickName.getText().toString());
                 pi.set_mAge(mSpAge.getSelectedItemPosition());
@@ -229,18 +196,17 @@ public class LoginActivity extends AppCompatActivity {
                         if (response.isSuccessful()) {
                             Log.d("Test", "body = " + response.body().toString());
                             Profile p = response.body();
-                            saveLocalProfile(p);
+
                             Log.v(TAG, Const.SPORTS.BADMINTON.name());
                             Log.v(TAG, "" + Const.SPORTS.values());
 
                             setLogged();
 
                             if(mCropImagedUri == null) {
-
+                                saveLocalProfile(p);
                                 toBulletinListActivity();
 
                                 Log.v(TAG, "pi=" + p.toString());
-                                finish();
                             } else {
                                 uploadFile(p, mCropImagedUri);
                             }
@@ -277,7 +243,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    @OnClick(R.id.profile_image)
+    @OnClick(R.id.ivProfile_image)
     public void onClick() {
         ShowChangeImageActionDialog();
     }
@@ -354,7 +320,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     protected void uploadFile(Profile p, Uri fileUri) {
-        // create upload service client
+        // create upload_profile service client
 //        GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
 
         new ResizeBitmapTask(p).execute(new File(fileUri.getPath()));//Util.getFileFromUri(getContentResolver(), fileUri);
@@ -424,30 +390,20 @@ public class LoginActivity extends AppCompatActivity {
                             MediaType.parse("text/html"), descriptionString);
 
             // finally, execute the request
-            Call<ResponseBody> call = gitHubService.upload(description, body);
+            Call<ResponseBody> call = gitHubService.upload_profile(description, body);
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call,
                                        Response<ResponseBody> response) {
                     Log.v("Upload", "success");
                     try {
-                        Log.v(TAG, "response=" + response.body().string());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    JSONArray jsonArray = null;
-                    try {
-                        jsonArray = new JSONArray(response.body().string());
 
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject jObject = null;
-                            jObject = jsonArray.getJSONObject(i);
-                            String image = jObject.get("data").toString();
-                            profile.setImage(image);
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
+                        JSONObject jObject = new JSONObject(response.body().string());//jsonArray.getJSONObject(i);
+                        String image = jObject.get("data").toString();
+                        profile.setImage(image);
+
+                        saveLocalProfile(profile);
+                    } catch (JSONException | IOException e) {
                         e.printStackTrace();
                     }
 
@@ -493,14 +449,13 @@ public class LoginActivity extends AppCompatActivity {
                 dispatchCropIntent(mCropImagedUri);
             } else {
                 Toast.makeText(getApplicationContext(), getString(R.string.capture_error), Toast.LENGTH_SHORT).show();
-                return;
             }
         } else if (requestCode == REQ_CODE_CROP) {
             if (resultCode == Activity.RESULT_OK) {
                 mCropImagedUri = data.getData();
                 Log.d(TAG, "cropresult " + mCropImagedUri + " string " + mCropImagedUri.toString());
 
-                mProfileImage.setImageDrawable(BitmapDrawable.createFromPath(mCropImagedUri.getPath()));
+                mIvProfileImage.setImageDrawable(BitmapDrawable.createFromPath(mCropImagedUri.getPath()));
 
 //                requestThumbImage(mFile);
                /* if (mProfileDbId != -1) {
@@ -512,10 +467,12 @@ public class LoginActivity extends AppCompatActivity {
 
             } else {
                 Toast.makeText(getApplicationContext(), getString(R.string.crop_error), Toast.LENGTH_SHORT).show();
-                return;
             }
         }
     }
+
+
+
 
     protected void dispatchCropIntent(Uri imageCaptureUri) {
         Intent intent = new Intent("com.android.camera.action.CROP");
