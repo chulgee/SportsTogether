@@ -11,9 +11,9 @@
 
         <ImageView
             android:id="@+id/buddyAvatar"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:src="@drawable/buddy"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/default_user"
             android:layout_alignParentLeft="true" />
 
         <TextView
@@ -22,10 +22,9 @@
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/buddyAvatar"
             android:layout_centerVertical="true"
-            android:text=""
             android:textSize="24dp"
             android:textStyle="bold"
-            android:textColor="#ff0000ff"
+            android:textColor="#ffaaaaaa"
             android:layout_margin="10dp"/>
 
     </RelativeLayout>
@@ -39,7 +38,7 @@
         android:background="#ffbfd1dd"
         android:padding="4dp"
         android:divider="@null"
-        android:dividerHeight="0dp"
+        android:dividerHeight="2dp"
         android:transcriptMode="alwaysScroll"
         android:listSelector="@android:color/transparent"
         android:stackFromBottom="true"
@@ -50,7 +49,7 @@
     <RelativeLayout
         android:id="@+id/bottomLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_alignParentBottom="true"
         android:background="#ffffffff">
 
@@ -60,7 +59,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_toLeftOf="@+id/sendButton"
-            android:textSize="22dp"
+            android:textSize="16dp"
             android:textColor="#ff000000"
             android:background="#ffffffff"
             android:layout_centerVertical="true"/>
@@ -71,11 +70,11 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_margin="4dp"
-            android:background="#ffffff00"
-            android:textColor="#ffaaaaaa"
-            android:textSize="14dp"
+            android:background="#ffaaaaaa"
+            android:textColor="#ff000000"
+            android:textSize="16dp"
             android:text="전송"
-            android:onClick="onSendButtonClicked"/>
+            />
 
     </RelativeLayout>
 

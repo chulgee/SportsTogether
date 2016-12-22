@@ -77,10 +77,6 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <service
-            android:name=".ChatService"
-            android:enabled="true"
-            android:exported="true"></service>
     </application>
 
 </manifest>

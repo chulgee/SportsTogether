@@ -37,10 +37,14 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.github.rahatarmanahmed.cpv.CircularProgressView;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Bulletin;
 import com.iron.dragon.sportstogether.data.bean.Bulletin_image;
+import com.iron.dragon.sportstogether.data.bean.Message;
+import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.retropit.GitHubService;
 import com.iron.dragon.sportstogether.ui.adapter.BulletinRecyclerViewAdapter;
 import com.iron.dragon.sportstogether.ui.adapter.item.EventItem;
@@ -64,6 +68,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -88,6 +93,7 @@ public class BulletinListActivity extends AppCompatActivity {
     private final static int REQ_CODE_CROP = 3;
     private final static int PROFILE_IMAGE_ASPECT_X = 4;
     private final static int PROFILE_IMAGE_ASPECT_Y = 5;
+    private static final String TAG = "BulletinListActivity";
 
     @BindView(R.id.ivBulletin)
     ImageView mIvBulletin;
@@ -265,11 +271,11 @@ public class BulletinListActivity extends AppCompatActivity {
         mAdapter.setOnItemLongClickListener(new BulletinRecyclerViewAdapter.OnItemLongClickListener() {
             @Override
             public void onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                registerForContextMenu(view);
-                openContextMenu(view);
+                Log.v(TAG, "onItemLongClick");
+                openContextMenu( view );
             }
         });
-
+        registerForContextMenu( mBoardRecyclerviewer );
         /*slideUpAnimation = AnimationUtils.loadAnimation(getApplicationContext(),
                 R.anim.slide_up_animation);
 
@@ -519,9 +525,18 @@ public class BulletinListActivity extends AppCompatActivity {
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+        Log.v(TAG, "onContextItemSelected mAdapter.getIndex()= "+mAdapter.getIndex());
+
+        switch(item.getItemId()) {
             case R.id.action_chat:
-                //some code
+                // get buddy's profile
+                ListItem listItem = mAdapter.getItem(mAdapter.getIndex());
+                Log.v(TAG, "listItem: "+listItem);
+                if(listItem instanceof EventItem){
+                    Bulletin bulletin = ((EventItem) listItem).getBulletin();
+                    Log.v(TAG, "bulletin: "+bulletin.toString());
+                    executeHttp(bulletin);
+                }
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -529,6 +544,54 @@ public class BulletinListActivity extends AppCompatActivity {
     }
 
 
+    private void executeHttp(Bulletin bulletin){
+        String username = bulletin.getUsername();
+        int sportsid = bulletin.getSportsid();
+        int locationid = bulletin.getLocationid();
+        int reqFriends = 0;
+        GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
+        final Call<JsonObject> call =
+                gitHubService.getProfiles(username, sportsid, locationid, reqFriends);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                Log.d("executeHttp Test", "code = " + response.code() + " is successful = " + response.isSuccessful());
+                Log.d("executeHttp Test", "body = " + response.body().toString());
+                Log.d("executeHttp Test", "message = " + response.toString());
+                if (response.isSuccessful()) {
+                    //JSONObject obj = (JSONObject)response.body();
+                    JSONObject obj = null;
+                    try {
+                        obj = new JSONObject(response.body().toString());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    Gson gson = new Gson();
+                    try {
+                        String command = obj.getString("command");
+                        String code = obj.getString("code");
+                        JSONArray arr = obj.getJSONArray("message");
+                        Profile buddy = gson.fromJson(arr.get(0).toString(), Profile.class);
+                        Profile me = LoginPreferences.GetInstance().getLocalProfile(getApplicationContext());
+                        Log.v(TAG, "buddy: "+buddy.toString());
+                        Log.v(TAG, "me: "+me.toString());
+                        Intent i = new Intent(BulletinListActivity.this, ChatActivity.class);
+                        Message message = new Message.Builder(Message.TYPE_CHAT_ACTION).msgType(Message.PARAM_MSG_OUT).sender(me.getUsername()).receiver(buddy.getUsername())
+                                .message("Conversation get started").date(new Date().getTime()).image(buddy.getImage()).build();
+                        i.putExtra("Message", message);
+                        startActivity(i);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Test", "error message = " + t.getMessage());
+            }
+        });
+    }
     protected void dispatchCropIntent(Uri imageCaptureUri) {
         Intent intent = new Intent("com.android.camera.action.CROP");
         Point screenSize = new Point();
