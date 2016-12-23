@@ -22,6 +22,8 @@ public class Message  implements Serializable{
     private String message;
     private long date;
     private String image;
+    private int sportsid;
+    private int locationid;
 
     private Message(){}
 
@@ -74,6 +76,8 @@ public class Message  implements Serializable{
         private String receiver;
         private long date;
         private String image;
+        private int sportsid;
+        private int locationid;
 
         public Builder(int type){
             this.type = type;
@@ -109,6 +113,16 @@ public class Message  implements Serializable{
             return this;
         }
 
+        public Builder sportsid(int sportsid){
+            this.sportsid = sportsid;
+            return this;
+        }
+
+        public Builder locationid(int locationid){
+            this.locationid = locationid;
+            return this;
+        }
+
         public Message build(){
             Message message = new Message();
             message.type = this.type;
@@ -118,6 +132,8 @@ public class Message  implements Serializable{
             message.message = this.message;
             message.date = this.date;
             message.image = this.image;
+            message.sportsid = this.sportsid;
+            message.locationid = this.locationid;
             return message;
         }
     }

@@ -1,6 +1,7 @@
 package com.iron.dragon.sportstogether.ui.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.bean.Message;
+import com.iron.dragon.sportstogether.ui.fragment.ChatFragment;
 import com.iron.dragon.sportstogether.util.Util;
 import com.orhanobut.logger.Logger;
 import com.squareup.picasso.Picasso;
@@ -33,9 +35,11 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private List<Message> mMessages;
     RecyclerView rView;
     Context context;
+    ChatFragment mFragment;
 
-    public MessageAdapter(Context context, List<Message> messages) {
-        this.context = context;
+    public MessageAdapter(ChatFragment fragment, List<Message> messages) {
+        this.context = fragment.getActivity();
+        mFragment = (ChatFragment)fragment;
         if(messages == null){
             mMessages = new ArrayList<Message>();
         }else
@@ -62,33 +66,27 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         if(type == Message.TYPE_CHAT_MESSAGE){
             ViewHolder vh = (ViewHolder)holder;
             String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_profile?filename=" + message.getImage();
-            Logger.d("url = " + url);
+            Logger.d("onBindViewHolder url = " + url);
             if(message.getMsgType() == Message.PARAM_MSG_OUT){
                 vh.rl1.setVisibility(View.VISIBLE);
                 vh.tv1.setText(message.getSender());
                 vh.tv2.setText(message.getMessage());
                 vh.tv5.setText(Util.getStringTime(message.getDate()));
                 vh.rl2.setVisibility(View.GONE);
-                if(message.getImage() != null){
-                    Picasso.with(context).load(url).resize(50, 50)
-                            .centerCrop()
-                            .into(vh.civ1);
-                }else{
-                    vh.civ1.setImageResource(R.drawable.buddy);
-                }
             }else{
                 vh.rl2.setVisibility(View.VISIBLE);
                 vh.tv3.setText(message.getSender());
                 vh.tv4.setText(message.getMessage());
                 vh.tv6.setText(Util.getStringTime(message.getDate()));
                 vh.rl1.setVisibility(View.GONE);
-                if(message.getImage() != null){
-                    Picasso.with(context).load(url).resize(50, 50)
-                            .centerCrop()
-                            .into(vh.civ1);
-                }
             }
-
+            Bitmap bmp = mFragment.getmAvatarMap().get(message.getSender());
+            Log.v(TAG, "getSender="+message.getSender()+", bmp="+bmp);
+            if(bmp != null){
+                vh.civ1.setImageBitmap(bmp);
+            }else{
+                vh.civ1.setImageResource(R.drawable.default_user);
+            }
         }else{
             ViewHolder_action vh = (ViewHolder_action) holder;
             vh.tv1.setText(message.getMessage());
