@@ -2,6 +2,9 @@ package com.iron.dragon.sportstogether.ui.fragment;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,21 +20,36 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
+import com.iron.dragon.sportstogether.http.retropit.GitHubService;
+import com.iron.dragon.sportstogether.ui.activity.BulletinListActivity;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.ui.adapter.MessageAdapter;
+import com.iron.dragon.sportstogether.util.Const;
 import com.orhanobut.logger.Logger;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -44,10 +62,14 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ChatFragment extends Fragment {
     public static final String PARAM_MSG = "Message";
     public static final String TAG = "ChatFragment";
+    public static final int HANDLER_PARAM_GET_PROFILE = 0;
+    public static final int HANDLER_PARAM_GET_IMAGE = 1;
+
     RecyclerView rView;
     TextView tvBuddy;
     Button btnSend;
     EditText etMessage;
+    CircleImageView civAvatar;
 
     public String mBuddyName;
     OnFragmentInteractionListener mListener;
@@ -55,10 +77,26 @@ public class ChatFragment extends Fragment {
     MessageAdapter mAdapter;
     String mContents;
     Profile mMe;
-    Handler mHandler = new Handler();
+    Profile mBuddy;
+
+    Map<String, Bitmap> mAvatarMap = new HashMap<String, Bitmap>();
+    Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            if(msg.what == HANDLER_PARAM_GET_PROFILE){
+                fetchBuddyProfile();
+            }else if(msg.what == HANDLER_PARAM_GET_IMAGE){
+                fetchAvaTar(mBuddy.getImage());
+            }
+        }
+    };
 
     public ChatFragment() {
         // Required empty public constructor
+    }
+
+    public Map<String, Bitmap> getmAvatarMap() {
+        return mAvatarMap;
     }
 
     /**
@@ -125,9 +163,11 @@ public class ChatFragment extends Fragment {
         tvBuddy = (TextView) getActivity().findViewById(R.id.buddyAlias);
         etMessage = (EditText) getActivity().findViewById(R.id.etChatMessage);
         rView = (RecyclerView) getActivity().findViewById(R.id.chatListView);
+        civAvatar = (CircleImageView)getActivity().findViewById(R.id.buddyAvatar);
+
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rView.setLayoutManager(llm);
-        mAdapter = new MessageAdapter(getActivity(), null);
+        mAdapter = new MessageAdapter(this, null);
         rView.setAdapter(mAdapter);
 
         Message message = null;
@@ -163,12 +203,12 @@ public class ChatFragment extends Fragment {
             //mAdapter.addMessage(message);
             //mAdapter.notifyDataSetChanged();
         }
-        String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_profile?filename=" + message.getImage();
-        Log.v(TAG, "url...="+url);
-        Picasso.with(getActivity()).load(url).resize(50, 50)
-                .centerCrop()
-                .into((CircleImageView)getActivity().findViewById(R.id.buddyAvatar));
 
+        if(mMe.getImage() != null){
+            fetchAvaTar(mMe.getImage());
+        }
+
+        mHandler.sendEmptyMessage(HANDLER_PARAM_GET_PROFILE);
     }
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -233,5 +273,74 @@ public class ChatFragment extends Fragment {
 
     public void println(String data){
         System.out.println(data);
+    }
+
+    public void fetchBuddyProfile(){
+        // buddy의 profile 가져오기
+        GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
+        Log.v(TAG, "mBuddyName="+mBuddyName+", mMe.getSportsid()="+mMe.getSportsid()+", mMe.getLocationid()="+mMe.getLocationid());
+        final Call<JsonObject> call =
+                gitHubService.getProfiles(mBuddyName, mMe.getSportsid(), mMe.getLocationid(), 0);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                Log.d("executeHttp Test", "code = " + response.code() + " is successful = " + response.isSuccessful());
+                Log.d("executeHttp Test", "body = " + response.body().toString());
+                Log.d("executeHttp Test", "message = " + response.toString());
+                if (response.isSuccessful()) {
+                    //JSONObject obj = (JSONObject)response.body();
+                    JSONObject obj = null;
+                    try {
+                        obj = new JSONObject(response.body().toString());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    Gson gson = new Gson();
+                    try {
+                        String command = obj.getString("command");
+                        String code = obj.getString("code");
+                        JSONArray arr = obj.getJSONArray("message");
+                        mBuddy = gson.fromJson(arr.get(0).toString(), Profile.class);
+                        Log.v(TAG, "buddy: "+mBuddy.toString());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    if(mBuddy.getImage() != null)
+                        mHandler.sendEmptyMessage(HANDLER_PARAM_GET_IMAGE);
+                    else{
+                        civAvatar.setImageResource(R.drawable.default_user);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Test", "error message = " + t.getMessage());
+            }
+        });
+    }
+
+    public void fetchAvaTar(final String filename){
+        // me와 buddy 아바타 가져오기
+        String url = Const.MAIN_URL + "/upload_profile?filename=" + filename;
+        //final Bitmap bmp;
+        Picasso.with(getActivity()).load(url).resize(50,50).centerInside().into(new Target(){
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                Log.v(TAG, "bitmap="+bitmap);
+                if(filename.equals(mMe.getImage())){
+                    mAvatarMap.put(mMe.getUsername(), bitmap);
+                }else{
+                    mAvatarMap.put(mBuddy.getUsername(), bitmap);
+                    civAvatar.setImageBitmap(bitmap);
+                }
+            }
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+            }
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+            }
+        });
     }
 }

@@ -24,7 +24,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="55dip"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_toRightOf="@+id/imageView"
             android:layout_marginLeft="4dp"
@@ -86,7 +86,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="55dip"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center_vertical"
             android:layout_toLeftOf="@+id/imageView2"
