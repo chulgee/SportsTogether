@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Vibrator;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -21,6 +22,7 @@ import java.util.Map;
  */
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "FMService";
+    private Vibrator mVibe;
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -29,8 +31,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         String sender = data.get("sender");
         String receiver = data.get("receiver");
         String contents = data.get("contents");
-        long date = Long.getLong(data.get("date"));
-        println("수신데이터 -> sender: "+sender+", receiver: "+receiver+", contents: "+contents);
+        String str_date = data.get("date");
+        long date = 0;
+        if(str_date != null)
+            date = Long.getLong(str_date);
+        println("수신데이터 -> sender: "+sender+", receiver: "+receiver+", contents: "+contents+", date:"+str_date);
 
         Message message = new Message.Builder(Message.TYPE_CHAT_MESSAGE).msgType(Message.PARAM_MSG_IN).sender(sender)
                 .receiver(receiver).message(contents).date(date).build();
@@ -50,6 +55,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         builder.setPriority(Notification.PRIORITY_HIGH);
         NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         nm.notify(1, builder.build());
+
+        mVibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        mVibe.vibrate(300);
+
     }
 
     private void println(String data){

@@ -65,8 +65,8 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         Message message = mMessages.get(position);
         if(type == Message.TYPE_CHAT_MESSAGE){
             ViewHolder vh = (ViewHolder)holder;
-            String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_profile?filename=" + message.getImage();
-            Logger.d("onBindViewHolder url = " + url);
+            //String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_profile?filename=" + message.getImage();
+            //Logger.d("onBindViewHolder url = " + url);
             if(message.getMsgType() == Message.PARAM_MSG_IN){
                 vh.rl1.setVisibility(View.VISIBLE);
                 vh.tv1.setText(message.getSender());
