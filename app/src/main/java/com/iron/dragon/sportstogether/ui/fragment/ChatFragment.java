@@ -78,6 +78,8 @@ public class ChatFragment extends Fragment {
     String mContents;
     Profile mMe;
     Profile mBuddy;
+    // buddy's username and fragment
+    private static HashMap<String, Fragment> sChatRoom = new HashMap<String, Fragment>();
 
     Map<String, Bitmap> mAvatarMap = new HashMap<String, Bitmap>();
     Handler mHandler = new Handler(){
@@ -107,6 +109,14 @@ public class ChatFragment extends Fragment {
      */
     public static ChatFragment newInstance(Message message) {
         ChatFragment fragment = new ChatFragment();
+        String buddy = null;
+        if(message.getMsgType() == Message.PARAM_MSG_OUT){
+            buddy = message.getReceiver();
+        }else{
+            buddy = message.getSender();
+        }
+        sChatRoom.put(buddy, fragment);
+        Log.v(TAG, "newInstance buddy="+buddy+", fragment="+fragment);
         Bundle args = new Bundle();
         args.putSerializable(PARAM_MSG, message);
         fragment.setArguments(args);
@@ -130,6 +140,7 @@ public class ChatFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.v(TAG, "onCreate getArguments()="+getArguments());
+
     }
 
     @Override
@@ -146,10 +157,10 @@ public class ChatFragment extends Fragment {
         Log.v(TAG, "onViewCreated getArguments()="+getArguments());
         Log.v(TAG, "onViewCreated mActivity.mCurrentFrag="+mActivity.mCurrentFrag);
         Log.v(TAG, "onViewCreated mActivity.mCurrentFrag.mBuddyName="+mActivity.mCurrentFrag.mBuddyName);
-        Iterator iter =ChatActivity.mChatRoom.keySet().iterator();
+        /*Iterator iter =ChatActivity.mChatRoom.keySet().iterator();
         while(iter.hasNext())
             Log.v(TAG, "onViewCreated iter="+iter.next());
-
+*/
     }
 
     @Override
@@ -178,11 +189,12 @@ public class ChatFragment extends Fragment {
             }else{
                 mBuddyName = message.getSender();
             }
-            mActivity.addChatRoom(mBuddyName, this);
+            //mActivity.addChatRoom(mBuddyName, this);
         }
         Log.v(TAG, "initView message="+message);
 
-        tvBuddy.setText(mBuddyName);
+        //tvBuddy.setText(mBuddyName);
+        ((ChatActivity)getActivity()).getSupportActionBar().setTitle(mBuddyName);
         btnSend = (Button) getActivity().findViewById(R.id.sendButton);
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -239,7 +251,10 @@ public class ChatFragment extends Fragment {
     @Override
     public void onDestroy() {
         Log.v(TAG, "onDestory");
-        mActivity.removeChatRoom(mBuddyName);
+        Fragment fragment = sChatRoom.remove(mBuddyName);
+        Log.v(TAG, "onDestory buddy="+mBuddyName+", fragment="+fragment);
+
+        //mActivity.removeChatRoom(mBuddyName);
         super.onDestroy();
     }
 
@@ -343,4 +358,19 @@ public class ChatFragment extends Fragment {
             }
         });
     }
+
+    public static Fragment getChatRoom(String buddy_name) {
+        Fragment fr = sChatRoom.get(buddy_name);
+        return fr;
+    }
+/*
+    public void addChatRoom(String buddy_name, Fragment fragment) {
+        Log.v(TAG, "addChatRoom buddy_name="+buddy_name+", fragment="+fragment);
+        this.mChatRoom.put(buddy_name, fragment);
+    }
+
+    public void removeChatRoom(String buddy_name){
+        Fragment fragment = this.mChatRoom.remove(buddy_name);
+        Log.v(TAG, "removeChatRoom buddy_name="+buddy_name+", fragment="+fragment);
+    }*/
 }

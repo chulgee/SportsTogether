@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 
 import com.google.gson.Gson;
 import com.iron.dragon.sportstogether.R;
@@ -42,8 +43,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
     ChatThread mThread;
     public ChatFragment mCurrentFrag;
     Profile me;
-    // buddy's username and fragment
-    public static HashMap<String, Fragment> mChatRoom = new HashMap<String, Fragment>();
+
     FragmentManager fm = getFragmentManager();
 
 
@@ -53,6 +53,8 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Log.v(TAG, "onCreate");
         Intent i = getIntent();
         processIntent(i);
@@ -100,12 +102,13 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
             }else{
                 key = message.getSender();
             }
-            mCurrentFrag = (ChatFragment)getChatRoom(key);
+            mCurrentFrag = (ChatFragment)ChatFragment.getChatRoom(key);
             Log.v(TAG, "processNewIntent key ="+key+", mCurrentFrag="+mCurrentFrag);
             if(mCurrentFrag != null){
-                //ft.show(mCurrentFrag);
-                showFragment(key);
-
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.show(mCurrentFrag);
+                ft.commit();
+                //showFragment(key);
             }else{
                 FragmentTransaction ft = fm.beginTransaction();
                 mCurrentFrag = ChatFragment.newInstance(message);
@@ -116,20 +119,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
         }
     }
 
-    public Fragment getChatRoom(String buddy_name) {
-        Fragment fr = mChatRoom.get(buddy_name);
-        return fr;
-    }
 
-    public void addChatRoom(String buddy_name, Fragment fragment) {
-        Log.v(TAG, "addChatRoom buddy_name="+buddy_name+", fragment="+fragment);
-        this.mChatRoom.put(buddy_name, fragment);
-    }
-
-    public void removeChatRoom(String buddy_name){
-        Fragment fragment = this.mChatRoom.remove(buddy_name);
-        Log.v(TAG, "removeChatRoom buddy_name="+buddy_name+", fragment="+fragment);
-    }
 
     @Override
     public void onFragmentInteraction(Uri uri) {
@@ -277,8 +267,8 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
                     createMsgNoti(message);
                 }else{
                     ChatFragment fr;
-                    fr = (ChatFragment)getChatRoom(sender);
-                    Log.v(TAG, "onSend fr="+fr+", sender="+sender);
+                    fr = (ChatFragment)ChatFragment.getChatRoom(sender);
+                    Log.v(TAG, "onSend sender="+sender+", fr="+fr);
                     if(fr != null){
                         fr.updateUI(message);
                         createMsgNoti(message);
@@ -293,7 +283,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
         };
     }
 
-    void showFragment(String buddyName){
+/*    void showFragment(String buddyName){
         Iterator iter =ChatActivity.mChatRoom.keySet().iterator();
         while(iter.hasNext()){
             String key = (String)iter.next();
@@ -309,7 +299,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
             }
             ft.commit();
         }
-    }
+    }*/
 
     void createMsgNoti(Message message){
         Intent i = new Intent(ChatActivity.this, ChatActivity.class);
@@ -326,5 +316,17 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
         builder.setPriority(Notification.PRIORITY_HIGH);
         NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         nm.notify(1, builder.build());
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch(item.getItemId()){
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }
