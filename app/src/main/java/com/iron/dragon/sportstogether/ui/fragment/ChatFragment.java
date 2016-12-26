@@ -204,9 +204,9 @@ public class ChatFragment extends Fragment {
             //mAdapter.notifyDataSetChanged();
         }
 
-        if(mMe.getImage() != null){
+        /*if(mMe.getImage() != null){
             fetchAvaTar(mMe.getImage());
-        }
+        }*/
 
         mHandler.sendEmptyMessage(HANDLER_PARAM_GET_PROFILE);
     }
@@ -279,11 +279,11 @@ public class ChatFragment extends Fragment {
         // buddy의 profile 가져오기
         GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
         Log.v(TAG, "mBuddyName="+mBuddyName+", mMe.getSportsid()="+mMe.getSportsid()+", mMe.getLocationid()="+mMe.getLocationid());
-        final Call<JsonObject> call =
+        final Call<String> call =
                 gitHubService.getProfiles(mBuddyName, mMe.getSportsid(), mMe.getLocationid(), 0);
-        call.enqueue(new Callback<JsonObject>() {
+        call.enqueue(new Callback<String>() {
             @Override
-            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+            public void onResponse(Call<String> call, Response<String> response) {
                 Log.d("executeHttp Test", "code = " + response.code() + " is successful = " + response.isSuccessful());
                 Log.d("executeHttp Test", "body = " + response.body().toString());
                 Log.d("executeHttp Test", "message = " + response.toString());
@@ -314,7 +314,7 @@ public class ChatFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<JsonObject> call, Throwable t) {
+            public void onFailure(Call<String> call, Throwable t) {
                 Log.d("Test", "error message = " + t.getMessage());
             }
         });

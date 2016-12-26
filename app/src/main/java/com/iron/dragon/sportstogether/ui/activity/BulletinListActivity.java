@@ -550,11 +550,11 @@ public class BulletinListActivity extends AppCompatActivity {
         int locationid = bulletin.getLocationid();
         int reqFriends = 0;
         GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
-        final Call<JsonObject> call =
+        final Call<String> call =
                 gitHubService.getProfiles(username, sportsid, locationid, reqFriends);
-        call.enqueue(new Callback<JsonObject>() {
+        call.enqueue(new Callback<String>() {
             @Override
-            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+            public void onResponse(Call<String> call, Response<String> response) {
                 Log.d("executeHttp Test", "code = " + response.code() + " is successful = " + response.isSuccessful());
                 Log.d("executeHttp Test", "body = " + response.body().toString());
                 Log.d("executeHttp Test", "message = " + response.toString());
@@ -562,7 +562,7 @@ public class BulletinListActivity extends AppCompatActivity {
                     //JSONObject obj = (JSONObject)response.body();
                     JSONObject obj = null;
                     try {
-                        obj = new JSONObject(response.body().toString());
+                        obj = new JSONObject(response.body());
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -587,7 +587,7 @@ public class BulletinListActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<JsonObject> call, Throwable t) {
+            public void onFailure(Call<String> call, Throwable t) {
                 Log.d("Test", "error message = " + t.getMessage());
             }
         });
