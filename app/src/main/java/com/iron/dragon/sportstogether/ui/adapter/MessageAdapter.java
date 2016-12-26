@@ -67,12 +67,19 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             ViewHolder vh = (ViewHolder)holder;
             String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_profile?filename=" + message.getImage();
             Logger.d("onBindViewHolder url = " + url);
-            if(message.getMsgType() == Message.PARAM_MSG_OUT){
+            if(message.getMsgType() == Message.PARAM_MSG_IN){
                 vh.rl1.setVisibility(View.VISIBLE);
                 vh.tv1.setText(message.getSender());
                 vh.tv2.setText(message.getMessage());
                 vh.tv5.setText(Util.getStringTime(message.getDate()));
                 vh.rl2.setVisibility(View.GONE);
+                Bitmap bmp = mFragment.getmAvatarMap().get(message.getSender());
+                Log.v(TAG, "getSender="+message.getSender()+", bmp="+bmp);
+                if(bmp != null){
+                    vh.civ1.setImageBitmap(bmp);
+                }else{
+                    vh.civ1.setImageResource(R.drawable.default_user);
+                }
             }else{
                 vh.rl2.setVisibility(View.VISIBLE);
                 vh.tv3.setText(message.getSender());
@@ -80,13 +87,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 vh.tv6.setText(Util.getStringTime(message.getDate()));
                 vh.rl1.setVisibility(View.GONE);
             }
-            Bitmap bmp = mFragment.getmAvatarMap().get(message.getSender());
-            Log.v(TAG, "getSender="+message.getSender()+", bmp="+bmp);
-            if(bmp != null){
-                vh.civ1.setImageBitmap(bmp);
-            }else{
-                vh.civ1.setImageResource(R.drawable.default_user);
-            }
+
         }else{
             ViewHolder_action vh = (ViewHolder_action) holder;
             vh.tv1.setText(message.getMessage());
