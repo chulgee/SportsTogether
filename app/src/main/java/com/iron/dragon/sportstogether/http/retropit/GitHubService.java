@@ -1,5 +1,6 @@
 package com.iron.dragon.sportstogether.http.retropit;
 
+import com.google.gson.JsonObject;
 import com.iron.dragon.sportstogether.data.bean.Bulletin;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.util.Const;
@@ -36,9 +37,9 @@ public interface GitHubService {
     Call<List<Profile>> getProfiles(
     );
 
-    // 친구 목록 가져오려면 reqFriends = 1을 넣는다.
+    // 친구 목록 가져오려면 reqFriends = 1 넣는다. otherwise, 자신 포함됨.
     @GET("profiles")
-    Call<JSONObject> getProfiles(
+    Call<String> getProfiles(
             @Query("username") String username, @Query("sportsid") int sportsid, @Query("locationid") int locationid, @Query("reqFriends") int reqFriends
     );
 

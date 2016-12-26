@@ -47,4 +47,7 @@
     <string name="profile_image_through_select">Select Photo</string>
     <string name="crop_error">Crop was Failed</string>
     <string name="capture_error">Capture was Failed</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

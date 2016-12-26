@@ -1,21 +1,25 @@
 package com.iron.dragon.sportstogether.ui.activity;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.util.Log;
 
+import com.google.gson.Gson;
 import com.iron.dragon.sportstogether.R;
-import com.iron.dragon.sportstogether.ui.adapter.MessageAdapter;
+import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
+import com.iron.dragon.sportstogether.ui.fragment.ChatFragment;
 import com.iron.dragon.sportstogether.util.Const;
 
 import org.json.JSONException;
@@ -23,123 +27,143 @@ import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
-public class ChatActivity extends AppCompatActivity {
-    Socket mSocket;
-    RecyclerView mListView;
-    MessageAdapter messageAdapter;
-
-    Profile buddy;
-    Profile me;
-
-    TextView buddyAlias;
-    Button sendButton;
-    EditText etChatMessage;
-    String chatMessage;
+public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFragmentInteractionListener{
+    private static final String TAG = "ChatActivity";
     boolean isConnected = false;
-    ChatThread thread;
+    Socket mSocket;
+    ChatThread mThread;
+    public ChatFragment mCurrentFrag;
+    Profile me;
+    // buddy's username and fragment
+    public static HashMap<String, Fragment> mChatRoom = new HashMap<String, Fragment>();
+    FragmentManager fm = getFragmentManager();
 
-    Handler handler = new Handler();
+
+    Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        mListView = (RecyclerView) findViewById(R.id.chatListView);
-        mListView.setLayoutManager(new LinearLayoutManager(this));
-        messageAdapter = new MessageAdapter(this, null);
-        mListView.setAdapter(messageAdapter);
-
-        thread = new ChatThread();
-        thread.start();
-
-        buddyAlias = (TextView) findViewById(R.id.buddyAlias);
-        sendButton = (Button)findViewById(R.id.sendButton);
-        etChatMessage = (EditText)findViewById(R.id.etChatMessage);
-
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 대화 아이템 만들기
-                chatMessage = etChatMessage.getText().toString();
-                //ChatItem ci = new ChatItem(ChatItem.WRITER_TYPE_ME, me.getId(), me.getId(), chatMessage, new Date());
-                //chatListAdapter.addItem(ci);
-                Message message = new Message.Builder(Message.TYPE_CHAT_MESSAGE).msgType(Message.TYPE_CHAT_MSG_ME).username(me.getUsername()).message(chatMessage).date(new Date()).build();
-                messageAdapter.addMessage(message);
-                messageAdapter.notifyDataSetChanged();
-
-                // buddy에게 대화 아이템 보내기.
-                /*JSONObject obj = new JSONObject();
-                try {
-                    obj.put("sender", me.getId());
-                    obj.put("receiver", buddy.getId());
-                    obj.put("contents", chatMessage);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                mSocket.send("send", obj);*/
-                thread.send(me.getUsername(), buddy.getUsername(), chatMessage);
-            }
-        });
-
-
-        //chatListAdapter.addItem(new ChatItem(ChatItem.WRITER_TYPE_YOU, "test01", "윤정", "어디쯤이야?", new Date()));
-        //chatListAdapter.addItem(new ChatItem(ChatItem.WRITER_TYPE_YOU, "test01", "윤정", "다들 기다리고 있어. 빨리 와~", new Date()));
-        //chatListAdapter.addItem(new ChatItem(ChatItem.WRITER_TYPE_ME, "test02", "종철이", "거의 다왔어 ^^ 보고싶다\n친구들!", new Date()));
-
-
-        Intent intent = getIntent();
-        processIntent(intent);
-    }
-
-    public Emitter.Listener onConnectError = new Emitter.Listener(){
-
-        @Override
-        public void call(Object... args) {
-            Toast.makeText(getApplicationContext(), "connect error", Toast.LENGTH_LONG).show();
-        }
-    };
-
-
-
-    public void println(String data){
-        System.out.println(data);
+        Log.v(TAG, "onCreate");
+        Intent i = getIntent();
+        processIntent(i);
+        mThread = new ChatThread();
+        mThread.start();
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
-        processIntent(intent);
-
         super.onNewIntent(intent);
+        processNewIntent(intent);
+
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if(mSocket != null) {
+            mSocket.disconnect();
+        }
         isConnected = false;
     }
 
     private void processIntent(Intent intent) {
         if (intent != null) {
-            buddy = (Profile) intent.getSerializableExtra("BuddyProfile");
-            me = (Profile)intent.getSerializableExtra("MyProfile");
-            buddyAlias.setText(buddy.getUsername());
+            Message message = (Message)intent.getSerializableExtra("Message");
+            mCurrentFrag = ChatFragment.newInstance(message);
+            Log.v(TAG, "processIntent mCurrentFrag="+mCurrentFrag);
+
+            //addChatRoom(message.getReceiver(), mCurrentFrag);
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.add(R.id.frag_chat, mCurrentFrag);
+            ft.commit();
         }
     }
 
+    private void processNewIntent(Intent intent) {
+        if (intent != null) {
+            Message message = (Message)intent.getSerializableExtra("Message");
+
+            // find fragment for buddy
+            String key;
+            if(message.getMsgType() == Message.PARAM_MSG_OUT){
+                key = message.getReceiver();
+            }else{
+                key = message.getSender();
+            }
+            mCurrentFrag = (ChatFragment)getChatRoom(key);
+            Log.v(TAG, "processNewIntent key ="+key+", mCurrentFrag="+mCurrentFrag);
+            if(mCurrentFrag != null){
+                //ft.show(mCurrentFrag);
+                showFragment(key);
+
+            }else{
+                FragmentTransaction ft = fm.beginTransaction();
+                mCurrentFrag = ChatFragment.newInstance(message);
+                ft.add(R.id.frag_chat, mCurrentFrag);
+                ft.addToBackStack(null);
+                ft.commit();
+            }
+        }
+    }
+
+    public Fragment getChatRoom(String buddy_name) {
+        Fragment fr = mChatRoom.get(buddy_name);
+        return fr;
+    }
+
+    public void addChatRoom(String buddy_name, Fragment fragment) {
+        Log.v(TAG, "addChatRoom buddy_name="+buddy_name+", fragment="+fragment);
+        this.mChatRoom.put(buddy_name, fragment);
+    }
+
+    public void removeChatRoom(String buddy_name){
+        Fragment fragment = this.mChatRoom.remove(buddy_name);
+        Log.v(TAG, "removeChatRoom buddy_name="+buddy_name+", fragment="+fragment);
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+    }
+
+    @Override
+    public void onUpdateUI() {
+    }
+
+    public void send(Message message){
+        mThread.send(message);
+    }
+
+    public ChatFragment createFragment(Message message){
+        return ChatFragment.newInstance(message);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        //if(mChatRoom.size() == 1)
+          //  finish();
+    }
+
     class ChatThread extends Thread {
+        public static final String TAG = "ChatThread";
         @Override
         public void run() {
+            me = LoginPreferences.GetInstance().getLocalProfile(ChatActivity.this);
             createSocket();
         }
 
         private void createSocket(){
             // 소켓 생성 및 연결
-            //ChatApplication app = (ChatApplication) getApplication();
             IO.Options options = new IO.Options();
             options.forceNew = true;
             try {
@@ -148,54 +172,24 @@ public class ChatActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             mSocket.on(Socket.EVENT_CONNECT, onConnect);
+            mSocket.on("login_done", onLoginDone);
+            mSocket.on(Socket.EVENT_DISCONNECT, onDisconnect);
             mSocket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
-            mSocket.on(Socket.EVENT_DISCONNECT, new Emitter.Listener(){
-                @Override
-                public void call(Object... args) {
-                    isConnected = false;
-                    Toast.makeText(getApplicationContext(), "disconnected", Toast.LENGTH_LONG).show();
-
-                }
-            });
-            mSocket.on("send", new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    JSONObject obj = (JSONObject)args[0];
-                    String paramSender = null;
-                    String paramReceiver = null;
-                    String paramContents = null;
-                    try {
-                        paramSender = obj.getString("sender");
-                        paramReceiver = obj.getString("receiver");
-                        paramContents = obj.getString("contents");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    println("sender:"+paramSender+", receiver:"+paramReceiver+", contents:"+paramContents);
-                    Message message = new Message.Builder(Message.TYPE_CHAT_MESSAGE).msgType(Message.TYPE_CHAT_MSG_NOT_ME).username(paramSender).message(paramContents).date(new Date()).build();
-                    messageAdapter.addMessage(message);
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            messageAdapter.notifyDataSetChanged();
-                        }
-                    });
-
-                }
-            });
+            mSocket.on("send", onSend);
             mSocket.connect();
-            println("connecting");
         }
 
-        public void send(String sender, String receiver, String contents) {
-            println("send() 호출됨.");
+        public void send(Message message) {
+            Gson gson = new Gson();
+            String json = gson.toJson(message);
+            System.out.println("send() 호출됨. json="+json);
 
             try {
                 JSONObject obj = new JSONObject();
-                obj.put("sender", sender);
-                obj.put("receiver", receiver);
-                obj.put("contents", contents);
-
+                obj.put("sender", message.getSender());
+                obj.put("receiver", message.getReceiver());
+                obj.put("contents", message.getMessage());
+                obj.put("date", message.getDate());
                 mSocket.emit("send", obj);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -206,46 +200,131 @@ public class ChatActivity extends AppCompatActivity {
 
             @Override
             public void call(Object... args) {
-                println("Socket.IO 서버에 연결되었습니다.");
-
-                println("Socket.IO 서버에 연결되었습니다.");
+                System.out.println("Socket.IO 서버에 연결되었습니다.");
 
                 try {
                     JSONObject obj = new JSONObject();
                     obj.put("username", me.getUsername());
-                    obj.put("regid", me.getRegid());
-                    obj.put("sportsid", me.getSportsid());
-                    obj.put("locationid", me.getLocationid());
-
+                    //obj.put("regid", mMe.getRegid());
+                    //obj.put("sportsid", mMe.getSportsid());
+                    //obj.put("locationid", mMe.getLocationid());
                     mSocket.emit("login", obj);
-                    //Toast.makeText(getApplicationContext(), "connected", Toast.LENGTH_LONG).show();
                     isConnected = true;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            /*runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if(!isConnected){
-                        println("Socket.IO 서버에 연결되었습니다.");
-
-                        try {
-                            JSONObject obj = new JSONObject();
-                            obj.put("id", me.getId());
-                            obj.put("password", me.getPassword());
-                            obj.put("alias", me.getAlias());
-                            obj.put("today", me.getToday());
-
-                            mSocket.emit("login", obj);
-                            Toast.makeText(getApplicationContext(), "connected", Toast.LENGTH_LONG).show();
-                            isConnected = true;
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            });*/
             }
         };
+
+        public Emitter.Listener onLoginDone = new Emitter.Listener(){
+
+            @Override
+            public void call(Object... args) {
+                Log.v(TAG, "onLoginDone");
+            }
+        };
+
+        public Emitter.Listener onDisconnect = new Emitter.Listener(){
+
+            @Override
+            public void call(Object... args) {
+                isConnected = false;
+                //removeChatRoom(mCurrentFrag.opponent);
+                Log.v(TAG, "onDisconnect");
+                //Toast.makeText(getApplicationContext(), "disconnected", Toast.LENGTH_LONG).show();
+            }
+        };
+
+        public Emitter.Listener onConnectError = new Emitter.Listener(){
+
+            @Override
+            public void call(Object... args) {
+                Log.v(TAG, "onConnectError");
+                finish();
+                //Toast.makeText(getApplicationContext(), "connect error", Toast.LENGTH_LONG).show();
+            }
+        };
+
+        public Emitter.Listener onSend = new Emitter.Listener(){
+
+            @Override
+            public void call(Object... args) {
+                Log.v(TAG, "onSend");
+                JSONObject obj = (JSONObject)args[0];
+                String sender = null;
+                String receiver = null;
+                String contents = null;
+                long date = 0;
+                try {
+                    sender = obj.getString("sender");
+                    receiver = obj.getString("receiver");
+                    contents = obj.getString("contents");
+                    date = (long)obj.getLong("date");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                final Message message = new Message.Builder(Message.TYPE_CHAT_MESSAGE).msgType(Message.PARAM_MSG_IN).sender(sender).receiver(receiver).message(contents).date(date).build();
+                Log.v(TAG, message.toString());
+
+                Log.v(TAG, "onSend mCurrentFrag.mBuddyName="+mCurrentFrag.mBuddyName);
+                if(sender.equals(mCurrentFrag.mBuddyName)) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCurrentFrag.updateUI(message);
+                        }
+                    });
+                    createMsgNoti(message);
+                }else{
+                    ChatFragment fr;
+                    fr = (ChatFragment)getChatRoom(sender);
+                    Log.v(TAG, "onSend fr="+fr+", sender="+sender);
+                    if(fr != null){
+                        fr.updateUI(message);
+                        createMsgNoti(message);
+
+                    }else{
+                        createMsgNoti(message);
+                    }
+                    //mCurrentFrag = (ChatFragment)fr;
+                }
+
+            }
+        };
+    }
+
+    void showFragment(String buddyName){
+        Iterator iter =ChatActivity.mChatRoom.keySet().iterator();
+        while(iter.hasNext()){
+            String key = (String)iter.next();
+            Log.v(TAG, "showFragment key="+key);
+            Fragment fragment = mChatRoom.get(key);
+            FragmentTransaction ft = fm.beginTransaction();
+            if(key.equals(buddyName)) {
+                Log.v(TAG, "show buddyName="+key+", fragment="+fragment);
+                ft.show(fragment);
+            }else{
+                Log.v(TAG, "hide buddyName="+key+", fragment="+fragment);
+                ft.hide(fragment);
+            }
+            ft.commit();
+        }
+    }
+
+    void createMsgNoti(Message message){
+        Intent i = new Intent(ChatActivity.this, ChatActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        i.putExtra("Message", message);
+        PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Notification.Builder builder = new Notification.Builder(getApplicationContext());
+        builder.setSmallIcon(R.drawable.friend_icon_normal);
+        builder.setContentText(message.getSender()+": "+message.getMessage());
+        builder.setContentTitle("함께 운동해요");
+        builder.setContentIntent(pi);
+        builder.setAutoCancel(true);
+        builder.setPriority(Notification.PRIORITY_HIGH);
+        NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.notify(1, builder.build());
     }
 }
