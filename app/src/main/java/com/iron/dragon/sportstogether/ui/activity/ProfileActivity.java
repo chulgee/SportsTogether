@@ -17,14 +17,15 @@ import com.iron.dragon.sportstogether.SportsApplication;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.data.bean.ProfileItem;
+import com.iron.dragon.sportstogether.http.retropit.CallbackWithExists;
 import com.iron.dragon.sportstogether.http.retropit.GitHubService;
+import com.iron.dragon.sportstogether.http.retropit.RetrofitHelper;
 import com.iron.dragon.sportstogether.util.StringUtil;
 import com.squareup.picasso.Picasso;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 
 
@@ -127,27 +128,25 @@ public class ProfileActivity extends LoginActivity  {
                 final Call<Profile> call =
                         gitHubService.putProfiles(regid, profile);
 
-                call.enqueue(new Callback<Profile>() {
+                RetrofitHelper.enqueueWithRetryAndExist(call, new CallbackWithExists<Profile>() {
+                    @Override
+                    public void onExists(Call<Profile> call, Response<Profile> response) {
+                        Toast.makeText(getApplicationContext(), "" + response.code(), Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+
                     @Override
                     public void onResponse(Call<Profile> call, Response<Profile> response) {
                         Log.v(TAG, "onResponse response.isSuccessful()=" + response.isSuccessful());
 
-                        if (response.isSuccessful()) {
-                            if(mCropImagedUri == null) {
-                                profile.setImage(LoginPreferences.GetInstance().GetLocalProfileImage(ProfileActivity.this));
-                                saveLocalProfile(profile);
-                                toBulletinListActivity();
-                            } else {
-                                uploadFile(profile, mCropImagedUri);
-                            }
+                        if(mCropImagedUri == null) {
+                            profile.setImage(LoginPreferences.GetInstance().GetLocalProfileImage(ProfileActivity.this));
+                            saveLocalProfile(profile);
+                            toBulletinListActivity();
                         } else {
-                            Toast.makeText(getApplicationContext(), "" + response.code(), Toast.LENGTH_SHORT).show();
-                            if (response.code() == 409) {
-                                finish();
-                            }
+                            uploadFile(profile, mCropImagedUri);
                         }
                     }
-
                     @Override
                     public void onFailure(Call<Profile> call, Throwable t) {
                         Log.d("Test", "error message = " + t.getMessage());
