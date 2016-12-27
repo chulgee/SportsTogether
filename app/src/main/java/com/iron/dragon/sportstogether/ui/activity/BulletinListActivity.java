@@ -38,7 +38,6 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.github.rahatarmanahmed.cpv.CircularProgressView;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Bulletin;
@@ -46,6 +45,7 @@ import com.iron.dragon.sportstogether.data.bean.Bulletin_image;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.retropit.GitHubService;
+import com.iron.dragon.sportstogether.http.retropit.RetrofitHelper;
 import com.iron.dragon.sportstogether.ui.adapter.BulletinRecyclerViewAdapter;
 import com.iron.dragon.sportstogether.ui.adapter.item.EventItem;
 import com.iron.dragon.sportstogether.ui.adapter.item.HeaderItem;
@@ -182,7 +182,8 @@ public class BulletinListActivity extends AppCompatActivity {
     private void getBulletinData() {
         final Call<List<Bulletin>> call =
                 gitHubService.getBulletin(mSportsId, mLocationId, 20);
-        call.enqueue(new Callback<List<Bulletin>>() {
+
+        RetrofitHelper.enqueueWithRetry(call, new Callback<List<Bulletin>>() {
             @Override
             public void onResponse(Call<List<Bulletin>> call, Response<List<Bulletin>> response) {
                 Log.d("Test", "code = " + response.code() + " issuccessful = " + response.isSuccessful());
@@ -198,7 +199,6 @@ public class BulletinListActivity extends AppCompatActivity {
                 Log.d("Test", "error message = " + t.getMessage());
             }
         });
-
     }
 
     private void initListView(List<Bulletin> listOfStrings) {
@@ -338,7 +338,7 @@ public class BulletinListActivity extends AppCompatActivity {
         final Call<String> call =
                 gitHubService.getBuddyCount(mSportsId, mLocationId);
 
-        call.enqueue(new Callback<String>() {
+        RetrofitHelper.enqueueWithRetry(call, new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 String num = "" + 0;
@@ -359,7 +359,6 @@ public class BulletinListActivity extends AppCompatActivity {
                 Log.d("Test", "error message = " + t.getMessage());
             }
         });
-
     }
 
 
@@ -380,26 +379,22 @@ public class BulletinListActivity extends AppCompatActivity {
                         .setType(1).build();
                 final Call<Bulletin> call =
                         gitHubService.postBulletin(bulletin);
-                call.enqueue(new Callback<Bulletin>() {
+                RetrofitHelper.enqueueWithRetry(call , new Callback<Bulletin>() {
                     @Override
                     public void onResponse(Call<Bulletin> call, Response<Bulletin> response) {
-                        if (response.isSuccessful()) {
-                            Bulletin res_bulletin = response.body();
-                            Logger.d("response Data = " + res_bulletin.getComment());
-                            if (mAlCropImageUri.size() == 0) {
-                                updatePosting(bulletin);
-                            } else {
-                                uploadFile(res_bulletin.getid(), bulletin);
-                            }
+                        Bulletin res_bulletin = response.body();
+                        Logger.d("response Data = " + res_bulletin.getComment());
+                        if (mAlCropImageUri.size() == 0) {
+                            updatePosting(bulletin);
+                        } else {
+                            uploadFile(res_bulletin.getid(), bulletin);
                         }
                     }
-
                     @Override
                     public void onFailure(Call<Bulletin> call, Throwable t) {
                         Log.d("Test", "error message = " + t.getMessage());
                     }
                 });
-
                 break;
             case R.id.fab:
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
@@ -552,42 +547,36 @@ public class BulletinListActivity extends AppCompatActivity {
         GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
         final Call<String> call =
                 gitHubService.getProfiles(username, sportsid, locationid, reqFriends);
-        call.enqueue(new Callback<String>() {
+
+        RetrofitHelper.enqueueWithRetry(call, new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 Log.d("executeHttp Test", "code = " + response.code() + " is successful = " + response.isSuccessful());
                 Log.d("executeHttp Test", "body = " + response.body().toString());
                 Log.d("executeHttp Test", "message = " + response.toString());
-                if (response.isSuccessful()) {
-                    //JSONObject obj = (JSONObject)response.body();
-                    JSONObject obj = null;
-                    try {
-                        obj = new JSONObject(response.body());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    Gson gson = new Gson();
-                    try {
-                        String command = obj.getString("command");
-                        String code = obj.getString("code");
-                        JSONArray arr = obj.getJSONArray("message");
-                        if(arr.length() > 0){
-                            Profile buddy = gson.fromJson(arr.get(0).toString(), Profile.class);
-                            Profile me = LoginPreferences.GetInstance().getLocalProfile(getApplicationContext());
-                            Log.v(TAG, "buddy: "+buddy.toString());
-                            Log.v(TAG, "me: "+me.toString());
-                            Intent i = new Intent(BulletinListActivity.this, ChatActivity.class);
-                            Message message = new Message.Builder(Message.TYPE_CHAT_ACTION).msgType(Message.PARAM_MSG_OUT).sender(me.getUsername()).receiver(buddy.getUsername())
-                                    .message("Conversation gets started").date(new Date().getTime()).image(buddy.getImage()).build();
-                            i.putExtra("Message", message);
-                            startActivity(i);
-                        }else{
-                            Toast.makeText(BulletinListActivity.this, "Cannot find this buddy", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                //JSONObject obj = (JSONObject)response.body();
+                JSONObject obj = null;
+                try {
+                    obj = new JSONObject(response.body());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Gson gson = new Gson();
+                try {
+                    String command = obj.getString("command");
+                    String code = obj.getString("code");
+                    JSONArray arr = obj.getJSONArray("message");
+                    Profile buddy = gson.fromJson(arr.get(0).toString(), Profile.class);
+                    Profile me = LoginPreferences.GetInstance().getLocalProfile(getApplicationContext());
+                    Log.v(TAG, "buddy: "+buddy.toString());
+                    Log.v(TAG, "me: "+me.toString());
+                    Intent i = new Intent(BulletinListActivity.this, ChatActivity.class);
+                    Message message = new Message.Builder(Message.TYPE_CHAT_ACTION).msgType(Message.PARAM_MSG_OUT).sender(me.getUsername()).receiver(buddy.getUsername())
+                            .message("Conversation get started").date(new Date().getTime()).image(buddy.getImage()).build();
+                    i.putExtra("Message", message);
+                    startActivity(i);
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -824,7 +813,8 @@ public class BulletinListActivity extends AppCompatActivity {
 
             // finally, execute the request
             Call<ResponseBody> call = gitHubService.upload_post(description, body);
-            call.enqueue(new Callback<ResponseBody>() {
+
+            RetrofitHelper.enqueueWithRetry(call , new  Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call,
                                        Response<ResponseBody> response) {
@@ -835,21 +825,15 @@ public class BulletinListActivity extends AppCompatActivity {
                         String image = jObject.get("data").toString();
                         list_image.add(new Bulletin_image(image));
 
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
+                    } catch (JSONException | IOException e) {
                         e.printStackTrace();
                     }
-
                 }
-
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
                     Log.e("Upload error:", t.getMessage());
                 }
             });
-
-
         }
 
 

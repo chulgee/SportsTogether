@@ -10,36 +10,36 @@
               android:background="?attr/colorButtonNormal"
               app:layout_behavior="@string/bottom_sheet_behavior">
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    >
-
-    <Button
-        android:text="+"
-        android:layout_width="37dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/btAttachImage"
-        />
+        >
 
-    <EditText
-        android:layout_width="0dip"
-        android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
-        android:maxLines="5"
-        android:hint="comment"
-        android:id="@+id/etContent"
-        android:layout_weight="0.86"
-        android:scrollbars="vertical"
-        android:elevation="0dp"
-        />
+        <Button
+            android:text="+"
+            android:layout_width="37dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/btAttachImage"
+            />
 
-    <Button
-        android:text="Send"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/bt_Send"
-        />
+        <EditText
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:maxLines="5"
+            android:hint="comment"
+            android:id="@+id/etContent"
+            android:layout_weight="0.86"
+            android:scrollbars="vertical"
+            android:elevation="0dp"
+            />
+
+        <Button
+            android:text="Send"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/bt_Send"
+            />
     </LinearLayout>
 
     <LinearLayout
