@@ -571,15 +571,20 @@ public class BulletinListActivity extends AppCompatActivity {
                         String command = obj.getString("command");
                         String code = obj.getString("code");
                         JSONArray arr = obj.getJSONArray("message");
-                        Profile buddy = gson.fromJson(arr.get(0).toString(), Profile.class);
-                        Profile me = LoginPreferences.GetInstance().getLocalProfile(getApplicationContext());
-                        Log.v(TAG, "buddy: "+buddy.toString());
-                        Log.v(TAG, "me: "+me.toString());
-                        Intent i = new Intent(BulletinListActivity.this, ChatActivity.class);
-                        Message message = new Message.Builder(Message.TYPE_CHAT_ACTION).msgType(Message.PARAM_MSG_OUT).sender(me.getUsername()).receiver(buddy.getUsername())
-                                .message("Conversation get started").date(new Date().getTime()).image(buddy.getImage()).build();
-                        i.putExtra("Message", message);
-                        startActivity(i);
+                        if(arr.length() > 0){
+                            Profile buddy = gson.fromJson(arr.get(0).toString(), Profile.class);
+                            Profile me = LoginPreferences.GetInstance().getLocalProfile(getApplicationContext());
+                            Log.v(TAG, "buddy: "+buddy.toString());
+                            Log.v(TAG, "me: "+me.toString());
+                            Intent i = new Intent(BulletinListActivity.this, ChatActivity.class);
+                            Message message = new Message.Builder(Message.TYPE_CHAT_ACTION).msgType(Message.PARAM_MSG_OUT).sender(me.getUsername()).receiver(buddy.getUsername())
+                                    .message("Conversation gets started").date(new Date().getTime()).image(buddy.getImage()).build();
+                            i.putExtra("Message", message);
+                            startActivity(i);
+                        }else{
+                            Toast.makeText(BulletinListActivity.this, "Cannot find this buddy", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

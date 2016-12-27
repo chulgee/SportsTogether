@@ -43,9 +43,7 @@
         android:dividerHeight="2dp"
         android:transcriptMode="alwaysScroll"
         android:listSelector="@android:color/transparent"
-        android:stackFromBottom="true"
-        app:stackFromEnd="true">
-
+        android:stackFromBottom="true">
     </android.support.v7.widget.RecyclerView>
 
     <RelativeLayout

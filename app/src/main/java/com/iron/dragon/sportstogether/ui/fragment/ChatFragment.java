@@ -116,7 +116,7 @@ public class ChatFragment extends Fragment {
             buddy = message.getSender();
         }
         sChatRoom.put(buddy, fragment);
-        Log.v(TAG, "newInstance buddy="+buddy+", fragment="+fragment);
+        Log.v(TAG, "sChatRoom newInstance buddy="+buddy+", fragment="+fragment);
         Bundle args = new Bundle();
         args.putSerializable(PARAM_MSG, message);
         fragment.setArguments(args);
@@ -177,19 +177,20 @@ public class ChatFragment extends Fragment {
         civAvatar = (CircleImageView)getActivity().findViewById(R.id.buddyAvatar);
 
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
+        llm.setOrientation(LinearLayoutManager.VERTICAL);
         rView.setLayoutManager(llm);
+        rView.setHasFixedSize(true);
         mAdapter = new MessageAdapter(this, null);
         rView.setAdapter(mAdapter);
 
-        Message message = null;
-        if (getArguments() != null) {
-            message = (Message)getArguments().getSerializable(PARAM_MSG);
+        Bundle bd = getArguments();
+        Message message = (Message)bd.get(PARAM_MSG);
+        if (message != null) {
             if(message.getMsgType() == Message.PARAM_MSG_OUT){
                 mBuddyName = message.getReceiver();
             }else{
                 mBuddyName = message.getSender();
             }
-            //mActivity.addChatRoom(mBuddyName, this);
         }
         Log.v(TAG, "initView message="+message);
 
@@ -212,8 +213,6 @@ public class ChatFragment extends Fragment {
         });
         if(message != null){
             updateUI(message);
-            //mAdapter.addMessage(message);
-            //mAdapter.notifyDataSetChanged();
         }
 
         /*if(mMe.getImage() != null){
@@ -252,7 +251,7 @@ public class ChatFragment extends Fragment {
     public void onDestroy() {
         Log.v(TAG, "onDestory");
         Fragment fragment = sChatRoom.remove(mBuddyName);
-        Log.v(TAG, "onDestory buddy="+mBuddyName+", fragment="+fragment);
+        Log.v(TAG, "sChatRoom onDestory buddy="+mBuddyName+", fragment="+fragment);
 
         //mActivity.removeChatRoom(mBuddyName);
         super.onDestroy();
@@ -361,6 +360,7 @@ public class ChatFragment extends Fragment {
 
     public static Fragment getChatRoom(String buddy_name) {
         Fragment fr = sChatRoom.get(buddy_name);
+        Log.v(TAG, "sChatRoom getChatRoom buddy="+buddy_name+", fragment="+fr);
         return fr;
     }
 /*

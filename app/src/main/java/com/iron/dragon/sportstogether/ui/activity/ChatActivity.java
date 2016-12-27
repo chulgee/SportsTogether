@@ -84,7 +84,6 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
             mCurrentFrag = ChatFragment.newInstance(message);
             Log.v(TAG, "processIntent mCurrentFrag="+mCurrentFrag);
 
-            //addChatRoom(message.getReceiver(), mCurrentFrag);
             FragmentTransaction ft = fm.beginTransaction();
             ft.add(R.id.frag_chat, mCurrentFrag);
             ft.commit();
@@ -118,8 +117,6 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
             }
         }
     }
-
-
 
     @Override
     public void onFragmentInteraction(Uri uri) {
@@ -272,7 +269,6 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
                     if(fr != null){
                         fr.updateUI(message);
                         createMsgNoti(message);
-
                     }else{
                         createMsgNoti(message);
                     }

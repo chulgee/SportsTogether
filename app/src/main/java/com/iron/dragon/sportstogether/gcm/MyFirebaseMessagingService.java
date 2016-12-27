@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Vibrator;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -35,11 +36,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         long date = 0;
         if(str_date != null)
             date = Long.getLong(str_date);
+        //Toast.makeText(this, "수신데이터 -> sender: "+sender+", receiver: "+receiver+", contents: "+contents+", date:"+str_date, Toast.LENGTH_LONG).show();
         println("수신데이터 -> sender: "+sender+", receiver: "+receiver+", contents: "+contents+", date:"+str_date);
 
         Message message = new Message.Builder(Message.TYPE_CHAT_MESSAGE).msgType(Message.PARAM_MSG_IN).sender(sender)
                 .receiver(receiver).message(contents).date(date).build();
-
 
         Intent i = new Intent(this, ChatActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
