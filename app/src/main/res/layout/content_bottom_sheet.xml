@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools">
-<data>
-    <variable
-        name="viewModel"
-        type="com.iron.dragon.sportstogether.data.viewmodel.BulletinListViewModel"/>
-</data>
-<LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
               android:orientation="vertical"
               android:layout_width="fill_parent"
               android:layout_height="200dip"
@@ -16,39 +10,36 @@
               android:background="?attr/colorButtonNormal"
               app:layout_behavior="@string/bottom_sheet_behavior">
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    >
-
-    <Button
-        android:text="+"
-        android:layout_width="37dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/btAttachImage"
-        android:onClick="@{viewModel.onClickAttachImage}"
-        />
+        >
 
-    <EditText
-        android:layout_width="0dip"
-        android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
-        android:maxLines="5"
-        android:hint="comment"
-        android:id="@+id/etContent"
-        android:layout_weight="0.86"
-        android:scrollbars="vertical"
-        android:elevation="0dp"
-        android:text="@={viewModel.Content}"
-        />
+        <Button
+            android:text="+"
+            android:layout_width="37dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/btAttachImage"
+            />
 
-    <Button
-        android:text="Send"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/bt_Send"
-        android:onClick="@{viewModel.onClickSend}"
-        />
+        <EditText
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:maxLines="5"
+            android:hint="comment"
+            android:id="@+id/etContent"
+            android:layout_weight="0.86"
+            android:scrollbars="vertical"
+            android:elevation="0dp"
+            />
+
+        <Button
+            android:text="Send"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/bt_Send"
+            />
     </LinearLayout>
 
     <LinearLayout
@@ -60,4 +51,3 @@
     </LinearLayout>
 
 </LinearLayout>
-    </layout>
