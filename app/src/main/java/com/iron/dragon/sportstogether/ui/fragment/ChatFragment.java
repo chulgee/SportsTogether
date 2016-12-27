@@ -2,7 +2,6 @@ package com.iron.dragon.sportstogether.ui.fragment;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -16,22 +15,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.retropit.GitHubService;
-import com.iron.dragon.sportstogether.ui.activity.BulletinListActivity;
+import com.iron.dragon.sportstogether.http.retropit.RetrofitHelper;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.ui.adapter.MessageAdapter;
 import com.iron.dragon.sportstogether.util.Const;
-import com.orhanobut.logger.Logger;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -39,11 +35,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -281,38 +275,36 @@ public class ChatFragment extends Fragment {
         Log.v(TAG, "mBuddyName="+mBuddyName+", mMe.getSportsid()="+mMe.getSportsid()+", mMe.getLocationid()="+mMe.getLocationid());
         final Call<String> call =
                 gitHubService.getProfiles(mBuddyName, mMe.getSportsid(), mMe.getLocationid(), 0);
-        call.enqueue(new Callback<String>() {
+
+        RetrofitHelper.enqueueWithRetry(call, new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 Log.d("executeHttp Test", "code = " + response.code() + " is successful = " + response.isSuccessful());
                 Log.d("executeHttp Test", "body = " + response.body().toString());
                 Log.d("executeHttp Test", "message = " + response.toString());
-                if (response.isSuccessful()) {
-                    //JSONObject obj = (JSONObject)response.body();
-                    JSONObject obj = null;
-                    try {
-                        obj = new JSONObject(response.body().toString());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    Gson gson = new Gson();
-                    try {
-                        String command = obj.getString("command");
-                        String code = obj.getString("code");
-                        JSONArray arr = obj.getJSONArray("message");
-                        mBuddy = gson.fromJson(arr.get(0).toString(), Profile.class);
-                        Log.v(TAG, "buddy: "+mBuddy.toString());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    if(mBuddy.getImage() != null)
-                        mHandler.sendEmptyMessage(HANDLER_PARAM_GET_IMAGE);
-                    else{
-                        civAvatar.setImageResource(R.drawable.default_user);
-                    }
+                //JSONObject obj = (JSONObject)response.body();
+                JSONObject obj = null;
+                try {
+                    obj = new JSONObject(response.body().toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Gson gson = new Gson();
+                try {
+                    String command = obj.getString("command");
+                    String code = obj.getString("code");
+                    JSONArray arr = obj.getJSONArray("message");
+                    mBuddy = gson.fromJson(arr.get(0).toString(), Profile.class);
+                    Log.v(TAG, "buddy: "+mBuddy.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if(mBuddy.getImage() != null)
+                    mHandler.sendEmptyMessage(HANDLER_PARAM_GET_IMAGE);
+                else{
+                    civAvatar.setImageResource(R.drawable.default_user);
                 }
             }
-
             @Override
             public void onFailure(Call<String> call, Throwable t) {
                 Log.d("Test", "error message = " + t.getMessage());

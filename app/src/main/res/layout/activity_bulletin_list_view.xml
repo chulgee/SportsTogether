@@ -14,8 +14,16 @@ android:orientation="vertical"
          android:layout_height="match_parent"
          android:fitsSystemWindows="true"
          >
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/board_recyclerviewer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
 
-        <android.support.design.widget.AppBarLayout
+            >
+            <!--app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
+        </android.support.v7.widget.RecyclerView>
+
+        <me.henrytao.smoothappbarlayout.SmoothAppBarLayout
             android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="300dp"
@@ -87,17 +95,10 @@ android:orientation="vertical"
 
     </android.support.design.widget.CollapsingToolbarLayout>
 
-        </android.support.design.widget.AppBarLayout>
+    </me.henrytao.smoothappbarlayout.SmoothAppBarLayout>
 
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/board_recyclerviewer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
 
-            >
-        </android.support.v7.widget.RecyclerView>
         <include  android:id="@+id/commentLayout" layout="@layout/content_bottom_sheet" />
         <com.github.rahatarmanahmed.cpv.CircularProgressView
             xmlns:app="http://schemas.android.com/apk/res-auto"

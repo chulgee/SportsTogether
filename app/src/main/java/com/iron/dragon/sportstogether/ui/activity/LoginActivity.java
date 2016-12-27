@@ -27,7 +27,9 @@ import com.iron.dragon.sportstogether.SportsApplication;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.data.bean.ProfileItem;
+import com.iron.dragon.sportstogether.http.retropit.CallbackWithExists;
 import com.iron.dragon.sportstogether.http.retropit.GitHubService;
+import com.iron.dragon.sportstogether.http.retropit.RetrofitHelper;
 import com.iron.dragon.sportstogether.util.Const;
 import com.orhanobut.logger.Logger;
 
@@ -188,50 +190,43 @@ public class LoginActivity extends AppCompatActivity {
                 final Call<Profile> call =
                         gitHubService.postProfiles(p);
 
-                call.enqueue(new Callback<Profile>() {
+                RetrofitHelper.enqueueWithRetry(call, new CallbackWithExists<Profile>() {
                     @Override
                     public void onResponse(Call<Profile> call, Response<Profile> response) {
                         Log.v(TAG, "onResponse response.isSuccessful()=" + response.isSuccessful());
 
-                        if (response.isSuccessful()) {
-                            Log.d("Test", "body = " + response.body().toString());
-                            Profile p = response.body();
+                        Log.d("Test", "body = " + response.body().toString());
+                        Profile p = response.body();
 
-                            Log.v(TAG, Const.SPORTS.BADMINTON.name());
-                            Log.v(TAG, "" + Const.SPORTS.values());
+                        Log.v(TAG, Const.SPORTS.BADMINTON.name());
+                        Log.v(TAG, "" + Const.SPORTS.values());
 
-                            setLogged();
+                        setLogged();
 
-                            if(mCropImagedUri == null) {
-                                saveLocalProfile(p);
-                                toBulletinListActivity();
+                        if(mCropImagedUri == null) {
+                            saveLocalProfile(p);
+                            toBulletinListActivity();
 
-                                Log.v(TAG, "pi=" + p.toString());
-                            } else {
-                                uploadFile(p, mCropImagedUri);
-                            }
+                            Log.v(TAG, "pi=" + p.toString());
                         } else {
-                            Log.v(TAG, "response=" + response);
-                            Log.v(TAG, "response=" + response.message());
-                            Log.v(TAG, "response=" + response.toString());
-                            Log.v(TAG, "response=" + response.body());
-                            Log.v(TAG, "response=" + response.code());
-                            Log.v(TAG, "response=" + response.errorBody());
-                            Log.v(TAG, "response=" + response.isSuccessful());
-                            Log.v(TAG, "response=" + response.raw());
-                            Toast.makeText(getApplicationContext(), "" + response.code(), Toast.LENGTH_SHORT).show();
-                            if (response.code() == 409) {
-                                setLogged();
-                                toBulletinListActivity();
-                                finish();
-                            }
-/*                            Error err = ErrorUtil.parse(response);
-                            if(err != null)
-                                ToastUtil.show(getApplicationContext(), err.getStatusCode()+", "+err.getMessage());*/
+                            uploadFile(p, mCropImagedUri);
                         }
                     }
-
-
+                    @Override
+                    public void onExists(Call<Profile> call, Response<Profile> response) {
+                        Log.v(TAG, "response=" + response);
+                        Log.v(TAG, "response=" + response.message());
+                        Log.v(TAG, "response=" + response.toString());
+                        Log.v(TAG, "response=" + response.body());
+                        Log.v(TAG, "response=" + response.code());
+                        Log.v(TAG, "response=" + response.errorBody());
+                        Log.v(TAG, "response=" + response.isSuccessful());
+                        Log.v(TAG, "response=" + response.raw());
+                        Toast.makeText(getApplicationContext(), "" + response.code(), Toast.LENGTH_SHORT).show();
+                        setLogged();
+                        toBulletinListActivity();
+                        finish();
+                    }
                     @Override
                     public void onFailure(Call<Profile> call, Throwable t) {
                         Log.d("Test", "error message = " + t.getMessage());
@@ -391,7 +386,8 @@ public class LoginActivity extends AppCompatActivity {
 
             // finally, execute the request
             Call<ResponseBody> call = gitHubService.upload_profile(description, body);
-            call.enqueue(new Callback<ResponseBody>() {
+
+            RetrofitHelper.enqueueWithRetry(call, new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call,
                                        Response<ResponseBody> response) {
