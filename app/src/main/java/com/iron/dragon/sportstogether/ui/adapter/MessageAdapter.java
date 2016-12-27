@@ -46,6 +46,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             mMessages = messages;
     }
 
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v;
@@ -102,7 +103,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemCount() {
-        return mMessages.size();
+        return mMessages==null?0:mMessages.size();
     }
 
     public void addMessage(Message message){
