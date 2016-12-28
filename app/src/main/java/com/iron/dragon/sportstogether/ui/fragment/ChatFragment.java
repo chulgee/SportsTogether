@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -66,6 +67,7 @@ public class ChatFragment extends Fragment {
     public static final int HANDLER_PARAM_GET_IMAGE = 1;
 
     RecyclerView rView;
+    ImageButton ibtnBack;
     TextView tvBuddy;
     Button btnSend;
     EditText etMessage;
@@ -79,16 +81,14 @@ public class ChatFragment extends Fragment {
     Profile mMe;
     Profile mBuddy;
     // buddy's username and fragment
-    private static HashMap<String, Fragment> sChatRoom = new HashMap<String, Fragment>();
+    public static HashMap<String, Fragment> sChatRoom = new HashMap<String, Fragment>();
 
     Map<String, Bitmap> mAvatarMap = new HashMap<String, Bitmap>();
     Handler mHandler = new Handler(){
         @Override
         public void handleMessage(android.os.Message msg) {
-            if(msg.what == HANDLER_PARAM_GET_PROFILE){
-                fetchBuddyProfile();
-            }else if(msg.what == HANDLER_PARAM_GET_IMAGE){
-                fetchAvaTar(mBuddy.getImage());
+            if(msg.what == HANDLER_PARAM_GET_IMAGE){
+
             }
         }
     };
@@ -147,34 +147,39 @@ public class ChatFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.v(TAG, "onCreateView");
-        return inflater.inflate(R.layout.frag_chat, container, false);
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        Log.v(TAG, "onViewCreated");
-        super.onViewCreated(view, savedInstanceState);
-        Log.v(TAG, "onViewCreated getArguments()="+getArguments());
-        Log.v(TAG, "onViewCreated mActivity.mCurrentFrag="+mActivity.mCurrentFrag);
-        Log.v(TAG, "onViewCreated mActivity.mCurrentFrag.mBuddyName="+mActivity.mCurrentFrag.mBuddyName);
-        /*Iterator iter =ChatActivity.mChatRoom.keySet().iterator();
-        while(iter.hasNext())
-            Log.v(TAG, "onViewCreated iter="+iter.next());
-*/
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        initView();
-    }
-
-    private void initView(){
+        View v = inflater.inflate(R.layout.frag_chat, container, false);;
         mMe = LoginPreferences.GetInstance().getLocalProfile(getActivity());
-        tvBuddy = (TextView) getActivity().findViewById(R.id.buddyAlias);
-        etMessage = (EditText) getActivity().findViewById(R.id.etChatMessage);
-        rView = (RecyclerView) getActivity().findViewById(R.id.chatListView);
-        civAvatar = (CircleImageView)getActivity().findViewById(R.id.buddyAvatar);
+        tvBuddy = (TextView) v.findViewById(R.id.buddyAlias);
+        etMessage = (EditText) v.findViewById(R.id.etChatMessage);
+        rView = (RecyclerView) v.findViewById(R.id.chatListView);
+        ibtnBack = (ImageButton) v.findViewById(R.id.ibtnBack);
+        ibtnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.v(TAG, "hi sChatRoom.size()="+sChatRoom.size());
+                Log.v(TAG, "getFragmentManager().getBackStackEntryCount()="+getFragmentManager().getBackStackEntryCount());
+                if(sChatRoom.size() > 1)
+                    getFragmentManager().beginTransaction().remove(ChatFragment.this).commit();
+                else {
+                    mActivity.finish();
+                }
+            }
+        });
+        btnSend = (Button) v.findViewById(R.id.sendButton);
+        btnSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!etMessage.getText().toString().isEmpty()) {
+                    mContents = etMessage.getText().toString();
+                    etMessage.setText("");
+                    Message message = new Message.Builder(Message.TYPE_CHAT_MESSAGE).msgType(Message.PARAM_MSG_OUT).sender(mMe.getUsername()).receiver(mBuddyName)
+                            .message(mContents).date(new Date().getTime()).build();
+                    updateUI(message);
+                    mActivity.send(message);
+                }else
+                    Toast.makeText(getActivity(), "Please enter message", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         llm.setOrientation(LinearLayoutManager.VERTICAL);
@@ -183,113 +188,23 @@ public class ChatFragment extends Fragment {
         mAdapter = new MessageAdapter(this, null);
         rView.setAdapter(mAdapter);
 
-        Bundle bd = getArguments();
-        Message message = (Message)bd.get(PARAM_MSG);
-        if (message != null) {
-            if(message.getMsgType() == Message.PARAM_MSG_OUT){
-                mBuddyName = message.getReceiver();
-            }else{
-                mBuddyName = message.getSender();
-            }
-        }
-        Log.v(TAG, "initView message="+message);
-
-        //tvBuddy.setText(mBuddyName);
-        ((ChatActivity)getActivity()).getSupportActionBar().setTitle(mBuddyName);
-        btnSend = (Button) getActivity().findViewById(R.id.sendButton);
-        btnSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!etMessage.getText().toString().isEmpty()) {
-                    mContents = etMessage.getText().toString();
-                    Message message = new Message.Builder(Message.TYPE_CHAT_MESSAGE).msgType(Message.PARAM_MSG_OUT).sender(mMe.getUsername()).receiver(mBuddyName)
-                            .message(mContents).date(new Date().getTime()).build();
-                    updateUI(message);
-                    mActivity.send(message);
-                    etMessage.setText("");
-                }else
-                    Toast.makeText(getActivity(), "Please enter message", Toast.LENGTH_SHORT).show();
-            }
-        });
-        if(message != null){
-            updateUI(message);
-        }
-
-        /*if(mMe.getImage() != null){
-            fetchAvaTar(mMe.getImage());
-        }*/
-
-        mHandler.sendEmptyMessage(HANDLER_PARAM_GET_PROFILE);
-    }
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+        return v;
     }
 
     @Override
-    public void onStart() {
-        Log.v(TAG, "onStart mBuddyName="+mBuddyName);
-        super.onStart();
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        Log.v(TAG, "onViewCreated");
+        super.onViewCreated(view, savedInstanceState);
+        initView();
     }
 
     @Override
-    public void onDetach() {
-        Log.v(TAG, "onDetach");
-        super.onDetach();
-        mListener = null;
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        //loadBuddyProfile();
     }
 
-    @Override
-    public void onAttachFragment(Fragment childFragment) {
-        Log.v(TAG, "onAttachFragment");
-        super.onAttachFragment(childFragment);
-    }
-
-    @Override
-    public void onDestroy() {
-        Log.v(TAG, "onDestory");
-        Fragment fragment = sChatRoom.remove(mBuddyName);
-        Log.v(TAG, "sChatRoom onDestory buddy="+mBuddyName+", fragment="+fragment);
-
-        //mActivity.removeChatRoom(mBuddyName);
-        super.onDestroy();
-    }
-
-    @Override
-    public void onDestroyView() {
-        Log.v(TAG, "onDestoryView");
-        super.onDestroyView();
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-        void onUpdateUI();
-    }
-
-    public void updateUI(Message message) {
-        mAdapter.addMessage(message);
-        rView.scrollToPosition(mAdapter.getItemCount()-1);
-        mAdapter.notifyDataSetChanged();
-    }
-
-    public void println(String data){
-        System.out.println(data);
-    }
-
-    public void fetchBuddyProfile(){
+    private void loadBuddyProfile(){
         // buddy의 profile 가져오기
         GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
         Log.v(TAG, "mBuddyName="+mBuddyName+", mMe.getSportsid()="+mMe.getSportsid()+", mMe.getLocationid()="+mMe.getLocationid());
@@ -320,9 +235,19 @@ public class ChatFragment extends Fragment {
                         e.printStackTrace();
                     }
                     if(mBuddy.getImage() != null)
-                        mHandler.sendEmptyMessage(HANDLER_PARAM_GET_IMAGE);
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                fetchAvaTar(mBuddy.getImage());
+                            }
+                        });
                     else{
-                        civAvatar.setImageResource(R.drawable.default_user);
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                civAvatar.setImageResource(R.drawable.default_user);
+                            }
+                        });
                     }
                 }
             }
@@ -332,6 +257,98 @@ public class ChatFragment extends Fragment {
                 Log.d("Test", "error message = " + t.getMessage());
             }
         });
+    }
+
+    private void initView(){
+
+        Bundle bd = getArguments();
+        Message message = (Message)bd.get(PARAM_MSG);
+        if (message != null) {
+            if(message.getMsgType() == Message.PARAM_MSG_OUT){
+                mBuddyName = message.getReceiver();
+            }else{
+                mBuddyName = message.getSender();
+            }
+        }
+        Log.v(TAG, "initView message="+message);
+
+        tvBuddy.setText(mBuddyName);
+        if(message != null){
+            updateUI(message);
+        }
+   }
+    // TODO: Rename method, update argument and hook method into UI event
+    public void onButtonPressed(Uri uri) {
+        if (mListener != null) {
+            mListener.onFragmentInteraction(uri);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        Log.v(TAG, "onStart mBuddyName="+mBuddyName);
+        super.onStart();
+    }
+
+    @Override
+    public void onDetach() {
+        Log.v(TAG, "onDetach");
+        super.onDetach();
+        mListener = null;
+    }
+
+    @Override
+    public void onAttachFragment(Fragment childFragment) {
+        Log.v(TAG, "onAttachFragment");
+        super.onAttachFragment(childFragment);
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.v(TAG, "onDestory");
+        //Fragment fragment = sChatRoom.remove(mBuddyName);
+        //Log.v(TAG, "sChatRoom onDestory buddy="+mBuddyName+", fragment="+fragment);
+
+        //mActivity.removeChatRoom(mBuddyName);
+        super.onDestroy();
+    }
+
+    @Override
+    public void onDestroyView() {
+        Log.v(TAG, "onDestoryView");
+        super.onDestroyView();
+        Fragment fragment = sChatRoom.remove(mBuddyName);
+        Log.v(TAG, "sChatRoom onDestory buddy="+mBuddyName+", fragment="+fragment);
+    }
+
+    /**
+     * This interface must be implemented by activities that contain this
+     * fragment to allow an interaction in this fragment to be communicated
+     * to the activity and potentially other fragments contained in that
+     * activity.
+     * <p>
+     * See the Android Training lesson <a href=
+     * "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
+     */
+    public interface OnFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onFragmentInteraction(Uri uri);
+        void onUpdateUI();
+    }
+
+    public void updateUI(Message message) {
+        mAdapter.addMessage(message);
+        rView.scrollToPosition(mAdapter.getItemCount()-1);
+        mAdapter.notifyDataSetChanged();
+    }
+
+    public void println(String data){
+        System.out.println(data);
+    }
+
+    public void fetchBuddyProfile(){
+
     }
 
     public void fetchAvaTar(final String filename){
