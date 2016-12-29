@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -43,9 +44,9 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
     ChatThread mThread;
     public ChatFragment mCurrentFrag;
     Profile me;
+    boolean mPaused;
 
     FragmentManager fm = getFragmentManager();
-
 
     Handler mHandler = new Handler();
 
@@ -53,8 +54,6 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Log.v(TAG, "onCreate");
         Intent i = getIntent();
         processIntent(i);
@@ -66,7 +65,18 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         processNewIntent(intent);
+    }
 
+    @Override
+    protected void onPause() {
+        mPaused = true;
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mPaused = false;
     }
 
     @Override
@@ -104,15 +114,17 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
             mCurrentFrag = (ChatFragment)ChatFragment.getChatRoom(key);
             Log.v(TAG, "processNewIntent key ="+key+", mCurrentFrag="+mCurrentFrag);
             if(mCurrentFrag != null){
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.show(mCurrentFrag);
-                ft.commit();
-                //showFragment(key);
+                //FragmentTransaction ft = getFragmentManager().beginTransaction();
+                //ft.replace(R.id.frag_chat, mCurrentFrag);
+                //ft.show(mCurrentFrag);
+                //ft.addToBackStack(null);
+                //ft.commit();
+                showFragment(key);
             }else{
                 FragmentTransaction ft = fm.beginTransaction();
                 mCurrentFrag = ChatFragment.newInstance(message);
                 ft.add(R.id.frag_chat, mCurrentFrag);
-                ft.addToBackStack(null);
+                //ft.addToBackStack(null);
                 ft.commit();
             }
         }
@@ -122,23 +134,12 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
     public void onFragmentInteraction(Uri uri) {
     }
 
-    @Override
-    public void onUpdateUI() {
-    }
-
     public void send(Message message){
         mThread.send(message);
     }
 
     public ChatFragment createFragment(Message message){
         return ChatFragment.newInstance(message);
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        //if(mChatRoom.size() == 1)
-          //  finish();
     }
 
     class ChatThread extends Thread {
@@ -192,9 +193,6 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
                 try {
                     JSONObject obj = new JSONObject();
                     obj.put("username", me.getUsername());
-                    //obj.put("regid", mMe.getRegid());
-                    //obj.put("sportsid", mMe.getSportsid());
-                    //obj.put("locationid", mMe.getLocationid());
                     mSocket.emit("login", obj);
                     isConnected = true;
                 } catch (Exception e) {
@@ -226,6 +224,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
 
             @Override
             public void call(Object... args) {
+                isConnected = false;
                 Log.v(TAG, "onConnectError");
                 finish();
                 //Toast.makeText(getApplicationContext(), "connect error", Toast.LENGTH_LONG).show();
@@ -253,38 +252,62 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
                 final Message message = new Message.Builder(Message.TYPE_CHAT_MESSAGE).msgType(Message.PARAM_MSG_IN).sender(sender).receiver(receiver).message(contents).date(date).build();
                 Log.v(TAG, message.toString());
 
-                Log.v(TAG, "onSend mCurrentFrag.mBuddyName="+mCurrentFrag.mBuddyName);
-                if(sender.equals(mCurrentFrag.mBuddyName)) {
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCurrentFrag.updateUI(message);
-                        }
-                    });
-                    createMsgNoti(message);
-                }else{
-                    ChatFragment fr;
-                    fr = (ChatFragment)ChatFragment.getChatRoom(sender);
-                    Log.v(TAG, "onSend sender="+sender+", fr="+fr);
-                    if(fr != null){
-                        fr.updateUI(message);
-                        createMsgNoti(message);
+                Log.v(TAG, "onSend mCurrentFrag.mBuddyName="+mCurrentFrag.getBuddyName());
+                if(!mPaused){ // 포그라운드 러닝상태
+                    if(sender.equals(mCurrentFrag.getBuddyName())) {
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                mCurrentFrag.updateUI(message);
+                            }
+                        });
                     }else{
+                        final ChatFragment fr = (ChatFragment)ChatFragment.getChatRoom(sender);
+                        Log.v(TAG, "onSend sender="+sender+", fr="+fr);
+                        if(fr != null){
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    fr.updateUI(message);
+                                }
+                            });
+                        }
+                        vibrateNoti();
                         createMsgNoti(message);
                     }
-                    //mCurrentFrag = (ChatFragment)fr;
+                }else{
+                    if(sender.equals(mCurrentFrag.getBuddyName())) {
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                mCurrentFrag.updateUI(message);
+                            }
+                        });
+                    }else{
+                        final ChatFragment fr = (ChatFragment)ChatFragment.getChatRoom(sender);
+                        Log.v(TAG, "onSend sender="+sender+", fr="+fr);
+                        if(fr != null){
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    fr.updateUI(message);
+                                }
+                            });
+                        }
+                    }
+                    vibrateNoti();
+                    createMsgNoti(message);
                 }
-
             }
         };
     }
 
-/*    void showFragment(String buddyName){
-        Iterator iter =ChatActivity.mChatRoom.keySet().iterator();
+    void showFragment(String buddyName){
+        Iterator iter =ChatFragment.getChatRoom().keySet().iterator();
         while(iter.hasNext()){
             String key = (String)iter.next();
             Log.v(TAG, "showFragment key="+key);
-            Fragment fragment = mChatRoom.get(key);
+            Fragment fragment = ChatFragment.getChatRoom().get(key);
             FragmentTransaction ft = fm.beginTransaction();
             if(key.equals(buddyName)) {
                 Log.v(TAG, "show buddyName="+key+", fragment="+fragment);
@@ -295,7 +318,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
             }
             ft.commit();
         }
-    }*/
+    }
 
     void createMsgNoti(Message message){
         Intent i = new Intent(ChatActivity.this, ChatActivity.class);
@@ -314,6 +337,11 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
         nm.notify(1, builder.build());
     }
 
+    void vibrateNoti(){
+        Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        vibe.vibrate(300);
+
+    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 

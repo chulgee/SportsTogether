@@ -8,31 +8,33 @@
         android:id="@+id/topLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone">
+        android:background="#ff0b2151"
+        >
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/buddyAvatar"
+        <ImageButton
+            android:id="@+id/ibtnBack"
             android:layout_width="50dip"
             android:layout_height="50dip"
-            android:src="@drawable/default_user"
-            app:civ_border_width="2dp"
-            android:layout_alignParentLeft="true" />
+            android:src="@drawable/back"
+            android:layout_alignParentLeft="true"
+            android:scaleType="fitCenter"
+            />
 
         <TextView
-            android:id="@+id/buddyAlias"
+            android:id="@+id/tvBuddyName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/buddyAvatar"
+            android:layout_toRightOf="@+id/ibtnBack"
             android:layout_centerVertical="true"
             android:textSize="24dp"
             android:textStyle="bold"
             android:textColor="#ffaaaaaa"
-            android:layout_margin="10dp"/>
+            android:layout_margin="3dp"/>
 
     </RelativeLayout>
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/chatListView"
+        android:id="@+id/lvList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/topLayout"
@@ -65,7 +67,7 @@
             android:layout_centerVertical="true"/>
 
         <Button
-            android:id="@+id/sendButton"
+            android:id="@+id/btnSend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
