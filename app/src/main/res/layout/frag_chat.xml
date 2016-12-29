@@ -17,10 +17,11 @@
             android:layout_height="50dip"
             android:src="@drawable/back"
             android:layout_alignParentLeft="true"
+            android:scaleType="fitCenter"
             />
 
         <TextView
-            android:id="@+id/buddyAlias"
+            android:id="@+id/tvBuddyName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/ibtnBack"
@@ -33,7 +34,7 @@
     </RelativeLayout>
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/chatListView"
+        android:id="@+id/lvList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/topLayout"
@@ -66,7 +67,7 @@
             android:layout_centerVertical="true"/>
 
         <Button
-            android:id="@+id/sendButton"
+            android:id="@+id/btnSend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"

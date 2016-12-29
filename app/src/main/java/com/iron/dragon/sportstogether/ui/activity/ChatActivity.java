@@ -48,15 +48,12 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
 
     FragmentManager fm = getFragmentManager();
 
-
     Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Log.v(TAG, "onCreate");
         Intent i = getIntent();
         processIntent(i);
@@ -68,7 +65,6 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         processNewIntent(intent);
-
     }
 
     @Override
@@ -118,15 +114,17 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
             mCurrentFrag = (ChatFragment)ChatFragment.getChatRoom(key);
             Log.v(TAG, "processNewIntent key ="+key+", mCurrentFrag="+mCurrentFrag);
             if(mCurrentFrag != null){
-                /*FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.show(mCurrentFrag);
-                ft.commit();*/
+                //FragmentTransaction ft = getFragmentManager().beginTransaction();
+                //ft.replace(R.id.frag_chat, mCurrentFrag);
+                //ft.show(mCurrentFrag);
+                //ft.addToBackStack(null);
+                //ft.commit();
                 showFragment(key);
             }else{
                 FragmentTransaction ft = fm.beginTransaction();
                 mCurrentFrag = ChatFragment.newInstance(message);
                 ft.add(R.id.frag_chat, mCurrentFrag);
-                ft.addToBackStack(null);
+                //ft.addToBackStack(null);
                 ft.commit();
             }
         }
@@ -136,23 +134,12 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
     public void onFragmentInteraction(Uri uri) {
     }
 
-    @Override
-    public void onUpdateUI() {
-    }
-
     public void send(Message message){
         mThread.send(message);
     }
 
     public ChatFragment createFragment(Message message){
         return ChatFragment.newInstance(message);
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        //if(mChatRoom.size() == 1)
-          //  finish();
     }
 
     class ChatThread extends Thread {
@@ -206,9 +193,6 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
                 try {
                     JSONObject obj = new JSONObject();
                     obj.put("username", me.getUsername());
-                    //obj.put("regid", mMe.getRegid());
-                    //obj.put("sportsid", mMe.getSportsid());
-                    //obj.put("locationid", mMe.getLocationid());
                     mSocket.emit("login", obj);
                     isConnected = true;
                 } catch (Exception e) {
@@ -240,6 +224,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
 
             @Override
             public void call(Object... args) {
+                isConnected = false;
                 Log.v(TAG, "onConnectError");
                 finish();
                 //Toast.makeText(getApplicationContext(), "connect error", Toast.LENGTH_LONG).show();
@@ -267,9 +252,9 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
                 final Message message = new Message.Builder(Message.TYPE_CHAT_MESSAGE).msgType(Message.PARAM_MSG_IN).sender(sender).receiver(receiver).message(contents).date(date).build();
                 Log.v(TAG, message.toString());
 
-                Log.v(TAG, "onSend mCurrentFrag.mBuddyName="+mCurrentFrag.mBuddyName);
+                Log.v(TAG, "onSend mCurrentFrag.mBuddyName="+mCurrentFrag.getBuddyName());
                 if(!mPaused){ // 포그라운드 러닝상태
-                    if(sender.equals(mCurrentFrag.mBuddyName)) {
+                    if(sender.equals(mCurrentFrag.getBuddyName())) {
                         mHandler.post(new Runnable() {
                             @Override
                             public void run() {
@@ -291,7 +276,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
                         createMsgNoti(message);
                     }
                 }else{
-                    if(sender.equals(mCurrentFrag.mBuddyName)) {
+                    if(sender.equals(mCurrentFrag.getBuddyName())) {
                         mHandler.post(new Runnable() {
                             @Override
                             public void run() {
@@ -318,11 +303,11 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
     }
 
     void showFragment(String buddyName){
-        Iterator iter =ChatFragment.sChatRoom.keySet().iterator();
+        Iterator iter =ChatFragment.getChatRoom().keySet().iterator();
         while(iter.hasNext()){
             String key = (String)iter.next();
             Log.v(TAG, "showFragment key="+key);
-            Fragment fragment = ChatFragment.sChatRoom.get(key);
+            Fragment fragment = ChatFragment.getChatRoom().get(key);
             FragmentTransaction ft = fm.beginTransaction();
             if(key.equals(buddyName)) {
                 Log.v(TAG, "show buddyName="+key+", fragment="+fragment);
