@@ -13,6 +13,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.bean.Message;
+import com.iron.dragon.sportstogether.ui.FloatingService;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.util.PushWakeLock;
 
@@ -62,6 +63,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         mVibe.vibrate(300);
         PushWakeLock.acquireWakeLock(this, 5000);
 
+        Intent i1 = new Intent(this, FloatingService.class);
+        i1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        i1.putExtra("Message", message);
+        startService(i1);
     }
 
     private void println(String data){
