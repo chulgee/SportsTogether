@@ -74,7 +74,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 vh.tv2.setText(message.getMessage());
                 vh.tv5.setText(Util.getStringTime(message.getDate()));
                 vh.rl2.setVisibility(View.GONE);
-                Bitmap bmp = mFragment.getmAvatarMap().get(message.getSender());
+                Bitmap bmp = mFragment.getAvatarMap().get(message.getSender());
                 Log.v(TAG, "getSender="+message.getSender()+", bmp="+bmp);
                 if(bmp != null){
                     vh.civ1.setImageBitmap(bmp);

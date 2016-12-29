@@ -2,7 +2,6 @@ package com.iron.dragon.sportstogether.ui.fragment;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -17,22 +16,18 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.retropit.GitHubService;
-import com.iron.dragon.sportstogether.ui.activity.BulletinListActivity;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.ui.adapter.MessageAdapter;
 import com.iron.dragon.sportstogether.util.Const;
-import com.orhanobut.logger.Logger;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -40,14 +35,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
-import de.hdodenhof.circleimageview.CircleImageView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -61,43 +55,37 @@ import retrofit2.Response;
  * create an instance of this fragment.
  */
 public class ChatFragment extends Fragment {
-    public static final String PARAM_MSG = "Message";
+
     public static final String TAG = "ChatFragment";
-    public static final int HANDLER_PARAM_GET_PROFILE = 0;
-    public static final int HANDLER_PARAM_GET_IMAGE = 1;
+    public static final String PARAM_FRAG_MSG = "Message";
 
-    RecyclerView rView;
-    ImageButton ibtnBack;
-    TextView tvBuddy;
-    Button btnSend;
-    EditText etMessage;
-    CircleImageView civAvatar;
+    @BindView(R.id.lvList) RecyclerView rView;
+    @BindView(R.id.ibtnBack) ImageButton ibtnBack;
+    @BindView(R.id.tvBuddyName) TextView tvBuddy;
+    @BindView(R.id.btnSend) Button btnSend;
+    @BindView(R.id.etChatMessage) EditText etMessage;
 
-    public String mBuddyName;
+    static Map<String, Fragment> sChatRoom = new HashMap<String, Fragment>();
+    Map<String, Bitmap> mAvatarMap = new HashMap<String, Bitmap>();
+
     OnFragmentInteractionListener mListener;
     ChatActivity mActivity;
+    String mBuddyName;
     MessageAdapter mAdapter;
     String mContents;
     Profile mMe;
     Profile mBuddy;
-    // buddy's username and fragment
-    public static HashMap<String, Fragment> sChatRoom = new HashMap<String, Fragment>();
 
-    Map<String, Bitmap> mAvatarMap = new HashMap<String, Bitmap>();
-    Handler mHandler = new Handler(){
-        @Override
-        public void handleMessage(android.os.Message msg) {
-            if(msg.what == HANDLER_PARAM_GET_IMAGE){
-
-            }
-        }
-    };
+    Handler mHandler = new Handler();
 
     public ChatFragment() {
-        // Required empty public constructor
     }
 
-    public Map<String, Bitmap> getmAvatarMap() {
+    public String getBuddyName() {
+        return mBuddyName;
+    }
+
+    public Map<String, Bitmap> getAvatarMap() {
         return mAvatarMap;
     }
 
@@ -118,7 +106,7 @@ public class ChatFragment extends Fragment {
         sChatRoom.put(buddy, fragment);
         Log.v(TAG, "sChatRoom newInstance buddy="+buddy+", fragment="+fragment);
         Bundle args = new Bundle();
-        args.putSerializable(PARAM_MSG, message);
+        args.putSerializable(PARAM_FRAG_MSG, message);
         fragment.setArguments(args);
         return fragment;
     }
@@ -137,38 +125,36 @@ public class ChatFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.v(TAG, "onCreate getArguments()="+getArguments());
-
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.v(TAG, "onCreateView");
-        View v = inflater.inflate(R.layout.frag_chat, container, false);;
+        View v = inflater.inflate(R.layout.frag_chat, container, false);
+        ButterKnife.bind(this, v);
         mMe = LoginPreferences.GetInstance().getLocalProfile(getActivity());
-        tvBuddy = (TextView) v.findViewById(R.id.buddyAlias);
-        etMessage = (EditText) v.findViewById(R.id.etChatMessage);
-        rView = (RecyclerView) v.findViewById(R.id.chatListView);
-        ibtnBack = (ImageButton) v.findViewById(R.id.ibtnBack);
-        ibtnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        LinearLayoutManager llm = new LinearLayoutManager(getActivity());
+        llm.setOrientation(LinearLayoutManager.VERTICAL);
+        rView.setLayoutManager(llm);
+        mAdapter = new MessageAdapter(this, null);
+        rView.setAdapter(mAdapter);
+
+        return v;
+    }
+
+    @OnClick({R.id.ibtnBack, R.id.btnSend})
+    public void onClick(View v) {
+
+        switch (v.getId()){
+            case R.id.ibtnBack:
                 Log.v(TAG, "hi sChatRoom.size()="+sChatRoom.size());
                 Log.v(TAG, "getFragmentManager().getBackStackEntryCount()="+getFragmentManager().getBackStackEntryCount());
-                if(sChatRoom.size() > 1)
+                mActivity.finish();
+                /*if(sChatRoom.size() > 1)
                     getFragmentManager().beginTransaction().remove(ChatFragment.this).commit();
                 else {
                     mActivity.finish();
-                }
-            }
-        });
-        btnSend = (Button) v.findViewById(R.id.sendButton);
-        btnSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+                }*/
+                break;
+            case R.id.btnSend:
                 if(!etMessage.getText().toString().isEmpty()) {
                     mContents = etMessage.getText().toString();
                     etMessage.setText("");
@@ -178,17 +164,9 @@ public class ChatFragment extends Fragment {
                     mActivity.send(message);
                 }else
                     Toast.makeText(getActivity(), "Please enter message", Toast.LENGTH_SHORT).show();
-            }
-        });
+                break;
+        }
 
-        LinearLayoutManager llm = new LinearLayoutManager(getActivity());
-        llm.setOrientation(LinearLayoutManager.VERTICAL);
-        rView.setLayoutManager(llm);
-        rView.setHasFixedSize(true);
-        mAdapter = new MessageAdapter(this, null);
-        rView.setAdapter(mAdapter);
-
-        return v;
     }
 
     @Override
@@ -198,10 +176,29 @@ public class ChatFragment extends Fragment {
         initView();
     }
 
+    private void initView(){
+
+        Bundle bd = getArguments();
+        Message message = (Message)bd.get(PARAM_FRAG_MSG);
+        if (message != null) {
+            if(message.getMsgType() == Message.PARAM_MSG_OUT){
+                mBuddyName = message.getReceiver();
+            }else{
+                mBuddyName = message.getSender();
+            }
+        }
+        Log.v(TAG, "initView message="+message);
+
+        tvBuddy.setText(mBuddyName);
+        if(message != null){
+            updateUI(message);
+        }
+    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        //loadBuddyProfile();
+        loadBuddyProfile();
     }
 
     private void loadBuddyProfile(){
@@ -213,11 +210,10 @@ public class ChatFragment extends Fragment {
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
-                Log.d("executeHttp Test", "code = " + response.code() + " is successful = " + response.isSuccessful());
-                Log.d("executeHttp Test", "body = " + response.body().toString());
-                Log.d("executeHttp Test", "message = " + response.toString());
+                Log.d("loadBuddyProfile", "code = " + response.code() + " is successful = " + response.isSuccessful());
+                Log.d("loadBuddyProfile", "body = " + response.body().toString());
+                Log.d("loadBuddyProfile", "message = " + response.toString());
                 if (response.isSuccessful()) {
-                    //JSONObject obj = (JSONObject)response.body();
                     JSONObject obj = null;
                     try {
                         obj = new JSONObject(response.body().toString());
@@ -234,18 +230,11 @@ public class ChatFragment extends Fragment {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    if(mBuddy.getImage() != null)
+                    if(mBuddy.getImage() != null) {
                         mHandler.post(new Runnable() {
                             @Override
                             public void run() {
                                 fetchAvaTar(mBuddy.getImage());
-                            }
-                        });
-                    else{
-                        mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                civAvatar.setImageResource(R.drawable.default_user);
                             }
                         });
                     }
@@ -259,29 +248,34 @@ public class ChatFragment extends Fragment {
         });
     }
 
-    private void initView(){
-
-        Bundle bd = getArguments();
-        Message message = (Message)bd.get(PARAM_MSG);
-        if (message != null) {
-            if(message.getMsgType() == Message.PARAM_MSG_OUT){
-                mBuddyName = message.getReceiver();
-            }else{
-                mBuddyName = message.getSender();
+    public void fetchAvaTar(final String filename){
+        // me와 buddy 아바타 가져오기
+        String url = Const.MAIN_URL + "/upload_profile?filename=" + filename;
+        //final Bitmap bmp;
+        Log.v(TAG, "fetchAvaTar url="+url);
+        Picasso.with(getActivity()).load(url).resize(50,50).centerInside().into(new Target(){
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                Log.v(TAG, "fetchAvaTar mBuddyName="+mBuddyName+", bitmap="+bitmap);
+                mAvatarMap.put(mBuddyName, bitmap);
             }
-        }
-        Log.v(TAG, "initView message="+message);
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+            }
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+            }
+        });
+    }
 
-        tvBuddy.setText(mBuddyName);
-        if(message != null){
-            updateUI(message);
-        }
-   }
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+    public static Map<String, Fragment> getChatRoom(){
+        return sChatRoom;
+    }
+
+    public static Fragment getChatRoom(String buddy_name) {
+        Fragment fr = sChatRoom.get(buddy_name);
+        Log.v(TAG, "sChatRoom getChatRoom buddy="+buddy_name+", fragment="+fr);
+        return fr;
     }
 
     @Override
@@ -304,21 +298,18 @@ public class ChatFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        Log.v(TAG, "onDestory");
-        //Fragment fragment = sChatRoom.remove(mBuddyName);
-        //Log.v(TAG, "sChatRoom onDestory buddy="+mBuddyName+", fragment="+fragment);
-
-        //mActivity.removeChatRoom(mBuddyName);
-        super.onDestroy();
-    }
-
-    @Override
     public void onDestroyView() {
         Log.v(TAG, "onDestoryView");
         super.onDestroyView();
         Fragment fragment = sChatRoom.remove(mBuddyName);
         Log.v(TAG, "sChatRoom onDestory buddy="+mBuddyName+", fragment="+fragment);
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.v(TAG, "onDestory");
+        //Fragment fragment = sChatRoom.remove(mBuddyName);
+        super.onDestroy();
     }
 
     /**
@@ -334,7 +325,6 @@ public class ChatFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
-        void onUpdateUI();
     }
 
     public void updateUI(Message message) {
@@ -342,52 +332,4 @@ public class ChatFragment extends Fragment {
         rView.scrollToPosition(mAdapter.getItemCount()-1);
         mAdapter.notifyDataSetChanged();
     }
-
-    public void println(String data){
-        System.out.println(data);
-    }
-
-    public void fetchBuddyProfile(){
-
-    }
-
-    public void fetchAvaTar(final String filename){
-        // me와 buddy 아바타 가져오기
-        String url = Const.MAIN_URL + "/upload_profile?filename=" + filename;
-        //final Bitmap bmp;
-        Picasso.with(getActivity()).load(url).resize(50,50).centerInside().into(new Target(){
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                Log.v(TAG, "bitmap="+bitmap);
-                if(filename.equals(mMe.getImage())){
-                    mAvatarMap.put(mMe.getUsername(), bitmap);
-                }else{
-                    mAvatarMap.put(mBuddy.getUsername(), bitmap);
-                    civAvatar.setImageBitmap(bitmap);
-                }
-            }
-            @Override
-            public void onBitmapFailed(Drawable errorDrawable) {
-            }
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-            }
-        });
-    }
-
-    public static Fragment getChatRoom(String buddy_name) {
-        Fragment fr = sChatRoom.get(buddy_name);
-        Log.v(TAG, "sChatRoom getChatRoom buddy="+buddy_name+", fragment="+fr);
-        return fr;
-    }
-/*
-    public void addChatRoom(String buddy_name, Fragment fragment) {
-        Log.v(TAG, "addChatRoom buddy_name="+buddy_name+", fragment="+fragment);
-        this.mChatRoom.put(buddy_name, fragment);
-    }
-
-    public void removeChatRoom(String buddy_name){
-        Fragment fragment = this.mChatRoom.remove(buddy_name);
-        Log.v(TAG, "removeChatRoom buddy_name="+buddy_name+", fragment="+fragment);
-    }*/
 }
