@@ -14,6 +14,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
+import com.iron.dragon.sportstogether.util.PushWakeLock;
 
 import java.util.Date;
 import java.util.Map;
@@ -59,6 +60,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         mVibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         mVibe.vibrate(300);
+        PushWakeLock.acquireWakeLock(this, 5000);
 
     }
 
