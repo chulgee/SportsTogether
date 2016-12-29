@@ -23,6 +23,7 @@ import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.ui.fragment.ChatFragment;
 import com.iron.dragon.sportstogether.util.Const;
+import com.iron.dragon.sportstogether.util.PushWakeLock;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -252,6 +253,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
                 final Message message = new Message.Builder(Message.TYPE_CHAT_MESSAGE).msgType(Message.PARAM_MSG_IN).sender(sender).receiver(receiver).message(contents).date(date).build();
                 Log.v(TAG, message.toString());
 
+                PushWakeLock.acquireWakeLock(ChatActivity.this, 5000);
                 Log.v(TAG, "onSend mCurrentFrag.mBuddyName="+mCurrentFrag.getBuddyName());
                 if(!mPaused){ // 포그라운드 러닝상태
                     if(sender.equals(mCurrentFrag.getBuddyName())) {
@@ -328,7 +330,9 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
 
         Notification.Builder builder = new Notification.Builder(getApplicationContext());
         builder.setSmallIcon(R.drawable.friend_icon_normal);
-        builder.setContentText(message.getSender()+": "+message.getMessage());
+        String str = message.getSender()+": "+message.getMessage();
+        Log.v(TAG, "createMsgNoti str="+str);
+        builder.setContentText(str);
         builder.setContentTitle("함께 운동해요");
         builder.setContentIntent(pi);
         builder.setAutoCancel(true);
