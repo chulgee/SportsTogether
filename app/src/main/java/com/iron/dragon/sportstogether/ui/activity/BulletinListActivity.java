@@ -94,6 +94,8 @@ public class BulletinListActivity extends AppCompatActivity {
     private final static int PROFILE_IMAGE_ASPECT_X = 4;
     private final static int PROFILE_IMAGE_ASPECT_Y = 5;
     private static final String TAG = "BulletinListActivity";
+    private static final int VISIBLE_THRESHOLD = 1;
+    private static final int REQ_THRESHOLD = 40;
 
     @BindView(R.id.ivBulletin)
     ImageView mIvBulletin;
@@ -149,6 +151,12 @@ public class BulletinListActivity extends AppCompatActivity {
             view.setEnabled(true);
         }
     };
+    private int totalItemCount;
+    private int lastVisibleItem;
+    private boolean loading;
+
+    private int mPageNum = 1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -179,9 +187,9 @@ public class BulletinListActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void getBulletinData() {
+    private void getBulletinData(int num) {
         final Call<List<Bulletin>> call =
-                gitHubService.getBulletin(mSportsId, mLocationId, 20);
+                gitHubService.getBulletin(mSportsId, mLocationId, num);
 
         RetrofitHelper.enqueueWithRetry(call, new Callback<List<Bulletin>>() {
             @Override
@@ -192,6 +200,15 @@ public class BulletinListActivity extends AppCompatActivity {
                 List<Bulletin> list = response.body();
 
                 initListView(list);
+                loading = false;
+                if(mProgressView.getVisibility() == View.VISIBLE) {
+                    new Handler().postDelayed(new Runnable() {
+                        public void run() {
+                            stopLoadingProgress();
+                        }
+                    }, 2000);
+                }
+
             }
 
             @Override
@@ -202,9 +219,6 @@ public class BulletinListActivity extends AppCompatActivity {
     }
 
     private void initListView(List<Bulletin> listOfStrings) {
-//        HashMap<String,Bulletin> map = new HashMap<String,Bulletin>();
-//        ValueComparator bvc =  new ValueComparator();
-//        TreeMap<String,Bulletin> sorted_map = new TreeMap<String,Bulletin>(bvc);
         if (listOfStrings.size() != 0) {
             for (Bulletin bulletin : listOfStrings) {
                 String sDate = Util.getStringDate(bulletin.getDate());
@@ -247,12 +261,13 @@ public class BulletinListActivity extends AppCompatActivity {
         Intent intent = getIntent();
         mSportsId = intent.getIntExtra("Extra_Sports", 0);
         mLocationId = LoginPreferences.GetInstance().GetLocalProfileLocation(this);
-        getBulletinData();
+        getBulletinData(mPageNum * REQ_THRESHOLD);
 
     }
 
     private void InitLayout() {
         layoutManager = new LinearLayoutManager(this);
+        layoutManager.setAutoMeasureEnabled(true);
         mBoardRecyclerviewer.setLayoutManager(layoutManager);
         mTvTotalNum.setText("");
         getBuddyCount();
@@ -266,6 +281,24 @@ public class BulletinListActivity extends AppCompatActivity {
 
         mAdapter = new BulletinRecyclerViewAdapter(BulletinListActivity.this);
         mBoardRecyclerviewer.setAdapter(mAdapter);
+
+        mBoardRecyclerviewer.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                totalItemCount = layoutManager.getItemCount();
+                lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+                if(!loading && totalItemCount <= (lastVisibleItem + VISIBLE_THRESHOLD)){
+                    Logger.d("reach last");
+                    loading = true;
+                    /*startLoadingProgress();
+                    mTMBulletinMap.clear();
+                    mAdapter.resetItems();
+                    getBulletinData(REQ_THRESHOLD * (++mPageNum));*/
+                }
+            }
+        });
+
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL_LIST);
         mBoardRecyclerviewer.addItemDecoration(dividerItemDecoration);
         mAdapter.setOnItemLongClickListener(new BulletinRecyclerViewAdapter.OnItemLongClickListener() {
@@ -276,31 +309,10 @@ public class BulletinListActivity extends AppCompatActivity {
             }
         });
         registerForContextMenu( mBoardRecyclerviewer );
-        /*slideUpAnimation = AnimationUtils.loadAnimation(getApplicationContext(),
-                R.anim.slide_up_animation);
-
-        slideDownAnimation = AnimationUtils.loadAnimation(getApplicationContext(),
-                R.anim.slide_down_animation);
-        mCommentLayout.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean b) {
-                if(!b) {
-                    mCommentLayout.startAnimation(slideDownAnimation);
-                }
-            }
-        });*/
         bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.commentLayout));
         bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(View bottomSheet, int newState) {
-
-//                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-//                    bottomSheetHeading.setText(getString(R.string.text_collapse_me));
-//                } else {
-//                    bottomSheetHeading.setText(getString(R.string.text_expand_me));
-//                }
-
-                // Check Logs to see how bottom sheets behaves
                 switch (newState) {
                     case BottomSheetBehavior.STATE_COLLAPSED:
                         mFab.setVisibility(View.VISIBLE);
@@ -383,7 +395,6 @@ public class BulletinListActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<Bulletin> call, Response<Bulletin> response) {
                         Bulletin res_bulletin = response.body();
-                        Logger.d("response Data = " + res_bulletin.getComment());
                         if (mAlCropImageUri.size() == 0) {
                             updatePosting(bulletin);
                         } else {
@@ -647,7 +658,6 @@ public class BulletinListActivity extends AppCompatActivity {
 
             } else {
                 Toast.makeText(getApplicationContext(), getString(R.string.crop_error), Toast.LENGTH_SHORT).show();
-                return;
             }
         }
     }
@@ -778,18 +788,15 @@ public class BulletinListActivity extends AppCompatActivity {
             super.onPostExecute(aVoid);
             mBulletin.setBulletinImage(list_image);
 
-            mProgressView.startAnimation();
-            mProgressView.setVisibility(View.VISIBLE);
-            ButterKnife.apply(buttonViews, DISABLE);
-            mProgressView.startAnimation();
+            startLoadingProgress();
+
             new Handler().postDelayed(new Runnable() {
 
                 @Override
                 public void run() {
                     updatePosting(mBulletin);
-                    mProgressView.stopAnimation();
-                    mProgressView.setVisibility(View.INVISIBLE);
-                    ButterKnife.apply(buttonViews, ENABLED, false);
+                    stopLoadingProgress();
+
 
                 }
             }, 3000);
@@ -837,5 +844,17 @@ public class BulletinListActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    private void stopLoadingProgress() {
+        mProgressView.stopAnimation();
+        mProgressView.setVisibility(View.INVISIBLE);
+        ButterKnife.apply(buttonViews, ENABLED, false);
+    }
+
+    private void startLoadingProgress() {
+        mProgressView.startAnimation();
+        mProgressView.setVisibility(View.VISIBLE);
+        ButterKnife.apply(buttonViews, DISABLE);
     }
 }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical">
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:orientation="vertical">
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -29,21 +29,21 @@
             android:orientation="vertical"
             android:layout_gravity="bottom">
             <TextView android:layout_width="74dip"
-                android:layout_height="wrap_content"
-                android:text="@string/nickname"
+                      android:layout_height="wrap_content"
+                      android:text="@string/nickname"
                 />
             <EditText android:id="@+id/etNickName"
-                android:layout_width="200dip"
-                android:layout_height="wrap_content"
+                      android:layout_width="200dip"
+                      android:layout_height="wrap_content"
                 />
-            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         <TextView android:layout_width="34dp"
-            android:layout_height="wrap_content"
-            android:text="@string/age"/>
+                  android:layout_height="wrap_content"
+                  android:text="@string/age"/>
         <fr.ganfra.materialspinner.MaterialSpinner
             android:id="@+id/spAge"
             android:layout_width="150dip"
@@ -76,8 +76,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         <TextView android:layout_width="74dp"
-            android:layout_height="wrap_content"
-            android:text="@string/location"/>
+                  android:layout_height="wrap_content"
+                  android:text="@string/location"/>
         <fr.ganfra.materialspinner.MaterialSpinner
             android:id="@+id/spLocation"
             android:layout_width="200dip"
@@ -92,20 +92,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         <TextView android:layout_width="74dp"
-            android:layout_height="wrap_content"
-            android:text="@string/phonenum"/>
+                  android:layout_height="wrap_content"
+                  android:text="@string/phonenum"/>
         <EditText android:id="@+id/etPhoneNum"
-            android:layout_width="200dip"
-            android:layout_height="wrap_content"
-            android:inputType="phone"
+                  android:layout_width="200dip"
+                  android:layout_height="wrap_content"
+                  android:inputType="numberSigned"
+                  android:digits="0123456789-"
             />
     </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         <TextView android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/sports_type"/>
+                  android:layout_height="wrap_content"
+                  android:text="@string/sports_type"/>
         <fr.ganfra.materialspinner.MaterialSpinner
             android:id="@+id/spSportsType"
             android:layout_width="200dip"
@@ -121,8 +122,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         <TextView android:layout_width="74dp"
-            android:layout_height="wrap_content"
-            android:text="@string/level"/>
+                  android:layout_height="wrap_content"
+                  android:text="@string/level"/>
         <fr.ganfra.materialspinner.MaterialSpinner
             android:id="@+id/spLevel"
             android:layout_width="200dip"

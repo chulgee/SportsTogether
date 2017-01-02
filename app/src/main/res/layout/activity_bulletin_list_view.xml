@@ -5,40 +5,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-android:orientation="vertical"
+    android:orientation="vertical"
     tools:context="com.iron.dragon.sportstogether.ui.activity.BulletinListActivity"
     >
 
     <android.support.design.widget.CoordinatorLayout
-         android:layout_width="match_parent"
-         android:layout_height="match_parent"
-         android:fitsSystemWindows="true"
-         >
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/board_recyclerviewer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-
-            >
-            <!--app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
-        </android.support.v7.widget.RecyclerView>
-
-        <me.henrytao.smoothappbarlayout.SmoothAppBarLayout
-            android:id="@+id/appBarLayout"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:fitsSystemWindows="true"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-
-        <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/collapsingToolbarLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
-        app:contentScrim="?attr/colorPrimary"
-        app:expandedTitleMarginEnd="64dp"
-        app:expandedTitleMarginStart="48dp"
-        app:layout_scrollFlags="scroll|exitUntilCollapsed">
+        >
+
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/appBarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:fitsSystemWindows="true"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+            <android.support.design.widget.CollapsingToolbarLayout
+                android:id="@+id/collapsingToolbarLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fitsSystemWindows="true"
+                app:contentScrim="?attr/colorPrimary"
+                app:expandedTitleMarginEnd="64dp"
+                app:expandedTitleMarginStart="48dp"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed">
                 <ImageView
                     android:id="@+id/ivBulletin"
                     android:layout_width="match_parent"
@@ -93,12 +85,19 @@ android:orientation="vertical"
                     </LinearLayout>
                 </LinearLayout>
 
-    </android.support.design.widget.CollapsingToolbarLayout>
+            </android.support.design.widget.CollapsingToolbarLayout>
 
-    </me.henrytao.smoothappbarlayout.SmoothAppBarLayout>
+        </android.support.design.widget.AppBarLayout>
 
 
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/board_recyclerviewer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
 
+            >
+        </android.support.v7.widget.RecyclerView>
         <include  android:id="@+id/commentLayout" layout="@layout/content_bottom_sheet" />
         <com.github.rahatarmanahmed.cpv.CircularProgressView
             xmlns:app="http://schemas.android.com/apk/res-auto"

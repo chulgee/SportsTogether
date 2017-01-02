@@ -1,13 +1,11 @@
 package com.iron.dragon.sportstogether.http.retropit;
 
-import com.google.gson.JsonObject;
 import com.iron.dragon.sportstogether.data.bean.Bulletin;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.util.Const;
 
-import org.json.JSONObject;
-
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -24,6 +22,7 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
+import retrofit2.http.PartMap;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -101,6 +100,13 @@ public interface GitHubService {
     @POST("upload_bulletin")
     Call<ResponseBody> upload_post(@Part("description") RequestBody description,
                                    @Part MultipartBody.Part file);
+
+    @Multipart
+    @POST("upload_profile/withpartmap")
+    Call<ResponseBody> upload_profileWithPartMap(
+            @PartMap() Map<String, RequestBody> partMap,
+            @Part MultipartBody.Part file);
+
     static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
     public static final Retrofit retrofit = new Retrofit.Builder()
             .baseUrl(Const.MAIN_URL)

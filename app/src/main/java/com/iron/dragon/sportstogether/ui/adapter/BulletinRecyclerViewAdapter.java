@@ -28,7 +28,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * Created by seungyong on 2016-11-03.
  */
 
-public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private int index; // Position in adapter
 
     public int getIndex() {
@@ -51,7 +51,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             return;
         }
         malBulletin.add(bulletin);
-        notifyDataSetChanged();
+        notifyItemInserted(getItemCount() - 1);
     }
     public void setItem(ArrayList<ListItem> bulletins) {
         malBulletin = bulletins;
@@ -61,6 +61,11 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     public ListItem getItem(int index){
         return malBulletin.get(index);
     }
+
+    public void resetItems() {
+        malBulletin.clear();
+    }
+
     public class ViewHolderItem extends RecyclerView.ViewHolder implements View.OnLongClickListener {
         private final CircleImageView mivProfileImage;
         private final View mView;
