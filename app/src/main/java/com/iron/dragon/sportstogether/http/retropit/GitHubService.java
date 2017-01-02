@@ -58,6 +58,11 @@ public interface GitHubService {
             @Path("id") String id, @Body Profile profile
     );
 
+    @PUT("profiles/regid/{id}")
+    Call<Profile> putProfilesRegid(
+            @Path("id") String id, @Body Profile profile
+    );
+
     @DELETE("profiles/{id}")
     Call<Profile> deleteProfiles(
             @Path("id") String id

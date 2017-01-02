@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
+import com.iron.dragon.sportstogether.gcm.MyFirebaseInstanceIdService;
 import com.iron.dragon.sportstogether.ui.fragment.BookFragment;
 import com.iron.dragon.sportstogether.ui.fragment.NewsFragment;
 import com.iron.dragon.sportstogether.ui.fragment.SportsFragment;
@@ -211,7 +212,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_cs) {
 
         } else if (id == R.id.nav_share) {
-
+            MyFirebaseInstanceIdService.sendRegidToServer(getApplicationContext(), "hello,I am regid");
         } else if (id == R.id.nav_send) {
             LoginPreferences.GetInstance().SetLogin(this, false);
             Toast.makeText(getApplicationContext(), "Logged out", Toast.LENGTH_SHORT).show();
