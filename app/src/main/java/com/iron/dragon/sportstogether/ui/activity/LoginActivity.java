@@ -31,6 +31,7 @@ import com.iron.dragon.sportstogether.http.retropit.CallbackWithExists;
 import com.iron.dragon.sportstogether.http.retropit.GitHubService;
 import com.iron.dragon.sportstogether.http.retropit.RetrofitHelper;
 import com.iron.dragon.sportstogether.util.Const;
+import com.iron.dragon.sportstogether.util.ToastUtil;
 import com.orhanobut.logger.Logger;
 
 import org.json.JSONException;
@@ -40,6 +41,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -190,7 +192,7 @@ public class LoginActivity extends AppCompatActivity {
                 final Call<Profile> call =
                         gitHubService.postProfiles(p);
 
-                RetrofitHelper.enqueueWithRetry(call, new CallbackWithExists<Profile>() {
+                RetrofitHelper.enqueueWithRetryAndExist(call, new CallbackWithExists<Profile>() {
                     @Override
                     public void onResponse(Call<Profile> call, Response<Profile> response) {
                         Log.v(TAG, "onResponse response.isSuccessful()=" + response.isSuccessful());
@@ -214,18 +216,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                     @Override
                     public void onExists(Call<Profile> call, Response<Profile> response) {
-                        Log.v(TAG, "response=" + response);
-                        Log.v(TAG, "response=" + response.message());
-                        Log.v(TAG, "response=" + response.toString());
-                        Log.v(TAG, "response=" + response.body());
-                        Log.v(TAG, "response=" + response.code());
-                        Log.v(TAG, "response=" + response.errorBody());
-                        Log.v(TAG, "response=" + response.isSuccessful());
-                        Log.v(TAG, "response=" + response.raw());
-                        Toast.makeText(getApplicationContext(), "" + response.code(), Toast.LENGTH_SHORT).show();
-                        setLogged();
-                        toBulletinListActivity();
-                        finish();
+                        ToastUtil.show(getApplicationContext(), "NickName is Already Exist");
                     }
                     @Override
                     public void onFailure(Call<Profile> call, Throwable t) {
@@ -379,13 +370,21 @@ public class LoginActivity extends AppCompatActivity {
                     MultipartBody.Part.createFormData("picture", file.getName(), requestFile);
 
             // add another part within the multipart request
-            String descriptionString = LoginPreferences.GetInstance().GetRegid(LoginActivity.this);
-            RequestBody description =
+            String username = mEtNickName.getText().toString();
+            RequestBody descriptionUserName =
                     RequestBody.create(
-                            MediaType.parse("text/html"), descriptionString);
+                            MediaType.parse("multipart/form-data"), username);
 
+            int sportsId = mSpSportsType.getSelectedItemPosition();
+            RequestBody descriptionSportsId =
+                    RequestBody.create(
+                            MediaType.parse("multipart/form-data"), String.valueOf(sportsId));
+
+            HashMap<String, RequestBody> map = new HashMap<>();
+            map.put("descriptionUserName", descriptionUserName);
+            map.put("descriptionSportsId", descriptionSportsId);
             // finally, execute the request
-            Call<ResponseBody> call = gitHubService.upload_profile(description, body);
+            Call<ResponseBody> call = gitHubService.upload_profileWithPartMap(map, body);
 
             RetrofitHelper.enqueueWithRetry(call, new Callback<ResponseBody>() {
                 @Override

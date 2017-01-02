@@ -38,7 +38,6 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.github.rahatarmanahmed.cpv.CircularProgressView;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Bulletin;
@@ -46,6 +45,7 @@ import com.iron.dragon.sportstogether.data.bean.Bulletin_image;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.retropit.GitHubService;
+import com.iron.dragon.sportstogether.http.retropit.RetrofitHelper;
 import com.iron.dragon.sportstogether.ui.adapter.BulletinRecyclerViewAdapter;
 import com.iron.dragon.sportstogether.ui.adapter.item.EventItem;
 import com.iron.dragon.sportstogether.ui.adapter.item.HeaderItem;
@@ -94,6 +94,8 @@ public class BulletinListActivity extends AppCompatActivity {
     private final static int PROFILE_IMAGE_ASPECT_X = 4;
     private final static int PROFILE_IMAGE_ASPECT_Y = 5;
     private static final String TAG = "BulletinListActivity";
+    private static final int VISIBLE_THRESHOLD = 1;
+    private static final int REQ_THRESHOLD = 40;
 
     @BindView(R.id.ivBulletin)
     ImageView mIvBulletin;
@@ -149,6 +151,12 @@ public class BulletinListActivity extends AppCompatActivity {
             view.setEnabled(true);
         }
     };
+    private int totalItemCount;
+    private int lastVisibleItem;
+    private boolean loading;
+
+    private int mPageNum = 1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -179,10 +187,11 @@ public class BulletinListActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void getBulletinData() {
+    private void getBulletinData(int num) {
         final Call<List<Bulletin>> call =
-                gitHubService.getBulletin(mSportsId, mLocationId, 20);
-        call.enqueue(new Callback<List<Bulletin>>() {
+                gitHubService.getBulletin(mSportsId, mLocationId, num);
+
+        RetrofitHelper.enqueueWithRetry(call, new Callback<List<Bulletin>>() {
             @Override
             public void onResponse(Call<List<Bulletin>> call, Response<List<Bulletin>> response) {
                 Log.d("Test", "code = " + response.code() + " issuccessful = " + response.isSuccessful());
@@ -191,6 +200,15 @@ public class BulletinListActivity extends AppCompatActivity {
                 List<Bulletin> list = response.body();
 
                 initListView(list);
+                loading = false;
+                if(mProgressView.getVisibility() == View.VISIBLE) {
+                    new Handler().postDelayed(new Runnable() {
+                        public void run() {
+                            stopLoadingProgress();
+                        }
+                    }, 2000);
+                }
+
             }
 
             @Override
@@ -198,13 +216,9 @@ public class BulletinListActivity extends AppCompatActivity {
                 Log.d("Test", "error message = " + t.getMessage());
             }
         });
-
     }
 
     private void initListView(List<Bulletin> listOfStrings) {
-//        HashMap<String,Bulletin> map = new HashMap<String,Bulletin>();
-//        ValueComparator bvc =  new ValueComparator();
-//        TreeMap<String,Bulletin> sorted_map = new TreeMap<String,Bulletin>(bvc);
         if (listOfStrings.size() != 0) {
             for (Bulletin bulletin : listOfStrings) {
                 String sDate = Util.getStringDate(bulletin.getDate());
@@ -247,12 +261,13 @@ public class BulletinListActivity extends AppCompatActivity {
         Intent intent = getIntent();
         mSportsId = intent.getIntExtra("Extra_Sports", 0);
         mLocationId = LoginPreferences.GetInstance().GetLocalProfileLocation(this);
-        getBulletinData();
+        getBulletinData(mPageNum * REQ_THRESHOLD);
 
     }
 
     private void InitLayout() {
         layoutManager = new LinearLayoutManager(this);
+        layoutManager.setAutoMeasureEnabled(true);
         mBoardRecyclerviewer.setLayoutManager(layoutManager);
         mTvTotalNum.setText("");
         getBuddyCount();
@@ -266,6 +281,24 @@ public class BulletinListActivity extends AppCompatActivity {
 
         mAdapter = new BulletinRecyclerViewAdapter(BulletinListActivity.this);
         mBoardRecyclerviewer.setAdapter(mAdapter);
+
+        mBoardRecyclerviewer.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                totalItemCount = layoutManager.getItemCount();
+                lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+                if(!loading && totalItemCount <= (lastVisibleItem + VISIBLE_THRESHOLD)){
+                    Logger.d("reach last");
+                    loading = true;
+                    /*startLoadingProgress();
+                    mTMBulletinMap.clear();
+                    mAdapter.resetItems();
+                    getBulletinData(REQ_THRESHOLD * (++mPageNum));*/
+                }
+            }
+        });
+
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL_LIST);
         mBoardRecyclerviewer.addItemDecoration(dividerItemDecoration);
         mAdapter.setOnItemLongClickListener(new BulletinRecyclerViewAdapter.OnItemLongClickListener() {
@@ -276,31 +309,10 @@ public class BulletinListActivity extends AppCompatActivity {
             }
         });
         registerForContextMenu( mBoardRecyclerviewer );
-        /*slideUpAnimation = AnimationUtils.loadAnimation(getApplicationContext(),
-                R.anim.slide_up_animation);
-
-        slideDownAnimation = AnimationUtils.loadAnimation(getApplicationContext(),
-                R.anim.slide_down_animation);
-        mCommentLayout.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean b) {
-                if(!b) {
-                    mCommentLayout.startAnimation(slideDownAnimation);
-                }
-            }
-        });*/
         bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.commentLayout));
         bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(View bottomSheet, int newState) {
-
-//                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-//                    bottomSheetHeading.setText(getString(R.string.text_collapse_me));
-//                } else {
-//                    bottomSheetHeading.setText(getString(R.string.text_expand_me));
-//                }
-
-                // Check Logs to see how bottom sheets behaves
                 switch (newState) {
                     case BottomSheetBehavior.STATE_COLLAPSED:
                         mFab.setVisibility(View.VISIBLE);
@@ -338,7 +350,7 @@ public class BulletinListActivity extends AppCompatActivity {
         final Call<String> call =
                 gitHubService.getBuddyCount(mSportsId, mLocationId);
 
-        call.enqueue(new Callback<String>() {
+        RetrofitHelper.enqueueWithRetry(call, new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 String num = "" + 0;
@@ -359,7 +371,6 @@ public class BulletinListActivity extends AppCompatActivity {
                 Log.d("Test", "error message = " + t.getMessage());
             }
         });
-
     }
 
 
@@ -380,26 +391,21 @@ public class BulletinListActivity extends AppCompatActivity {
                         .setType(1).build();
                 final Call<Bulletin> call =
                         gitHubService.postBulletin(bulletin);
-                call.enqueue(new Callback<Bulletin>() {
+                RetrofitHelper.enqueueWithRetry(call , new Callback<Bulletin>() {
                     @Override
                     public void onResponse(Call<Bulletin> call, Response<Bulletin> response) {
-                        if (response.isSuccessful()) {
-                            Bulletin res_bulletin = response.body();
-                            Logger.d("response Data = " + res_bulletin.getComment());
-                            if (mAlCropImageUri.size() == 0) {
-                                updatePosting(bulletin);
-                            } else {
-                                uploadFile(res_bulletin.getid(), bulletin);
-                            }
+                        Bulletin res_bulletin = response.body();
+                        if (mAlCropImageUri.size() == 0) {
+                            updatePosting(bulletin);
+                        } else {
+                            uploadFile(res_bulletin.getid(), bulletin);
                         }
                     }
-
                     @Override
                     public void onFailure(Call<Bulletin> call, Throwable t) {
                         Log.d("Test", "error message = " + t.getMessage());
                     }
                 });
-
                 break;
             case R.id.fab:
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
@@ -552,42 +558,36 @@ public class BulletinListActivity extends AppCompatActivity {
         GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
         final Call<String> call =
                 gitHubService.getProfiles(username, sportsid, locationid, reqFriends);
-        call.enqueue(new Callback<String>() {
+
+        RetrofitHelper.enqueueWithRetry(call, new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 Log.d("executeHttp Test", "code = " + response.code() + " is successful = " + response.isSuccessful());
                 Log.d("executeHttp Test", "body = " + response.body().toString());
                 Log.d("executeHttp Test", "message = " + response.toString());
-                if (response.isSuccessful()) {
-                    //JSONObject obj = (JSONObject)response.body();
-                    JSONObject obj = null;
-                    try {
-                        obj = new JSONObject(response.body());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    Gson gson = new Gson();
-                    try {
-                        String command = obj.getString("command");
-                        String code = obj.getString("code");
-                        JSONArray arr = obj.getJSONArray("message");
-                        if(arr.length() > 0){
-                            Profile buddy = gson.fromJson(arr.get(0).toString(), Profile.class);
-                            Profile me = LoginPreferences.GetInstance().getLocalProfile(getApplicationContext());
-                            Log.v(TAG, "buddy: "+buddy.toString());
-                            Log.v(TAG, "me: "+me.toString());
-                            Intent i = new Intent(BulletinListActivity.this, ChatActivity.class);
-                            Message message = new Message.Builder(Message.TYPE_CHAT_ACTION).msgType(Message.PARAM_MSG_OUT).sender(me.getUsername()).receiver(buddy.getUsername())
-                                    .message("Conversation gets started").date(new Date().getTime()).image(buddy.getImage()).build();
-                            i.putExtra("Message", message);
-                            startActivity(i);
-                        }else{
-                            Toast.makeText(BulletinListActivity.this, "Cannot find this buddy", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                //JSONObject obj = (JSONObject)response.body();
+                JSONObject obj = null;
+                try {
+                    obj = new JSONObject(response.body());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Gson gson = new Gson();
+                try {
+                    String command = obj.getString("command");
+                    String code = obj.getString("code");
+                    JSONArray arr = obj.getJSONArray("message");
+                    Profile buddy = gson.fromJson(arr.get(0).toString(), Profile.class);
+                    Profile me = LoginPreferences.GetInstance().getLocalProfile(getApplicationContext());
+                    Log.v(TAG, "buddy: "+buddy.toString());
+                    Log.v(TAG, "me: "+me.toString());
+                    Intent i = new Intent(BulletinListActivity.this, ChatActivity.class);
+                    Message message = new Message.Builder(Message.TYPE_CHAT_ACTION).msgType(Message.PARAM_MSG_OUT).sender(me.getUsername()).receiver(buddy.getUsername())
+                            .message("Conversation get started").date(new Date().getTime()).image(buddy.getImage()).build();
+                    i.putExtra("Message", message);
+                    startActivity(i);
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -658,7 +658,6 @@ public class BulletinListActivity extends AppCompatActivity {
 
             } else {
                 Toast.makeText(getApplicationContext(), getString(R.string.crop_error), Toast.LENGTH_SHORT).show();
-                return;
             }
         }
     }
@@ -789,18 +788,15 @@ public class BulletinListActivity extends AppCompatActivity {
             super.onPostExecute(aVoid);
             mBulletin.setBulletinImage(list_image);
 
-            mProgressView.startAnimation();
-            mProgressView.setVisibility(View.VISIBLE);
-            ButterKnife.apply(buttonViews, DISABLE);
-            mProgressView.startAnimation();
+            startLoadingProgress();
+
             new Handler().postDelayed(new Runnable() {
 
                 @Override
                 public void run() {
                     updatePosting(mBulletin);
-                    mProgressView.stopAnimation();
-                    mProgressView.setVisibility(View.INVISIBLE);
-                    ButterKnife.apply(buttonViews, ENABLED, false);
+                    stopLoadingProgress();
+
 
                 }
             }, 3000);
@@ -824,7 +820,8 @@ public class BulletinListActivity extends AppCompatActivity {
 
             // finally, execute the request
             Call<ResponseBody> call = gitHubService.upload_post(description, body);
-            call.enqueue(new Callback<ResponseBody>() {
+
+            RetrofitHelper.enqueueWithRetry(call , new  Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call,
                                        Response<ResponseBody> response) {
@@ -835,23 +832,29 @@ public class BulletinListActivity extends AppCompatActivity {
                         String image = jObject.get("data").toString();
                         list_image.add(new Bulletin_image(image));
 
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
+                    } catch (JSONException | IOException e) {
                         e.printStackTrace();
                     }
-
                 }
-
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
                     Log.e("Upload error:", t.getMessage());
                 }
             });
-
-
         }
 
 
+    }
+
+    private void stopLoadingProgress() {
+        mProgressView.stopAnimation();
+        mProgressView.setVisibility(View.INVISIBLE);
+        ButterKnife.apply(buttonViews, ENABLED, false);
+    }
+
+    private void startLoadingProgress() {
+        mProgressView.startAnimation();
+        mProgressView.setVisibility(View.VISIBLE);
+        ButterKnife.apply(buttonViews, DISABLE);
     }
 }

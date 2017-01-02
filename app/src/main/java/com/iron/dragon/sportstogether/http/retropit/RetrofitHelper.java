@@ -1,5 +1,7 @@
 package com.iron.dragon.sportstogether.http.retropit;
 
+import com.orhanobut.logger.Logger;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -67,6 +69,7 @@ public class RetrofitHelper {
 
     public static int isCallSuccess(Response response) {
         int code = response.code();
+        Logger.d("isCallSuccess = " + code);
         if(code >= 200 && code < 400) {
             return SUCCESS;
         } else if(code == 409) {
