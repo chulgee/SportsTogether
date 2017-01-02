@@ -63,10 +63,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         mVibe.vibrate(300);
         PushWakeLock.acquireWakeLock(this, 5000);
 
-        Intent i1 = new Intent(this, FloatingService.class);
+        /*Intent i1 = new Intent(this, FloatingService.class);
         i1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
         i1.putExtra("Message", message);
-        startService(i1);
+        startService(i1);*/
     }
 
     private void println(String data){

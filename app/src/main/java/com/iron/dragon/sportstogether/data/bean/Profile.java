@@ -7,6 +7,11 @@ import java.io.Serializable;
  */
 
 public class Profile implements Serializable{
+
+    public Profile(){
+
+    }
+
     public Profile(ProfileItem profile) {
         this.username = profile.get_mNickName();
         this.sportsid = profile.get_mSportsType();
