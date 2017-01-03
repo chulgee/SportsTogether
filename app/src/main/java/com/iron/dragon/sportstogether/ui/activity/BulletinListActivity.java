@@ -156,6 +156,7 @@ public class BulletinListActivity extends AppCompatActivity {
     private boolean loading;
 
     private int mPageNum = 1;
+    private int tempfix;
 
 
     @Override
@@ -504,12 +505,15 @@ public class BulletinListActivity extends AppCompatActivity {
                 Log.d(getApplicationContext().getClass().getName(), newDirectory.getAbsolutePath() + " directory created");
             }
         }
-        File file = new File(newDirectory, (prefix + "crop_profile_temp.jpg"));
+
+
+        File file = new File(newDirectory, (prefix + "crop_profile_temp" + tempfix + ".jpg"));
         if (file.exists()) {
             //this wont be executed
             file.delete();
             try {
                 file.createNewFile();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -631,7 +635,6 @@ public class BulletinListActivity extends AppCompatActivity {
                 }
 
                 mCropImagedUri = Uri.fromFile(f);
-
                 dispatchCropIntent(selectedImageUri);
             }
         } else if (requestCode == REQ_CODE_TAKE_PHOTO) {
@@ -646,6 +649,7 @@ public class BulletinListActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(getApplicationContext(), getString(R.string.capture_error), Toast.LENGTH_SHORT).show();
             }
+
         } else if (requestCode == REQ_CODE_CROP) {
             if (resultCode == Activity.RESULT_OK) {
                 mCropImagedUri = data.getData();
@@ -655,7 +659,7 @@ public class BulletinListActivity extends AppCompatActivity {
 //                BitmapDrawable.createFromPath(mCropImagedUri.getPath());
                 iv.setImageBitmap(getDownsampledBitmap(this, mCropImagedUri, 150, 150));
                 mllAttachLayout.addView(iv);
-
+                tempfix++;
             } else {
                 Toast.makeText(getApplicationContext(), getString(R.string.crop_error), Toast.LENGTH_SHORT).show();
             }
@@ -744,6 +748,7 @@ public class BulletinListActivity extends AppCompatActivity {
             Logger.d("url_list size = " + uri_list.size());
             for (Uri uri : uri_list) {
                 File file = new File(uri.getPath());
+                Logger.d("File Upload Name = " + file.getAbsolutePath());
                 long fileSize = file.length();
                 if (fileSize > 2 * 1024 * 1024) {
                     options.inSampleSize = 4;
