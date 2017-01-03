@@ -33,13 +33,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         />
-    <LinearLayout
-        android:id="@+id/llAttachImage"
-        android:layout_width="match_parent"
+    <HorizontalScrollView
+        android:id="@+id/horizontalScroll"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        >
+        android:animateLayoutChanges="true"
+        android:scrollbars="none">
+        <LinearLayout
+            android:id="@+id/llAttachImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
 
-    </LinearLayout>
+        </LinearLayout>
+    </HorizontalScrollView>
     <TextView android:id="@+id/tvTime"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
