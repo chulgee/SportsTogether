@@ -14,9 +14,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -87,15 +89,14 @@ import retrofit2.Response;
 import static com.iron.dragon.sportstogether.R.id.collapsingToolbarLayout;
 
 
-public class BulletinListActivity extends AppCompatActivity {
+public class BulletinListActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
     private final static int REQ_CODE_PICK_PICTURE = 1;
     private final static int REQ_CODE_TAKE_PHOTO = 2;
     private final static int REQ_CODE_CROP = 3;
     private final static int PROFILE_IMAGE_ASPECT_X = 4;
     private final static int PROFILE_IMAGE_ASPECT_Y = 5;
     private static final String TAG = "BulletinListActivity";
-    private static final int VISIBLE_THRESHOLD = 1;
-    private static final int REQ_THRESHOLD = 40;
+    private static final int REQ_THRESHOLD = 20;
 
     @BindView(R.id.ivBulletin)
     ImageView mIvBulletin;
@@ -123,11 +124,15 @@ public class BulletinListActivity extends AppCompatActivity {
     LinearLayout mllAttachLayout;
     @BindView(R.id.progress_view)
     CircularProgressView mProgressView;
+    @BindView(R.id.swipe_layout)
+    SwipeRefreshLayout mSwipeLayout;
+    @BindView(R.id.appBarLayout)
+    AppBarLayout mAppBarLayout;
     private int mSportsId;
     private int mLocationId;
 
     private BulletinRecyclerViewAdapter mAdapter;
-    private TreeMap<String, ArrayList<Bulletin>> mTMBulletinMap = new TreeMap<>();
+    private TreeMap<String, ArrayList<Bulletin>> mTMBulletinMap = new TreeMap<>(Collections.reverseOrder());
     private BottomSheetBehavior bottomSheetBehavior;
     private LinearLayoutManager layoutManager;
     private ArrayList<Uri> mAlCropImageUri = new ArrayList<>();
@@ -189,6 +194,7 @@ public class BulletinListActivity extends AppCompatActivity {
     }
 
     private void getBulletinData(int num) {
+
         final Call<List<Bulletin>> call =
                 gitHubService.getBulletin(mSportsId, mLocationId, num);
 
@@ -199,15 +205,12 @@ public class BulletinListActivity extends AppCompatActivity {
                 Log.d("Test", "body = " + response.body().toString());
                 Log.d("Test", "message = " + response.message());
                 List<Bulletin> list = response.body();
-
                 initListView(list);
                 loading = false;
-                if(mProgressView.getVisibility() == View.VISIBLE) {
-                    new Handler().postDelayed(new Runnable() {
-                        public void run() {
-                            stopLoadingProgress();
-                        }
-                    }, 2000);
+                if (mProgressView.getVisibility() == View.VISIBLE) {
+                    stopLoadingProgress();
+                } else if (mSwipeLayout.isRefreshing()) {
+                    mSwipeLayout.setRefreshing(false);
                 }
 
             }
@@ -242,7 +245,7 @@ public class BulletinListActivity extends AppCompatActivity {
                 Collections.sort(ar, new Comparator<Bulletin>() {
                     @Override
                     public int compare(Bulletin bulletin, Bulletin t1) {
-                        return bulletin.getDate() < t1.getDate() ? -1 : bulletin.getDate() == t1.getDate() ? 0 : 1;
+                        return bulletin.getDate() > t1.getDate() ? -1 : bulletin.getDate() == t1.getDate() ? 0 : 1;
                     }
                 });
 
@@ -262,10 +265,15 @@ public class BulletinListActivity extends AppCompatActivity {
         Intent intent = getIntent();
         mSportsId = intent.getIntExtra("Extra_Sports", 0);
         mLocationId = LoginPreferences.GetInstance().GetLocalProfileLocation(this);
+        startLoadingProgress();
         getBulletinData(mPageNum * REQ_THRESHOLD);
 
     }
-
+    private enum State {
+        EXPANDED,
+        COLLAPSED,
+        IDLE
+    }
     private void InitLayout() {
         layoutManager = new LinearLayoutManager(this);
         layoutManager.setAutoMeasureEnabled(true);
@@ -278,24 +286,37 @@ public class BulletinListActivity extends AppCompatActivity {
 
         Const.SPORTS sports = Const.SPORTS.values()[mSportsId];
         mCollapsingToolbarLayout.setTitle(sports.name());
+
         mTvLocation.setText(getString(R.string.bulletin_location, getResources().getStringArray(R.array.location)[mLocationId]));
 
         mAdapter = new BulletinRecyclerViewAdapter(BulletinListActivity.this);
         mBoardRecyclerviewer.setAdapter(mAdapter);
+        mSwipeLayout.setOnRefreshListener(this);
+        registerForContextMenu(mBoardRecyclerviewer);
 
-        mBoardRecyclerviewer.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        mAppBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            private State state;
+
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                totalItemCount = layoutManager.getItemCount();
-                lastVisibleItem = layoutManager.findLastVisibleItemPosition();
-                if(!loading && totalItemCount <= (lastVisibleItem + VISIBLE_THRESHOLD)){
-                    Logger.d("reach last");
-                    loading = true;
-                    /*startLoadingProgress();
-                    mTMBulletinMap.clear();
-                    mAdapter.resetItems();
-                    getBulletinData(REQ_THRESHOLD * (++mPageNum));*/
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                if (verticalOffset == 0) {
+                    if (state != State.EXPANDED) {
+                        Logger.d("onOffsetChanged State = EXPANDED");
+                        mSwipeLayout.setEnabled(true);
+                    }
+                    state = State.EXPANDED;
+                } else if (Math.abs(verticalOffset) >= appBarLayout.getTotalScrollRange()) {
+                    if (state != State.COLLAPSED) {
+                        Logger.d("onOffsetChanged State = COLLAPSED");
+                        mSwipeLayout.setEnabled(false);
+                    }
+                    state = State.COLLAPSED;
+                } else {
+                    if (state != State.IDLE) {
+                        Logger.d("onOffsetChanged State = IDLE");
+                        mSwipeLayout.setEnabled(false);
+                    }
+                    state = State.IDLE;
                 }
             }
         });
@@ -306,10 +327,22 @@ public class BulletinListActivity extends AppCompatActivity {
             @Override
             public void onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.v(TAG, "onItemLongClick");
-                openContextMenu( view );
+                openContextMenu(view);
             }
         });
-        registerForContextMenu( mBoardRecyclerviewer );
+
+        mAdapter.setOnFooterItemClickListener(new BulletinRecyclerViewAdapter.OnFooterItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View itemView) {
+                loading = true;
+                mTMBulletinMap.clear();
+                mAdapter.resetItems();
+                getBulletinData(REQ_THRESHOLD * (++mPageNum));
+            }
+        });
+
+
+
         bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.commentLayout));
         bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
@@ -335,11 +368,8 @@ public class BulletinListActivity extends AppCompatActivity {
                         break;
                 }
             }
-
-
             @Override
             public void onSlide(View bottomSheet, float slideOffset) {
-
             }
         });
 
@@ -392,7 +422,7 @@ public class BulletinListActivity extends AppCompatActivity {
                         .setType(1).build();
                 final Call<Bulletin> call =
                         gitHubService.postBulletin(bulletin);
-                RetrofitHelper.enqueueWithRetry(call , new Callback<Bulletin>() {
+                RetrofitHelper.enqueueWithRetry(call, new Callback<Bulletin>() {
                     @Override
                     public void onResponse(Call<Bulletin> call, Response<Bulletin> response) {
                         Bulletin res_bulletin = response.body();
@@ -402,6 +432,7 @@ public class BulletinListActivity extends AppCompatActivity {
                             uploadFile(res_bulletin.getid(), bulletin);
                         }
                     }
+
                     @Override
                     public void onFailure(Call<Bulletin> call, Throwable t) {
                         Log.d("Test", "error message = " + t.getMessage());
@@ -430,8 +461,8 @@ public class BulletinListActivity extends AppCompatActivity {
         item.setBulletin(res_bulletin);
         if (mAdapter.getItemCount() == 0) {
             ArrayList<ListItem> listItems = new ArrayList<>();
-            listItems.add(header);
             listItems.add(item);
+            listItems.add(header);
             mAdapter.setItem(listItems);
         } else {
             mAdapter.addItem(header);
@@ -444,7 +475,7 @@ public class BulletinListActivity extends AppCompatActivity {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
-        mBoardRecyclerviewer.smoothScrollToPosition(mBoardRecyclerviewer.getAdapter().getItemCount());
+        mBoardRecyclerviewer.smoothScrollToPosition(0);
         mllAttachLayout.removeAllViews();
     }
 
@@ -535,16 +566,16 @@ public class BulletinListActivity extends AppCompatActivity {
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        Log.v(TAG, "onContextItemSelected mAdapter.getIndex()= "+mAdapter.getIndex());
+        Log.v(TAG, "onContextItemSelected mAdapter.getIndex()= " + mAdapter.getIndex());
 
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
             case R.id.action_chat:
                 // get buddy's profile
                 ListItem listItem = mAdapter.getItem(mAdapter.getIndex());
-                Log.v(TAG, "listItem: "+listItem);
-                if(listItem instanceof EventItem){
+                Log.v(TAG, "listItem: " + listItem);
+                if (listItem instanceof EventItem) {
                     Bulletin bulletin = ((EventItem) listItem).getBulletin();
-                    Log.v(TAG, "bulletin: "+bulletin.toString());
+                    Log.v(TAG, "bulletin: " + bulletin.toString());
                     executeHttp(bulletin);
                 }
                 return true;
@@ -554,7 +585,7 @@ public class BulletinListActivity extends AppCompatActivity {
     }
 
 
-    private void executeHttp(Bulletin bulletin){
+    private void executeHttp(Bulletin bulletin) {
         String username = bulletin.getUsername();
         int sportsid = bulletin.getSportsid();
         int locationid = bulletin.getLocationid();
@@ -583,8 +614,8 @@ public class BulletinListActivity extends AppCompatActivity {
                     JSONArray arr = obj.getJSONArray("message");
                     Profile buddy = gson.fromJson(arr.get(0).toString(), Profile.class);
                     Profile me = LoginPreferences.GetInstance().getLocalProfile(getApplicationContext());
-                    Log.v(TAG, "buddy: "+buddy.toString());
-                    Log.v(TAG, "me: "+me.toString());
+                    Log.v(TAG, "buddy: " + buddy.toString());
+                    Log.v(TAG, "me: " + me.toString());
                     Intent i = new Intent(BulletinListActivity.this, ChatActivity.class);
                     Message message = new Message.Builder(Message.TYPE_CHAT_ACTION).msgType(Message.PARAM_MSG_OUT).sender(me.getUsername()).receiver(buddy.getUsername())
                             .message("Conversation get started").date(new Date().getTime()).image(buddy.getImage()).build();
@@ -601,6 +632,7 @@ public class BulletinListActivity extends AppCompatActivity {
             }
         });
     }
+
     protected void dispatchCropIntent(Uri imageCaptureUri) {
         Intent intent = new Intent("com.android.camera.action.CROP");
         Point screenSize = new Point();
@@ -729,6 +761,17 @@ public class BulletinListActivity extends AppCompatActivity {
         return resizedBitmap;
     }
 
+    @Override
+    public void onRefresh() {
+        if (!loading) {
+            Logger.d("reach last");
+            loading = true;
+            mTMBulletinMap.clear();
+            mAdapter.resetItems();
+            getBulletinData(REQ_THRESHOLD);
+        }
+    }
+
     class ResizeBitmapTask extends AsyncTask<ArrayList<Uri>, File, Void> {
 
         private final int mPostId;
@@ -826,7 +869,7 @@ public class BulletinListActivity extends AppCompatActivity {
             // finally, execute the request
             Call<ResponseBody> call = gitHubService.upload_post(description, body);
 
-            RetrofitHelper.enqueueWithRetry(call , new  Callback<ResponseBody>() {
+            RetrofitHelper.enqueueWithRetry(call, new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call,
                                        Response<ResponseBody> response) {
@@ -841,6 +884,7 @@ public class BulletinListActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
+
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
                     Log.e("Upload error:", t.getMessage());
