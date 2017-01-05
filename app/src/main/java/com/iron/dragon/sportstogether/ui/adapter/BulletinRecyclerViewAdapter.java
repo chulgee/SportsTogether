@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -29,6 +30,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 
 public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final int FOOTER_VIEW = 2;  //listitem listheader is 0 and 1
     private int index; // Position in adapter
 
     public int getIndex() {
@@ -40,19 +42,26 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     }
     private ArrayList<ListItem> malBulletin;
     private OnItemLongClickListener IonItemLongClickListener;
+    private OnFooterItemClickListener IonFooterItemClickListener;
     private Context mContext;
 
     public BulletinRecyclerViewAdapter(Context context) {
         this.mContext = context;
     }
 
+
     public void addItem(ListItem bulletin) {
+        int insertIndex = 1;
         if(bulletin.getType() == ListItem.TYPE_HEADER && malBulletin.contains(bulletin)) {
             return;
+        } else if(bulletin.getType() == ListItem.TYPE_HEADER && !malBulletin.contains(bulletin)) {
+            insertIndex = 0;
         }
-        malBulletin.add(bulletin);
-        notifyItemInserted(getItemCount() - 1);
+        malBulletin.add(insertIndex, bulletin);
+        notifyItemInserted(insertIndex);
+
     }
+
     public void setItem(ArrayList<ListItem> bulletins) {
         malBulletin = bulletins;
         notifyDataSetChanged();
@@ -102,17 +111,53 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         }
     }
 
+    public class FooterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+        View mView;
+        private final Button mbtMore;
+        public FooterViewHolder(View itemView) {
+            super(itemView);
+            mView = itemView;
+            mbtMore =  (Button) itemView.findViewById(R.id.btMore);
+            mbtMore.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            onFooterItemHolderClick(this);
+        }
+    }
+
+    public interface OnFooterItemClickListener {
+        void onItemClick(AdapterView<?> parent, View itemView);
+    }
+
+    public void setOnFooterItemClickListener(OnFooterItemClickListener listener) {
+        IonFooterItemClickListener = listener;
+    }
+
+    private void onFooterItemHolderClick(FooterViewHolder footerViewHolder) {
+        if (IonFooterItemClickListener != null) {
+            IonFooterItemClickListener.onItemClick(null, footerViewHolder.itemView);
+        }
+    }
+
 
     @Override
     public int getItemViewType(int position)
     {
+        if (position == malBulletin.size()) {
+            return FOOTER_VIEW;
+        }
         return malBulletin.get(position).getType();
     }
 
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == ListItem.TYPE_HEADER) {
+        if (viewType == FOOTER_VIEW) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bulletin_list_footer, parent, false);
+            return new FooterViewHolder(view);
+        } else if (viewType == ListItem.TYPE_HEADER) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bulletin_list_header, parent, false);
             return new ViewHolderHeader(view);
         } else {
@@ -124,17 +169,19 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         int type = getItemViewType(position);
-        if (type == ListItem.TYPE_HEADER) {
-            final ViewHolderHeader viewHolderHeader = (ViewHolderHeader)holder;
+        if( type == FOOTER_VIEW) {
+
+        } else if (type == ListItem.TYPE_HEADER) {
+            final ViewHolderHeader viewHolderHeader = (ViewHolderHeader) holder;
             HeaderItem header = (HeaderItem) malBulletin.get(position);
             viewHolderHeader.mtvDate.setText(header.getDate());
         } else {
-            final ViewHolderItem viewHolderItem = (ViewHolderItem)holder;
+            final ViewHolderItem viewHolderItem = (ViewHolderItem) holder;
             EventItem item = (EventItem) malBulletin.get(position);
             viewHolderItem.mtvNickName.setText(item.getBulletin().getUsername());
             viewHolderItem.mtvComment.setText(item.getBulletin().getComment());
             viewHolderItem.mtvTime.setText(Util.getStringTime(item.getBulletin().getDate()));
-            if(StringUtil.isEmpty(((EventItem) malBulletin.get(position)).getBulletin().getImage())) {
+            if (StringUtil.isEmpty(((EventItem) malBulletin.get(position)).getBulletin().getImage())) {
                 Picasso.with(mContext).load(R.drawable.default_user).resize(50, 50)
                         .centerCrop()
                         .into(viewHolderItem.mivProfileImage);
@@ -146,7 +193,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
                         .into(viewHolderItem.mivProfileImage);
             }
 
-            if(item.getBulletin().getBulletin_image() != null && item.getBulletin().getBulletin_image().size() > 0 && viewHolderItem.mllAttachImage.getChildCount() == 0) {
+            if (item.getBulletin().getBulletin_image() != null && item.getBulletin().getBulletin_image().size() > 0 && viewHolderItem.mllAttachImage.getChildCount() == 0) {
                 for (Bulletin_image image : item.getBulletin().getBulletin_image()) {
                     ImageView imageview = new ImageView(mContext);
                     LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -173,7 +220,14 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
 
     @Override
     public int getItemCount() {
-        return malBulletin == null ? 0 : malBulletin.size();
+        if (malBulletin == null) {
+            return 0;
+        }
+        if (malBulletin.size() == 0) {
+            return 1;
+        }
+        return (malBulletin.size() + 1);
+//        return malBulletin == null ? 0 : malBulletin.size();
     }
 
     public interface OnItemLongClickListener {

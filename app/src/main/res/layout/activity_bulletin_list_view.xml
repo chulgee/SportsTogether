@@ -8,13 +8,15 @@
     android:orientation="vertical"
     tools:context="com.iron.dragon.sportstogether.ui.activity.BulletinListActivity"
     >
-
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/swipe_layout">
     <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
         >
-
         <android.support.design.widget.AppBarLayout
             android:id="@+id/appBarLayout"
             android:layout_width="match_parent"
@@ -31,6 +33,7 @@
                 app:expandedTitleMarginEnd="64dp"
                 app:expandedTitleMarginStart="48dp"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
                 <ImageView
                     android:id="@+id/ivBulletin"
                     android:layout_width="match_parent"
@@ -90,14 +93,14 @@
         </android.support.design.widget.AppBarLayout>
 
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/board_recyclerviewer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/board_recyclerviewer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                >
+            </android.support.v7.widget.RecyclerView>
 
-            >
-        </android.support.v7.widget.RecyclerView>
         <include  android:id="@+id/commentLayout" layout="@layout/content_bottom_sheet" />
         <com.github.rahatarmanahmed.cpv.CircularProgressView
             xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -117,7 +120,7 @@
             android:layout_gravity="bottom|end"
             android:src="@drawable/pencil" />
     </android.support.design.widget.CoordinatorLayout>
-
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 
 
