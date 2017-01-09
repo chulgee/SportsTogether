@@ -25,4 +25,6 @@ public class Const {
         MALE,
         FEMALE
     }
+
+    public static final String CONTENT_URI_STR = "content://com.iron.dragon.provider";
 }
