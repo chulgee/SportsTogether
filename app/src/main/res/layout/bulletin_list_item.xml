@@ -1,59 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:background="@android:drawable/list_selector_background"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
     >
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="20dip"/>
+    <data>
+        <import type="com.iron.dragon.sportstogether.util.Util"/>
+        <import type="com.iron.dragon.sportstogether.util.StringUtil"/>
+        <variable
+            name="listitem"
+            type="com.iron.dragon.sportstogether.ui.adapter.item.EventItem"/>
+        <variable
+            name="viewholderitem"
+            type="com.iron.dragon.sportstogether.ui.adapter.BulletinRecyclerViewAdapter.ViewHolderItem"/>
+    </data>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/ivProfileImage"
-            android:layout_width="50dip"
-            android:layout_height="50dip"
-            android:src="@drawable/default_user"
-            app:civ_border_width="2dp"
-            app:civ_border_color="#FF000000"
-            />
-        <TextView android:id="@+id/tvNickName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            />
-    </LinearLayout>
-
-    <TextView android:id="@+id/tvComment"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
-    <HorizontalScrollView
-        android:id="@+id/horizontalScroll"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:animateLayoutChanges="true"
-        android:scrollbars="none">
+        android:orientation="vertical"
+        android:onLongClick="@{viewholderitem::onLongClickItem}"
+        android:background="@android:drawable/list_selector_background"
+        >
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="20dip"/>
         <LinearLayout
-            android:id="@+id/llAttachImage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            >
-
+            android:orientation="horizontal">
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/ivProfileImage"
+                android:layout_width="50dip"
+                android:layout_height="50dip"
+                app:civ_border_width="2dp"
+                app:civ_border_color="#FF000000"
+                app:imageUrl="@{StringUtil.isEmpty(listitem.bulletin.image)?listitem.defaultImage:listitem.profileImage}"
+                />
+            <!--android:src="@drawable/default_user"-->
+            <TextView android:id="@+id/tvNickName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{listitem.bulletin.username}"
+                android:layout_gravity="center_vertical"
+                />
         </LinearLayout>
-    </HorizontalScrollView>
-    <TextView android:id="@+id/tvTime"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-        />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="20dip"/>
+        <TextView android:id="@+id/tvComment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{listitem.bulletin.comment}"
+            />
+        <HorizontalScrollView
+            android:id="@+id/horizontalScroll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:scrollbars="none">
+            <LinearLayout
+                android:id="@+id/llAttachImage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
 
-</LinearLayout>
+            </LinearLayout>
+        </HorizontalScrollView>
+        <TextView android:id="@+id/tvTime"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="@{Util.getStringTime(listitem.bulletin.date)}"
+            />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="20dip"/>
+
+    </LinearLayout>
+</layout>

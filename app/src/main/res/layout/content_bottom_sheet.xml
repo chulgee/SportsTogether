@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+<data>
+    <variable
+        name="viewModel"
+        type="com.iron.dragon.sportstogether.data.viewmodel.BulletinListViewModel"/>
+</data>
+<LinearLayout
               android:orientation="vertical"
               android:layout_width="fill_parent"
               android:layout_height="200dip"
               app:behavior_hideable="true"
               app:behavior_peekHeight="0dip"
+              app:bottomSheet="@{viewModel.bottomSheetCallback}"
               android:background="?attr/colorButtonNormal"
               app:layout_behavior="@string/bottom_sheet_behavior">
 
@@ -20,6 +27,8 @@
             android:layout_width="37dp"
             android:layout_height="wrap_content"
             android:id="@+id/btAttachImage"
+            android:enabled="@{viewModel.loading?false : true, default=true}"
+            android:onClick="@{viewModel::onClickAttachImage}"
             />
 
         <EditText
@@ -32,6 +41,7 @@
             android:layout_weight="0.86"
             android:scrollbars="vertical"
             android:elevation="0dp"
+            android:text="@={viewModel.Content}"
             />
 
         <Button
@@ -39,6 +49,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/bt_Send"
+            android:enabled="@{viewModel.loading ? false : true, default=true}"
+            android:onClick="@{viewModel::onClickSend}"
             />
     </LinearLayout>
 
@@ -51,3 +63,4 @@
     </LinearLayout>
 
 </LinearLayout>
+    </layout>

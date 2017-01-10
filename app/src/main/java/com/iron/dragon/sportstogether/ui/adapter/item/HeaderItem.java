@@ -20,6 +20,7 @@ public class HeaderItem extends ListItem {
         return mDate;
     }
 
+
     @Override
     public boolean equals(Object object)
     {
