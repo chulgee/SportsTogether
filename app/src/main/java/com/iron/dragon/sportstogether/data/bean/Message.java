@@ -9,14 +9,14 @@ import java.util.Date;
 
 public class Message  implements Serializable{
 
-    public static final int TYPE_CHAT_MESSAGE = 0;
-    public static final int TYPE_CHAT_ACTION = 1;
-    public static final int TYPE_CHAT_LOG = 2;
-    public static final int PARAM_MSG_IN = 10;
-    public static final int PARAM_MSG_OUT = 11;
+    public static final int PARAM_TYPE_MESSAGE = 0;
+    public static final int PARAM_TYPE_LOG = 1;
+    public static final int PARAM_TYPE_NOTI = 2;
+    public static final int PARAM_FROM_ME = 0;
+    public static final int PARAM_FROM_OTHER = 1;
 
-    private int type;
     private int msgType;
+    private int from;
     private String sender;
     private String receiver;
     private String message;
@@ -24,11 +24,12 @@ public class Message  implements Serializable{
     private String image;
     private int sportsid;
     private int locationid;
+    private String room;
 
     private Message(){}
 
-    public int getType() {
-        return type;
+    public int getFrom() {
+        return from;
     }
 
     public int getMsgType() {
@@ -55,10 +56,14 @@ public class Message  implements Serializable{
         return image;
     }
 
+    public String getRoom() {
+        return room;
+    }
+
     @Override
     public String toString() {
         return "Message{" +
-                "type=" + type +
+                "from=" + from +
                 ", msgType=" + msgType +
                 ", sender='" + sender + '\'' +
                 ", receiver='" + receiver + '\'' +
@@ -69,7 +74,7 @@ public class Message  implements Serializable{
     }
 
     public static class Builder{
-        private int type;
+        private int from;
         private int msgType;
         private String message;
         private String sender;
@@ -78,9 +83,10 @@ public class Message  implements Serializable{
         private String image;
         private int sportsid;
         private int locationid;
+        private String room;
 
-        public Builder(int type){
-            this.type = type;
+        public Builder(int from){
+            this.from = from;
         }
 
         public Builder msgType(int msgType){
@@ -100,6 +106,11 @@ public class Message  implements Serializable{
 
         public Builder message(String message){
             this.message = message;
+            return this;
+        }
+
+        public Builder room(String room){
+            this.room = room;
             return this;
         }
 
@@ -125,7 +136,7 @@ public class Message  implements Serializable{
 
         public Message build(){
             Message message = new Message();
-            message.type = this.type;
+            message.from = this.from;
             message.msgType = this.msgType;
             message.sender = this.sender;
             message.receiver = this.receiver;
@@ -134,6 +145,7 @@ public class Message  implements Serializable{
             message.image = this.image;
             message.sportsid = this.sportsid;
             message.locationid = this.locationid;
+            message.room = this.room;
             return message;
         }
     }

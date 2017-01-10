@@ -172,7 +172,7 @@ public class BulletinListActivity extends AppCompatActivity  {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 		mViewModel.setOnActivityResult(requestCode, resultCode, data);
-        
+
     }
 
     public void stopLoadingProgress() {
