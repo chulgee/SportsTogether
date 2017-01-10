@@ -14,8 +14,6 @@ import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.ui.fragment.ChatFragment;
 import com.iron.dragon.sportstogether.util.Util;
-import com.orhanobut.logger.Logger;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,11 +49,11 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v;
         Log.v(TAG, "viewtype="+viewType);
-        if(viewType == Message.TYPE_CHAT_MESSAGE){
-            v = LayoutInflater.from(parent.getContext()).inflate(R.layout.chat_item, null);
+        if(viewType == Message.PARAM_TYPE_MESSAGE){
+            v = LayoutInflater.from(parent.getContext()).inflate(R.layout.chat_list_item, null);
             return new ViewHolder(v);
         }else{
-            v = LayoutInflater.from(parent.getContext()).inflate(R.layout.chat_item_action, null);
+            v = LayoutInflater.from(parent.getContext()).inflate(R.layout.chat_list_item_log, null);
             return new ViewHolder_action(v);
         }
     }
@@ -64,11 +62,11 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         int type = getItemViewType(position);
         Message message = mMessages.get(position);
-        if(type == Message.TYPE_CHAT_MESSAGE){
+        if(type == Message.PARAM_TYPE_MESSAGE){
             ViewHolder vh = (ViewHolder)holder;
             //String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_profile?filename=" + message.getImage();
             //Logger.d("onBindViewHolder url = " + url);
-            if(message.getMsgType() == Message.PARAM_MSG_IN){
+            if(message.getFrom() == Message.PARAM_FROM_OTHER){
                 vh.rl1.setVisibility(View.VISIBLE);
                 vh.tv1.setText(message.getSender());
                 vh.tv2.setText(message.getMessage());
@@ -98,7 +96,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemViewType(int position) {
-        return mMessages.get(position).getType();
+        return mMessages.get(position).getMsgType();
     }
 
     @Override

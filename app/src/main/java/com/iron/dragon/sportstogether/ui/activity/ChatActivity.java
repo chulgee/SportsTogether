@@ -17,12 +17,14 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.google.gson.Gson;
+import com.iron.dragon.sportstogether.MyContentProvider;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.ui.fragment.ChatFragment;
 import com.iron.dragon.sportstogether.util.Const;
+import com.iron.dragon.sportstogether.util.DbUtil;
 import com.iron.dragon.sportstogether.util.PushWakeLock;
 
 import org.json.JSONException;
@@ -107,7 +109,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
 
             // find fragment for buddy
             String key;
-            if(message.getMsgType() == Message.PARAM_MSG_OUT){
+            if(message.getFrom() == Message.PARAM_FROM_ME){
                 key = message.getReceiver();
             }else{
                 key = message.getSender();
@@ -250,7 +252,8 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                final Message message = new Message.Builder(Message.TYPE_CHAT_MESSAGE).msgType(Message.PARAM_MSG_IN).sender(sender).receiver(receiver).message(contents).date(date).build();
+                final Message message = new Message.Builder(Message.PARAM_FROM_OTHER).msgType(Message.PARAM_TYPE_MESSAGE).sender(sender).receiver(receiver).message(contents).date(date).room(sender).build();
+                DbUtil.insert(ChatActivity.this, message);
                 Log.v(TAG, message.toString());
 
                 PushWakeLock.acquireWakeLock(ChatActivity.this, 5000);

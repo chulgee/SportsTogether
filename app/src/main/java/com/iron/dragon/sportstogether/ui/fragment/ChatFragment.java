@@ -1,7 +1,10 @@
 package com.iron.dragon.sportstogether.ui.fragment;
 
 import android.app.Fragment;
+import android.content.AsyncQueryHandler;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -20,6 +23,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import static com.iron.dragon.sportstogether.MyContentProvider.DbHelper;
+
+import com.iron.dragon.sportstogether.MyContentProvider;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;
@@ -28,6 +34,7 @@ import com.iron.dragon.sportstogether.http.retropit.GitHubService;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.ui.adapter.MessageAdapter;
 import com.iron.dragon.sportstogether.util.Const;
+import com.iron.dragon.sportstogether.util.DbUtil;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -98,7 +105,7 @@ public class ChatFragment extends Fragment {
     public static ChatFragment newInstance(Message message) {
         ChatFragment fragment = new ChatFragment();
         String buddy = null;
-        if(message.getMsgType() == Message.PARAM_MSG_OUT){
+        if(message.getFrom() == Message.PARAM_FROM_ME){
             buddy = message.getReceiver();
         }else{
             buddy = message.getSender();
@@ -158,8 +165,9 @@ public class ChatFragment extends Fragment {
                 if(!etMessage.getText().toString().isEmpty()) {
                     mContents = etMessage.getText().toString();
                     etMessage.setText("");
-                    Message message = new Message.Builder(Message.TYPE_CHAT_MESSAGE).msgType(Message.PARAM_MSG_OUT).sender(mMe.getUsername()).receiver(mBuddyName)
-                            .message(mContents).date(new Date().getTime()).build();
+                    Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_MESSAGE).sender(mMe.getUsername()).receiver(mBuddyName)
+                            .message(mContents).date(new Date().getTime()).room(mBuddyName).build();
+                    DbUtil.insert(getActivity(), message);
                     updateUI(message);
                     mActivity.send(message);
                 }else
@@ -174,6 +182,49 @@ public class ChatFragment extends Fragment {
         Log.v(TAG, "onViewCreated");
         super.onViewCreated(view, savedInstanceState);
         initView();
+        loadChatHistory();
+    }
+
+    private void loadChatHistory(){
+        AsyncQueryHandler queryHandler = new AsyncQueryHandler(getActivity().getContentResolver()) {
+            @Override
+            protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
+                Log.v(TAG, "token="+token+", cursor="+cursor);
+                super.onQueryComplete(token, cookie, cursor);
+                if(cursor != null && cursor.getCount()>0){
+                    while(cursor.moveToNext()){
+                        //String room = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_ROOM));
+                        String sender = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_SENDER));
+                        String receiver = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_RECEIVER));
+                        String msg = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_MESSAGE));
+                        int from = cursor.getInt(cursor.getColumnIndex(DbHelper.COLUMN_FROM));
+                        long date = cursor.getLong(cursor.getColumnIndex(DbHelper.COLUMN_DATE));
+                        int message_type = cursor.getInt(cursor.getColumnIndex(DbHelper.COLUMN_MESSAGE_TYPE));
+                        Message message = new Message.Builder(from).msgType(message_type).sender(sender)
+                                .receiver(receiver).message(msg).date(date).room(mBuddyName).build();
+                        mAdapter.addMessage(message);
+                        Log.v(TAG, "message="+message);
+                    };
+                    Bundle bd = getArguments();
+                    Message message = (Message)bd.get(PARAM_FRAG_MSG);
+                    if(message != null){
+                        mAdapter.addMessage(message);
+                    }
+                    rView.scrollToPosition(mAdapter.getItemCount()-1);
+                    mAdapter.notifyDataSetChanged();
+                }
+            }
+        };
+        String[] projection = {
+                DbHelper.COLUMN_ROOM,
+                DbHelper.COLUMN_DATE,
+                DbHelper.COLUMN_SENDER,
+                DbHelper.COLUMN_RECEIVER,
+                DbHelper.COLUMN_MESSAGE,
+                DbHelper.COLUMN_FROM,
+                DbHelper.COLUMN_MESSAGE_TYPE
+        };
+        queryHandler.startQuery(1, null, MyContentProvider.CONTENT_URI, projection, "sender=? or receiver=?", new String[]{mBuddyName, mBuddyName}, " date asc");
     }
 
     private void initView(){
@@ -181,7 +232,7 @@ public class ChatFragment extends Fragment {
         Bundle bd = getArguments();
         Message message = (Message)bd.get(PARAM_FRAG_MSG);
         if (message != null) {
-            if(message.getMsgType() == Message.PARAM_MSG_OUT){
+            if(message.getFrom() == Message.PARAM_FROM_ME){
                 mBuddyName = message.getReceiver();
             }else{
                 mBuddyName = message.getSender();
@@ -190,15 +241,15 @@ public class ChatFragment extends Fragment {
         Log.v(TAG, "initView message="+message);
 
         tvBuddy.setText(mBuddyName);
-        if(message != null){
+        /*if(message != null){
             updateUI(message);
-        }
+        }*/
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        loadBuddyProfile();
+        //loadBuddyProfile();
     }
 
     private void loadBuddyProfile(){

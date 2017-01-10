@@ -60,7 +60,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_toLeftOf="@+id/sendButton"
+            android:layout_toLeftOf="@+id/btnSend"
             android:textSize="16dp"
             android:textColor="#ff000000"
             android:background="#ffffffff"
