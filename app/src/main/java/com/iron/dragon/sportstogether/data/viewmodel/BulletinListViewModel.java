@@ -169,9 +169,12 @@ public class BulletinListViewModel extends BaseObservable {
     }
 
     public void setContent(String content) {
-        Content = content;
+        this.Content = content;
+        notifyPropertyChanged(BR.content);
+
     }
 
+    @Bindable
     public String getContent() {
         return Content;
     }
@@ -443,8 +446,17 @@ public class BulletinListViewModel extends BaseObservable {
         EventItem item = new EventItem();
         item.setBulletin(res_bulletin);
         mActivity.showPosting(header, item);
+        postDone();
+
 
     }
+
+    private void postDone() {
+        tempfix = 0;
+        mAlCropImageUri.clear();
+        setContent("");
+    }
+
     private void uploadFile(int getid, Bulletin bulletin) {
         int count = mAlCropImageUri.size();
         new ResizeBitmapTask(getid, bulletin).execute(mAlCropImageUri);//Util.getFileFromUri(getContentResolver(), fileUri);
