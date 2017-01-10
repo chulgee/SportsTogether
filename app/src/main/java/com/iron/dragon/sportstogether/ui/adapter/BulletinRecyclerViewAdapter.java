@@ -1,23 +1,24 @@
 package com.iron.dragon.sportstogether.ui.adapter;
 
 import android.content.Context;
+import android.databinding.BindingAdapter;
+import android.databinding.DataBindingUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.bean.Bulletin_image;
+import com.iron.dragon.sportstogether.databinding.BulletinListFooterBinding;
+import com.iron.dragon.sportstogether.databinding.BulletinListHeaderBinding;
+import com.iron.dragon.sportstogether.databinding.BulletinListItemBinding;
+import com.iron.dragon.sportstogether.databinding.MyCustomViewBinding;
 import com.iron.dragon.sportstogether.ui.adapter.item.EventItem;
 import com.iron.dragon.sportstogether.ui.adapter.item.HeaderItem;
 import com.iron.dragon.sportstogether.ui.adapter.item.ListItem;
-import com.iron.dragon.sportstogether.util.StringUtil;
-import com.iron.dragon.sportstogether.util.Util;
 import com.orhanobut.logger.Logger;
 import com.squareup.picasso.Picasso;
 
@@ -75,54 +76,61 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         malBulletin.clear();
     }
 
-    public class ViewHolderItem extends RecyclerView.ViewHolder implements View.OnLongClickListener {
-        private final CircleImageView mivProfileImage;
-        private final View mView;
-        private final TextView mtvNickName;
-        private final TextView mtvComment;
-        private final TextView mtvTime;
-        private final LinearLayout mllAttachImage;
-        public ViewHolderItem(View itemView) {
-            super(itemView);
-            mView = itemView;
-            mtvNickName = (TextView) itemView.findViewById(R.id.tvNickName);
-            mtvComment = (TextView) itemView.findViewById(R.id.tvComment);
-            mivProfileImage = (CircleImageView) itemView.findViewById(R.id.ivProfileImage);
-            mtvTime = (TextView)itemView.findViewById(R.id.tvTime);
-            mllAttachImage = (LinearLayout)itemView.findViewById(R.id.llAttachImage);
-            itemView.setOnLongClickListener(this);
+    public class ViewHolderItem extends RecyclerView.ViewHolder  {
+        private final BulletinListItemBinding mBinding;
+
+        public ViewHolderItem(BulletinListItemBinding binding) {
+            super(binding.getRoot());
+            mBinding = binding;
+            mBinding.setViewholderitem(this);
         }
 
-        @Override
-        public boolean onLongClick(View view) {
+        public boolean onLongClickItem(View view) {
             onItemHolderLongClick(this);
             index = getAdapterPosition();
+            Logger.d("AdapterPosition = " + index);
             return true;
         }
     }
+    @BindingAdapter({"bind:imageUrl"})
+    public static void profileImage(View v, String url) {
+        Logger.d("url = " + url);
+        Picasso.with(v.getContext()).load(url).resize(50, 50)
+                .centerCrop()
+                .into((CircleImageView) v);
+    }
+
+    @BindingAdapter({"bind:bulletinimageUrl"})
+    public static void bulletinImage(View v, String url) {
+        Logger.d("url = " + url);
+        Picasso.with(v.getContext()).load(url).resize(450, 450)
+                .centerCrop()
+                .into((ImageView) v);
+    }
 
     public class ViewHolderHeader extends RecyclerView.ViewHolder {
-        View mView;
-        TextView mtvDate;
-        public ViewHolderHeader(View itemView) {
-            super(itemView);
-            mView = itemView;
-            mtvDate = (TextView) itemView.findViewById(R.id.tvDate);
+        private final BulletinListHeaderBinding mBinding;
+        public ViewHolderHeader(BulletinListHeaderBinding binding) {
+            super(binding.getRoot());
+            mBinding = binding;
         }
     }
 
-    public class FooterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        View mView;
-        private final Button mbtMore;
-        public FooterViewHolder(View itemView) {
-            super(itemView);
-            mView = itemView;
-            mbtMore =  (Button) itemView.findViewById(R.id.btMore);
-            mbtMore.setOnClickListener(this);
+    public class FooterViewHolder extends RecyclerView.ViewHolder {
+        private final BulletinListFooterBinding mBinding;
+        public FooterViewHolder(BulletinListFooterBinding binding) {
+            super(binding.getRoot());
+            mBinding = binding;
+            mBinding.setViewholderfooter(this);
+            /*mBinding.btMore.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Logger.d("FooterViewHolder Click");
+                }
+            });*/
         }
-
-        @Override
-        public void onClick(View view) {
+        public void onClickFooter(View view) {
+            Logger.d("FooterViewHolder Click");
             onFooterItemHolderClick(this);
         }
     }
@@ -155,14 +163,17 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == FOOTER_VIEW) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bulletin_list_footer, parent, false);
-            return new FooterViewHolder(view);
+            BulletinListFooterBinding binding = DataBindingUtil
+                    .inflate(LayoutInflater.from(mContext), R.layout.bulletin_list_footer, parent, false);
+            return new FooterViewHolder(binding);
         } else if (viewType == ListItem.TYPE_HEADER) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bulletin_list_header, parent, false);
-            return new ViewHolderHeader(view);
+            BulletinListHeaderBinding binding = DataBindingUtil
+                    .inflate(LayoutInflater.from(mContext), R.layout.bulletin_list_header, parent, false);
+            return new ViewHolderHeader(binding);
         } else {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bulletin_list_item, parent, false);
-            return new ViewHolderItem(view);
+            BulletinListItemBinding binding = DataBindingUtil
+                    .inflate(LayoutInflater.from(mContext), R.layout.bulletin_list_item, parent, false);
+            return new ViewHolderItem(binding);
         }
     }
 
@@ -170,32 +181,22 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         int type = getItemViewType(position);
         if( type == FOOTER_VIEW) {
-
+            final FooterViewHolder viewHolderFooter = (FooterViewHolder) holder;
+            viewHolderFooter.mBinding.executePendingBindings();
         } else if (type == ListItem.TYPE_HEADER) {
             final ViewHolderHeader viewHolderHeader = (ViewHolderHeader) holder;
-            HeaderItem header = (HeaderItem) malBulletin.get(position);
-            viewHolderHeader.mtvDate.setText(header.getDate());
+            viewHolderHeader.mBinding.setListitem((HeaderItem) malBulletin.get(position));
+            viewHolderHeader.mBinding.executePendingBindings();
         } else {
             final ViewHolderItem viewHolderItem = (ViewHolderItem) holder;
-            EventItem item = (EventItem) malBulletin.get(position);
-            viewHolderItem.mtvNickName.setText(item.getBulletin().getUsername());
-            viewHolderItem.mtvComment.setText(item.getBulletin().getComment());
-            viewHolderItem.mtvTime.setText(Util.getStringTime(item.getBulletin().getDate()));
-            if (StringUtil.isEmpty(((EventItem) malBulletin.get(position)).getBulletin().getImage())) {
-                Picasso.with(mContext).load(R.drawable.default_user).resize(50, 50)
-                        .centerCrop()
-                        .into(viewHolderItem.mivProfileImage);
-            } else {
-                String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_profile?filename=" + item.getBulletin().getImage();
-                Logger.d("url = " + url);
-                Picasso.with(mContext).load(url).resize(50, 50)
-                        .centerCrop()
-                        .into(viewHolderItem.mivProfileImage);
-            }
+            viewHolderItem.mBinding.setListitem((EventItem)malBulletin.get(position));
 
-            if (item.getBulletin().getBulletin_image() != null && item.getBulletin().getBulletin_image().size() > 0 && viewHolderItem.mllAttachImage.getChildCount() == 0) {
-                for (Bulletin_image image : item.getBulletin().getBulletin_image()) {
-                    ImageView imageview = new ImageView(mContext);
+            EventItem item = (EventItem) malBulletin.get(position);
+
+            if (item.getBulletin().getBulletin_image() != null && item.getBulletin().getBulletin_image().size() > 0 && viewHolderItem.mBinding.llAttachImage.getChildCount() == 0) {
+//                for (Bulletin_image image : item.getBulletin().getBulletin_image()) {
+                    addViewToViewGroup(viewHolderItem.mBinding.llAttachImage);
+                    /*ImageView imageview = new ImageView(mContext);
                     LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                     lp.setMarginEnd(20);
                     imageview.setLayoutParams(lp);
@@ -203,9 +204,20 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
                     Picasso.with(mContext).load(url).resize(450, 450)
                             .centerCrop()
                             .into(imageview);
-                    viewHolderItem.mllAttachImage.addView(imageview);
-                }
+                    viewHolderItem.mBinding.llAttachImage.addView(imageview);*/
+//                }
             }
+            viewHolderItem.mBinding.executePendingBindings();
+        }
+
+    }
+
+    private void addViewToViewGroup(ViewGroup viewGroup) {
+        BulletinListItemBinding outer = DataBindingUtil.findBinding(viewGroup);
+        for (Bulletin_image image : outer.getListitem().getBulletin().getBulletin_image()) {
+            LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
+            MyCustomViewBinding binding = MyCustomViewBinding.inflate(inflater, viewGroup, true);
+            binding.setListimage(image);
         }
     }
 
@@ -214,7 +226,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         super.onViewRecycled(holder);
         if(holder.getItemViewType() == ListItem.TYPE_EVENT) {
             final ViewHolderItem viewHolderItem = (ViewHolderItem) holder;
-            viewHolderItem.mllAttachImage.removeAllViews();
+            viewHolderItem.mBinding.llAttachImage.removeAllViews();
         }
     }
 
@@ -227,7 +239,6 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             return 1;
         }
         return (malBulletin.size() + 1);
-//        return malBulletin == null ? 0 : malBulletin.size();
     }
 
     public interface OnItemLongClickListener {

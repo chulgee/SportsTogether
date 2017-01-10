@@ -32,8 +32,8 @@
     <string name="sports_type">Sports Type</string>
     <string name="level">Level</string>
     <string name="bulletin">Bulletin</string>
-    <string name="bulletin_location">Location :  <xliff:g id="location">%s</xliff:g> </string>
-    <string name="bulletin_num">Total :  <xliff:g id="total">%s</xliff:g> </string>
+    <string name="bulletin_location">Location : %1$s</string>
+    <string name="bulletin_num">Total : %1$s</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

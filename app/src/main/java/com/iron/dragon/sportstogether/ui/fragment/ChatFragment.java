@@ -198,7 +198,7 @@ public class ChatFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        loadBuddyProfile();
+       // loadBuddyProfile();
     }
 
     private void loadBuddyProfile(){
