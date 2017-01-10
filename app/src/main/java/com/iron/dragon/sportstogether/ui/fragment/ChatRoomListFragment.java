@@ -48,10 +48,11 @@ public class ChatRoomListFragment extends Fragment {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.frag_chatroom, container, false);
 
         lv_room = (RecyclerView) rootView.findViewById(R.id.lv_room);
-        LinearLayoutManager llm = new LinearLayoutManager(getActivity());
+        lv_room.setHasFixedSize(true);
+        LinearLayoutManager llm = new LinearLayoutManager(getContext());
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         lv_room.setLayoutManager(llm);
-        mAdapter = new MyAdapter(getActivity(), null);
+        mAdapter = new MyAdapter(getContext(), null);
         lv_room.setAdapter(mAdapter);
 
         return rootView;
@@ -99,7 +100,7 @@ public class ChatRoomListFragment extends Fragment {
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View v;
             Log.v(TAG, "parent="+parent);
-            v = LayoutInflater.from(parent.getContext()).inflate(R.layout.chat_room_list_item, null);
+            v = LayoutInflater.from(getContext()).inflate(R.layout.chat_room_list_item, parent, false);
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
