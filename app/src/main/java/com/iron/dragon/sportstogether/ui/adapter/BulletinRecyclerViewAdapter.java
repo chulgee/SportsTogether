@@ -122,12 +122,6 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             super(binding.getRoot());
             mBinding = binding;
             mBinding.setViewholderfooter(this);
-            /*mBinding.btMore.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Logger.d("FooterViewHolder Click");
-                }
-            });*/
         }
         public void onClickFooter(View view) {
             Logger.d("FooterViewHolder Click");
@@ -194,18 +188,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             EventItem item = (EventItem) malBulletin.get(position);
 
             if (item.getBulletin().getBulletin_image() != null && item.getBulletin().getBulletin_image().size() > 0 && viewHolderItem.mBinding.llAttachImage.getChildCount() == 0) {
-//                for (Bulletin_image image : item.getBulletin().getBulletin_image()) {
-                    addViewToViewGroup(viewHolderItem.mBinding.llAttachImage);
-                    /*ImageView imageview = new ImageView(mContext);
-                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    lp.setMarginEnd(20);
-                    imageview.setLayoutParams(lp);
-                    String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_bulletin?filename=" + image.getBulletinImg();
-                    Picasso.with(mContext).load(url).resize(450, 450)
-                            .centerCrop()
-                            .into(imageview);
-                    viewHolderItem.mBinding.llAttachImage.addView(imageview);*/
-//                }
+                addViewToViewGroup(viewHolderItem.mBinding.llAttachImage);
             }
             viewHolderItem.mBinding.executePendingBindings();
         }
