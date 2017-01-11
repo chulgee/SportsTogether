@@ -70,7 +70,7 @@ import retrofit2.Response;
 import static android.content.ContentValues.TAG;
 
 /**
- * Created by P16018 on 2017-01-05.
+ * Created by P16018 on 2017-01-05..
  */
 
 public class BulletinListViewModel extends BaseObservable {
