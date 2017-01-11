@@ -104,7 +104,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("Test", "LoginActivity");
-        setContentView(R.layout.activity_profile);
+        setContentView(R.layout.profile_act);
         InitData();
         ButterKnife.bind(this);
 
