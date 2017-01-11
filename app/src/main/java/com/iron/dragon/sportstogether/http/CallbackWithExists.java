@@ -1,4 +1,4 @@
-package com.iron.dragon.sportstogether.http.retropit;
+package com.iron.dragon.sportstogether.http;
 
 import retrofit2.Call;
 import retrofit2.Callback;

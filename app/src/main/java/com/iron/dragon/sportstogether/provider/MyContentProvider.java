@@ -1,4 +1,4 @@
-package com.iron.dragon.sportstogether;
+package com.iron.dragon.sportstogether.provider;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;

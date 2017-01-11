@@ -20,7 +20,7 @@ import android.widget.ImageView;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.viewmodel.BulletinListViewModel;
-import com.iron.dragon.sportstogether.databinding.ActivityBulletinListViewBinding;
+import com.iron.dragon.sportstogether.databinding.BulletinActBinding;
 import com.iron.dragon.sportstogether.ui.adapter.BulletinRecyclerViewAdapter;
 import com.iron.dragon.sportstogether.ui.adapter.item.EventItem;
 import com.iron.dragon.sportstogether.ui.adapter.item.HeaderItem;
@@ -39,7 +39,7 @@ public class BulletinListActivity extends AppCompatActivity  {
     private BottomSheetBehavior bottomSheetBehavior;
 
     private BulletinListViewModel mViewModel;
-    private ActivityBulletinListViewBinding mBinding;
+    private BulletinActBinding mBinding;
 
 
     @Override

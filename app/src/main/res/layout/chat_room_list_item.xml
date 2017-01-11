@@ -9,14 +9,15 @@
     >
     <ImageView
         android:id="@+id/iv_thumb"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:src="@drawable/default_user"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_gravity="center_vertical"
+        android:layout_weight="1"
         android:paddingLeft="10dp">
         <TextView
             android:id="@+id/tv_room_title"
@@ -27,7 +28,11 @@
             android:id="@+id/tv_room_subtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="with dddd"/>
+            android:text="with"/>
     </LinearLayout>
-
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/delete"
+        android:background="@drawable/md_btn_selector"/>
 </LinearLayout>

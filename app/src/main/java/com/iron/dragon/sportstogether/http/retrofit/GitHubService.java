@@ -1,4 +1,4 @@
-package com.iron.dragon.sportstogether.http.retropit;
+package com.iron.dragon.sportstogether.http.retrofit;
 
 import com.iron.dragon.sportstogether.data.bean.Bulletin;
 import com.iron.dragon.sportstogether.data.bean.Profile;

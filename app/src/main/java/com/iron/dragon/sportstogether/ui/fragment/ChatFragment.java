@@ -22,14 +22,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import static com.iron.dragon.sportstogether.MyContentProvider.DbHelper;
+import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper;
 
-import com.iron.dragon.sportstogether.MyContentProvider;
+import com.iron.dragon.sportstogether.provider.MyContentProvider;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
-import com.iron.dragon.sportstogether.http.retropit.GitHubService;
+import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.ui.adapter.MessageAdapter;
 import com.iron.dragon.sportstogether.util.Const;
@@ -248,7 +248,7 @@ public class ChatFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        loadBuddyProfile();
+        //loadBuddyProfile();
     }
 
     private void loadBuddyProfile(){

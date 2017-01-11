@@ -1,4 +1,4 @@
-package com.iron.dragon.sportstogether.retrofit;
+package com.iron.dragon.sportstogether.http;
 
 /**
  * Created by chulchoice on 2016-11-18.

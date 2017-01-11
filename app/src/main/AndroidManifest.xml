@@ -82,12 +82,12 @@
             </intent-filter>
         </service>
         <service
-            android:name=".ui.FloatingService"
+            android:name=".service.FloatingService"
             android:enabled="true"
             android:exported="true" />
 
         <provider
-            android:name=".MyContentProvider"
+            android:name=".provider.MyContentProvider"
             android:authorities="com.iron.dragon.provider"
             android:enabled="true"
             android:exported="true"></provider>

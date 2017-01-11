@@ -17,9 +17,9 @@ import com.iron.dragon.sportstogether.SportsApplication;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.data.bean.ProfileItem;
-import com.iron.dragon.sportstogether.http.retropit.CallbackWithExists;
-import com.iron.dragon.sportstogether.http.retropit.GitHubService;
-import com.iron.dragon.sportstogether.http.retropit.RetrofitHelper;
+import com.iron.dragon.sportstogether.http.CallbackWithExists;
+import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
+import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
 import com.iron.dragon.sportstogether.util.StringUtil;
 import com.squareup.picasso.Picasso;
 

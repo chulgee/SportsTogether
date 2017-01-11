@@ -1,4 +1,4 @@
-package com.iron.dragon.sportstogether.ui;
+package com.iron.dragon.sportstogether.service;
 
 import android.app.Service;
 import android.content.Context;

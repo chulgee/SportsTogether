@@ -1,7 +1,7 @@
 package com.iron.dragon.sportstogether.util;
 
-import com.iron.dragon.sportstogether.http.retropit.Error;
-import com.iron.dragon.sportstogether.http.retropit.GitHubService;
+import com.iron.dragon.sportstogether.http.Error;
+import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;

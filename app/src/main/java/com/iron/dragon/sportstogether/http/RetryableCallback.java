@@ -1,6 +1,8 @@
-package com.iron.dragon.sportstogether.http.retropit;
+package com.iron.dragon.sportstogether.http;
 
 import android.util.Log;
+
+import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
 
 import retrofit2.Call;
 import retrofit2.Callback;

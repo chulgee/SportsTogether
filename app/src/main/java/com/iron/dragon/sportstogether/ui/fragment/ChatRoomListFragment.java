@@ -17,9 +17,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import static com.iron.dragon.sportstogether.MyContentProvider.DbHelper;
+import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper;
 
-import com.iron.dragon.sportstogether.MyContentProvider;
+import com.iron.dragon.sportstogether.provider.MyContentProvider;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;

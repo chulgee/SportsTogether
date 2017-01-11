@@ -1,5 +1,7 @@
-package com.iron.dragon.sportstogether.http.retropit;
+package com.iron.dragon.sportstogether.http.retrofit;
 
+import com.iron.dragon.sportstogether.http.CallbackWithExists;
+import com.iron.dragon.sportstogether.http.RetryableCallback;
 import com.orhanobut.logger.Logger;
 
 import retrofit2.Call;

@@ -5,10 +5,8 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
-import com.iron.dragon.sportstogether.MyContentProvider;
+import com.iron.dragon.sportstogether.provider.MyContentProvider;
 import com.iron.dragon.sportstogether.data.bean.Message;
-
-import java.util.Date;
 
 
 /**
