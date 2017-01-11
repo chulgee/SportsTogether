@@ -139,7 +139,7 @@ public class BulletinListViewModel extends BaseObservable {
                     Log.v(TAG, "buddy: " + buddy.toString());
                     Log.v(TAG, "me: " + me.toString());
                     Intent i = new Intent(mActivity, ChatActivity.class);
-                    Message message = new Message.Builder(Message.TYPE_CHAT_ACTION).msgType(Message.PARAM_MSG_OUT).sender(me.getUsername()).receiver(buddy.getUsername())
+                    Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(buddy.getUsername())
                             .message("Conversation get started").date(new Date().getTime()).image(buddy.getImage()).build();
                     i.putExtra("Message", message);
                     mActivity.startActivity(i);
