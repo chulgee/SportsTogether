@@ -25,6 +25,7 @@ import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
+import com.iron.dragon.sportstogether.util.DbUtil;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -85,6 +86,21 @@ public class ChatRoomListFragment extends Fragment {
                                 , "sender=sender group by "+DbHelper.COLUMN_ROOM, null, " date asc");
     }
 
+    private void removeChatRoom(final int index, String roomName){
+        AsyncQueryHandler queryHandler = new AsyncQueryHandler(getActivity().getContentResolver()) {
+            @Override
+            protected void onDeleteComplete(int token, Object cookie, int result) {
+                super.onDeleteComplete(token, cookie, result);
+                Log.v(TAG, "onDeleteComplete result="+result);
+                mAdapter.removeItem(index);
+                mAdapter.notifyItemRemoved(index);
+                Toast.makeText(getContext(), "deletion successful", Toast.LENGTH_SHORT).show();
+            }
+        };
+        String where = MyContentProvider.DbHelper.COLUMN_ROOM+"=?";
+        queryHandler.startDelete(1, null, MyContentProvider.CONTENT_URI, where, new String[]{roomName});
+    }
+
     class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         private List<String> items;
         public MyAdapter(Context context, List<String> items){
@@ -100,7 +116,7 @@ public class ChatRoomListFragment extends Fragment {
             View v;
             Log.v(TAG, "parent="+parent);
             v = LayoutInflater.from(getContext()).inflate(R.layout.chat_room_list_item, parent, false);
-            v.setOnClickListener(new View.OnClickListener() {
+            /*v.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int position = lv_room.indexOfChild(v);
@@ -113,7 +129,7 @@ public class ChatRoomListFragment extends Fragment {
                     i.putExtra("Message", message);
                     startActivity(i);
                 }
-            });
+            });*/
             return new ViewCache(v);
         }
 
@@ -121,7 +137,7 @@ public class ChatRoomListFragment extends Fragment {
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             ViewCache vh = (ViewCache)holder;
             String title = items.get(position);
-            vh.tv_title.setText(title);
+            vh.tv_title.setText(title+" 와의 대화");
         }
 
         @Override
@@ -133,15 +149,45 @@ public class ChatRoomListFragment extends Fragment {
             items.add(str);
         }
 
+        public void removeItem(int index){
+            items.remove(index);
+        }
+
         class ViewCache extends RecyclerView.ViewHolder{
             ImageView iv_thumb;
             TextView tv_title;
             TextView tv_subtitle;
+            ImageView iv_delete;
             public ViewCache(View v) {
                 super(v);
+                v.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        int position = getAdapterPosition();
+                        String item = items.get(position);
+                        Toast.makeText(getContext(), "item="+item, Toast.LENGTH_SHORT).show();
+                        Profile me = LoginPreferences.GetInstance().getLocalProfile(getContext());
+                        Intent i = new Intent(getActivity(), ChatActivity.class);
+                        Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(item)
+                                .message("Conversation get started").date(new Date().getTime()).image(null).build();
+                        i.putExtra("Message", message);
+                        startActivity(i);
+                    }
+                });
                 iv_thumb = (ImageView)v.findViewById(R.id.iv_thumb);
                 tv_title = (TextView)v.findViewById(R.id.tv_room_title);
                 tv_subtitle = (TextView)v.findViewById(R.id.tv_room_subtitle);
+                iv_delete = (ImageView)v.findViewById(R.id.iv_delete);
+                iv_delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        int position = getAdapterPosition();
+                        String item = items.get(position);
+                        Toast.makeText(getContext(), "iv_delete item="+item, Toast.LENGTH_SHORT).show();
+                        //DbUtil.delete(getContext(), item);
+                        removeChatRoom(position, item);
+                    }
+                });
             }
         }
 

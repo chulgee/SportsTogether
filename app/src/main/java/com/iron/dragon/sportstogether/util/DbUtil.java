@@ -37,4 +37,10 @@ public class DbUtil {
         Uri uri = context.getContentResolver().insert(MyContentProvider.CONTENT_URI, values);
         Log.v(TAG, "insert uri="+uri);
     }
+
+    public static void delete(Context context, String roomName){
+        String where = MyContentProvider.DbHelper.COLUMN_ROOM+"=?";
+        int count = context.getContentResolver().delete(MyContentProvider.CONTENT_URI, where, new String[]{roomName});
+        Log.v(TAG, "delete count="+count);
+    }
 }
