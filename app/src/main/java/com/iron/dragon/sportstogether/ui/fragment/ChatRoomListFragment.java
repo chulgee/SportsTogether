@@ -165,7 +165,7 @@ public class ChatRoomListFragment extends Fragment {
                     public void onClick(View v) {
                         int position = getAdapterPosition();
                         String item = items.get(position);
-                        Toast.makeText(getContext(), "item="+item, Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getContext(), "item="+item, Toast.LENGTH_SHORT).show();
                         Profile me = LoginPreferences.GetInstance().getLocalProfile(getContext());
                         Intent i = new Intent(getActivity(), ChatActivity.class);
                         Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(item)
@@ -183,7 +183,7 @@ public class ChatRoomListFragment extends Fragment {
                     public void onClick(View v) {
                         int position = getAdapterPosition();
                         String item = items.get(position);
-                        Toast.makeText(getContext(), "iv_delete item="+item, Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getContext(), "iv_delete item="+item, Toast.LENGTH_SHORT).show();
                         //DbUtil.delete(getContext(), item);
                         removeChatRoom(position, item);
                     }
