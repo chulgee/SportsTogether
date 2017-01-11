@@ -15,7 +15,7 @@ import com.iron.dragon.sportstogether.data.bean.Bulletin_image;
 import com.iron.dragon.sportstogether.databinding.BulletinListFooterBinding;
 import com.iron.dragon.sportstogether.databinding.BulletinListHeaderBinding;
 import com.iron.dragon.sportstogether.databinding.BulletinListItemBinding;
-import com.iron.dragon.sportstogether.databinding.MyCustomViewBinding;
+import com.iron.dragon.sportstogether.databinding.BulletinMyCustomViewBinding;
 import com.iron.dragon.sportstogether.ui.adapter.item.EventItem;
 import com.iron.dragon.sportstogether.ui.adapter.item.HeaderItem;
 import com.iron.dragon.sportstogether.ui.adapter.item.ListItem;
@@ -199,7 +199,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         BulletinListItemBinding outer = DataBindingUtil.findBinding(viewGroup);
         for (Bulletin_image image : outer.getListitem().getBulletin().getBulletin_image()) {
             LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
-            MyCustomViewBinding binding = MyCustomViewBinding.inflate(inflater, viewGroup, true);
+            BulletinMyCustomViewBinding binding = BulletinMyCustomViewBinding.inflate(inflater, viewGroup, true);
             binding.setListimage(image);
         }
     }
