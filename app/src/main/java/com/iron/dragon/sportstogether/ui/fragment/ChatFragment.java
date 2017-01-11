@@ -2,7 +2,6 @@ package com.iron.dragon.sportstogether.ui.fragment;
 
 import android.app.Fragment;
 import android.content.AsyncQueryHandler;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -135,7 +134,7 @@ public class ChatFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.v(TAG, "onCreateView");
-        View v = inflater.inflate(R.layout.frag_chat, container, false);
+        View v = inflater.inflate(R.layout.chat_frag, container, false);
         ButterKnife.bind(this, v);
         mMe = LoginPreferences.GetInstance().getLocalProfile(getActivity());
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());

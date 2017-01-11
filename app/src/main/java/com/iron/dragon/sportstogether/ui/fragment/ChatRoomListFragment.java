@@ -45,10 +45,9 @@ public class ChatRoomListFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.frag_chatroom, container, false);
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.chat_room_frag, container, false);
 
         lv_room = (RecyclerView) rootView.findViewById(R.id.lv_room);
-        lv_room.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         lv_room.setLayoutManager(llm);

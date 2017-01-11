@@ -61,7 +61,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.iron.dragon.sportstogether.ui.activity.MainActivity" />
         </activity>
-        <activity android:name=".ui.activity.BuddyListActivity" />
         <activity
             android:name=".ui.activity.ChatActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
