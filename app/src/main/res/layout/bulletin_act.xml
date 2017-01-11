@@ -116,7 +116,7 @@
                 >
             </android.support.v7.widget.RecyclerView>
 
-        <include  android:id="@+id/commentLayout" layout="@layout/content_bottom_sheet" bind:viewModel="@{viewModel}"
+        <include  android:id="@+id/commentLayout" layout="@layout/bulletin_content_bottom_sheet" bind:viewModel="@{viewModel}"
             />
         <com.github.rahatarmanahmed.cpv.CircularProgressView
             xmlns:app="http://schemas.android.com/apk/res-auto"

@@ -46,7 +46,7 @@ public class BulletinListActivity extends AppCompatActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mViewModel = new BulletinListViewModel(this, getIntent().getIntExtra("Extra_Sports", 0));
-        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_bulletin_list_view);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.bulletin_act);
         mBinding.setViewModel(mViewModel);
         setSupportActionBar(mBinding.toolbar);
         mViewModel.LoadBulletinData();
