@@ -17,7 +17,6 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.google.gson.Gson;
-import com.iron.dragon.sportstogether.MyContentProvider;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;
@@ -31,10 +30,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -56,7 +52,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
+        setContentView(R.layout.chat_act);
         Log.v(TAG, "onCreate");
         Intent i = getIntent();
         processIntent(i);
@@ -118,7 +114,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
             Log.v(TAG, "processNewIntent key ="+key+", mCurrentFrag="+mCurrentFrag);
             if(mCurrentFrag != null){
                 //FragmentTransaction ft = getFragmentManager().beginTransaction();
-                //ft.replace(R.id.frag_chat, mCurrentFrag);
+                //ft.replace(R.id.chat_frag, mCurrentFrag);
                 //ft.show(mCurrentFrag);
                 //ft.addToBackStack(null);
                 //ft.commit();

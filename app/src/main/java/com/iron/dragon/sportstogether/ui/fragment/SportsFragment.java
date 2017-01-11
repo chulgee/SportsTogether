@@ -34,7 +34,7 @@ public class SportsFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.frag_sports, container, false);
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.sports_frag, container, false);
 
         mList = (RecyclerView)rootView.findViewById(R.id.list);
 

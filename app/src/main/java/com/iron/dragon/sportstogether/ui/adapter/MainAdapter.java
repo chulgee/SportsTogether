@@ -13,31 +13,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.gson.Gson;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.factory.Sports;
-import com.iron.dragon.sportstogether.ui.activity.BuddyListActivity;
 import com.iron.dragon.sportstogether.ui.activity.BulletinListActivity;
 import com.iron.dragon.sportstogether.ui.activity.LoginActivity;
-import com.iron.dragon.sportstogether.util.Const;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.iron.dragon.sportstogether.util.Const.SPORTS;
 
@@ -55,7 +38,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(mContext).inflate(R.layout.main_list_item, parent, false);
+        View v = LayoutInflater.from(mContext).inflate(R.layout.sports_list_item, parent, false);
         return new ViewHolder(v);
     }
 
@@ -114,7 +97,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
         });
     }
 
-    void requestFriends(){
+    /*void requestFriends(){
         final Profile myProfile = LoginPreferences.GetInstance().getLocalProfile(mContext);
         String url = Const.MAIN_URL + "/profiles?" + "username=" + myProfile.getUsername() + "&sportsid=" + myProfile.getSportsid()
                                                                 + "&locationid=" + myProfile.getLocationid() + "&reqFriends=" + "true";
@@ -189,7 +172,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
         Volley.newRequestQueue(mContext).add(request);
         println("웹서버에 요청함 : " + Const.MAIN_URL);
 
-        /*
+        *//*
         GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
         final Call<JSONObject> call = gitHubService.getProfiles(username, position, 0, 1);
         call.enqueue(new Callback<JSONObject>() {
@@ -200,7 +183,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
                 if(code == 200){
                     Log.v(TAG, "onResponse : "+response.toString());
                     Log.v(TAG, "onResponse : "+response.body());
-                    *//*JSONArray jArr = new JSONArray(response.body());
+                    *//**//*JSONArray jArr = new JSONArray(response.body());
                     Log.v(TAG, response.body().toString());
                     Gson gson = new Gson();
                     ArrayList<Profile> pArr = new ArrayList<Profile>();
@@ -213,7 +196,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
                             e.printStackTrace();
                         }
                         pArr.add(p);
-                    }*//*
+                    }*//**//*
                 }else{
                     Log.v(TAG, response.errorBody().toString());
                 }
@@ -223,8 +206,8 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
             public void onFailure(Call<JSONObject> call, Throwable t) {
                 android.util.Log.d(TAG, "error message = " + t.getMessage());
             }
-        });*/
-    }
+        });*//*
+    }*/
 
     void println(String data){
         System.out.println(data+"\n");
