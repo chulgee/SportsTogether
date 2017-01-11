@@ -23,16 +23,14 @@ import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.ui.fragment.ChatFragment;
 import com.iron.dragon.sportstogether.util.Const;
+import com.iron.dragon.sportstogether.util.DbUtil;
 import com.iron.dragon.sportstogether.util.PushWakeLock;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -54,7 +52,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
+        setContentView(R.layout.chat_act);
         Log.v(TAG, "onCreate");
         Intent i = getIntent();
         processIntent(i);
@@ -107,7 +105,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
 
             // find fragment for buddy
             String key;
-            if(message.getMsgType() == Message.PARAM_MSG_OUT){
+            if(message.getFrom() == Message.PARAM_FROM_ME){
                 key = message.getReceiver();
             }else{
                 key = message.getSender();
@@ -116,7 +114,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
             Log.v(TAG, "processNewIntent key ="+key+", mCurrentFrag="+mCurrentFrag);
             if(mCurrentFrag != null){
                 //FragmentTransaction ft = getFragmentManager().beginTransaction();
-                //ft.replace(R.id.frag_chat, mCurrentFrag);
+                //ft.replace(R.id.chat_frag, mCurrentFrag);
                 //ft.show(mCurrentFrag);
                 //ft.addToBackStack(null);
                 //ft.commit();
@@ -250,7 +248,8 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                final Message message = new Message.Builder(Message.TYPE_CHAT_MESSAGE).msgType(Message.PARAM_MSG_IN).sender(sender).receiver(receiver).message(contents).date(date).build();
+                final Message message = new Message.Builder(Message.PARAM_FROM_OTHER).msgType(Message.PARAM_TYPE_MESSAGE).sender(sender).receiver(receiver).message(contents).date(date).room(sender).build();
+                DbUtil.insert(ChatActivity.this, message);
                 Log.v(TAG, message.toString());
 
                 PushWakeLock.acquireWakeLock(ChatActivity.this, 5000);

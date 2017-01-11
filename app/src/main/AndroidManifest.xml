@@ -13,7 +13,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -61,7 +61,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.iron.dragon.sportstogether.ui.activity.MainActivity" />
         </activity>
-        <activity android:name=".ui.activity.BuddyListActivity" />
         <activity
             android:name=".ui.activity.ChatActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
@@ -85,7 +84,13 @@
         <service
             android:name=".ui.FloatingService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <provider
+            android:name=".MyContentProvider"
+            android:authorities="com.iron.dragon.provider"
+            android:enabled="true"
+            android:exported="true"></provider>
     </application>
 
 </manifest>

@@ -15,6 +15,7 @@ import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.ui.FloatingService;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
+import com.iron.dragon.sportstogether.util.DbUtil;
 import com.iron.dragon.sportstogether.util.PushWakeLock;
 
 import java.util.Date;
@@ -41,8 +42,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         //Toast.makeText(this, "수신데이터 -> sender: "+sender+", receiver: "+receiver+", contents: "+contents+", date:"+str_date, Toast.LENGTH_LONG).show();
         println("수신데이터 -> sender: "+sender+", receiver: "+receiver+", contents: "+contents+", date:"+str_date);
 
-        Message message = new Message.Builder(Message.TYPE_CHAT_MESSAGE).msgType(Message.PARAM_MSG_IN).sender(sender)
-                .receiver(receiver).message(contents).date(date).build();
+        Message message = new Message.Builder(Message.PARAM_FROM_OTHER).msgType(Message.PARAM_TYPE_MESSAGE).sender(sender)
+                .receiver(receiver).message(contents).date(date).room(sender).build();
+        DbUtil.insert(getApplicationContext(), message);
 
         Intent i = new Intent(this, ChatActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);

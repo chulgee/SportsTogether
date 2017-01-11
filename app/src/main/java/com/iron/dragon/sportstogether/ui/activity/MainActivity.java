@@ -25,6 +25,7 @@ import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.gcm.MyFirebaseInstanceIdService;
 import com.iron.dragon.sportstogether.ui.fragment.BookFragment;
+import com.iron.dragon.sportstogether.ui.fragment.ChatRoomListFragment;
 import com.iron.dragon.sportstogether.ui.fragment.NewsFragment;
 import com.iron.dragon.sportstogether.ui.fragment.SportsFragment;
 
@@ -33,9 +34,10 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    SportsFragment sportsFragment;
-    NewsFragment newsFragment;
-    BookFragment bookFragment;
+    Fragment mSports;
+    Fragment mNews;
+    Fragment mBooking;
+    Fragment mChatRoom;
 
     ViewPager pager;
     MainViewPagerAdapter adapter;
@@ -49,18 +51,19 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        sportsFragment = new SportsFragment();
-        newsFragment = new NewsFragment();
-        bookFragment = new BookFragment();
-
+        mSports = new SportsFragment();
+        mNews = new NewsFragment();
+        mBooking = new BookFragment();
+        mChatRoom = new ChatRoomListFragment();
 
         pager = (ViewPager) findViewById(R.id.pager);
         adapter = new MainViewPagerAdapter(getSupportFragmentManager());
-        pager.setOffscreenPageLimit(3);
+        //pager.setOffscreenPageLimit(3);
 
-        adapter.addItem(sportsFragment, "스포츠");
-        adapter.addItem(newsFragment, "뉴스");
-        adapter.addItem(bookFragment, "예약");
+        adapter.addItem(mSports, "스포츠");
+        adapter.addItem(mNews, "뉴스");
+        adapter.addItem(mBooking, "예약");
+        adapter.addItem(mChatRoom, "채팅");
 
         pager.setAdapter(adapter);
 
@@ -70,7 +73,7 @@ public class MainActivity extends AppCompatActivity
         tabs.getTabAt(0).setText(adapter.getPageTitle(0));
         tabs.getTabAt(1).setText(adapter.getPageTitle(1));
         tabs.getTabAt(2).setText(adapter.getPageTitle(2));
-
+        tabs.getTabAt(3).setText(adapter.getPageTitle(3));
 
         tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -91,8 +94,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,6 +113,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
     }
 
+    /*
     public void onFragmentChange(int position) {
         if (position == 0) {
             pager.setCurrentItem(0);
@@ -120,9 +122,7 @@ public class MainActivity extends AppCompatActivity
         } else if (position == 2) {
             pager.setCurrentItem(2);
         }
-    }
-
-
+    }*/
 
     class MainViewPagerAdapter extends FragmentStatePagerAdapter {
         ArrayList<Fragment> items = new ArrayList<Fragment>();
