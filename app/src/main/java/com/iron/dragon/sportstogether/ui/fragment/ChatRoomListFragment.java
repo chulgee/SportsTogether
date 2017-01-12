@@ -4,6 +4,8 @@ import android.content.AsyncQueryHandler;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -18,6 +20,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper;
+import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper.COLUMN_DATE;
+import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper.COLUMN_LOCATIONID;
+import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper.COLUMN_SPORTSID;
 
 import com.google.gson.Gson;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
@@ -27,7 +32,10 @@ import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
+import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.DbUtil;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,8 +43,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import retrofit2.Call;
@@ -51,6 +61,7 @@ public class ChatRoomListFragment extends Fragment {
     private static final String TAG = "ChatRoomListFragment";
     RecyclerView lv_room;
     MyAdapter mAdapter;
+    Map<String, Bitmap> mAvatarMap = new HashMap<String, Bitmap>();
 
     public interface OnClickCallback{
         void rowOnClicked(View v, int position);
@@ -83,15 +94,15 @@ public class ChatRoomListFragment extends Fragment {
 
             @Override
             public void rowOnClicked(View v, int position) {
-                String item = mAdapter.getItem(position);
+                Item item = mAdapter.getItem(position);
                 //Toast.makeText(getContext(), "this item="+item, Toast.LENGTH_SHORT).show();
                 Profile me = LoginPreferences.GetInstance().getLocalProfile(getContext());
-                loadBuddyProfile(item, me);
+                loadBuddyProfile(item.room, me);
             }
 
             @Override
             public void deleteOnClicked(View v, int position) {
-                asyncRemoveChatRoom(position, mAdapter.getItem(position));
+                asyncRemoveChatRoom(position, mAdapter.getItem(position).room);
             }
 
         });
@@ -155,16 +166,46 @@ public class ChatRoomListFragment extends Fragment {
                         String room = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_ROOM));
                         String sender = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_SENDER));
                         String receiver = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_RECEIVER));
-                        Log.v(TAG, "room="+room+", sender="+sender+", receiver="+receiver);
-                        mAdapter.addItem(room);
+                        String image = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_IMAGE));
+                        long time = cursor.getInt(cursor.getColumnIndex(COLUMN_DATE));
+                        int sportsid = cursor.getInt(cursor.getColumnIndex(COLUMN_SPORTSID));
+                        int locationid = cursor.getInt(cursor.getColumnIndex(COLUMN_LOCATIONID));
+                        Item item = new Item(room, sender, receiver, image, time, sportsid, locationid );
+                        Log.v(TAG, "item="+item);
+
+                        mAdapter.addItem(item);
                         mAdapter.notifyDataSetChanged();
+                        if(item.image!=null){
+                            fetchAvaTar(room, item.image);
+                        }
                     };
                 }
             }
         };
         // TIP : inject group by clause into selection
-        queryHandler.startQuery(1, null, MyContentProvider.CONTENT_URI, new String[]{DbHelper.COLUMN_ROOM, DbHelper.COLUMN_DATE, DbHelper.COLUMN_SENDER, DbHelper.COLUMN_RECEIVER}
+        queryHandler.startQuery(1, null, MyContentProvider.CONTENT_URI, null
                 , "sender=sender group by "+DbHelper.COLUMN_ROOM, null, " date asc");
+    }
+
+    public void fetchAvaTar(final String room, final String filename){
+        // me와 buddy 아바타 가져오기
+        String url = Const.MAIN_URL + "/upload_profile?filename=" + filename;
+        //final Bitmap bmp;
+        Log.v(TAG, "fetchAvaTar url="+url);
+        Picasso.with(getActivity()).load(url).resize(50,50).centerInside().into(new Target(){
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                Log.v(TAG, "fetchAvaTar room="+room+", bitmap="+bitmap);
+                mAvatarMap.put(room, bitmap);
+                mAdapter.notifyDataSetChanged();
+            }
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+            }
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+            }
+        });
     }
 
     private void asyncRemoveChatRoom(final int index, String roomName){
@@ -185,14 +226,14 @@ public class ChatRoomListFragment extends Fragment {
     }
 
     class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
-        private List<String> mItems;
+        private List<Item> mItems;
         private OnClickCallback mListener;
 
-        public MyAdapter(Context context, List<String> items, OnClickCallback listener){
+        public MyAdapter(Context context, List<Item> items, OnClickCallback listener){
             mListener = listener;
 
             if(mItems == null)
-                this.mItems = new ArrayList<String>();
+                this.mItems = new ArrayList<Item>();
             else
                 this.mItems = items;
             Log.v(TAG, "items="+this.mItems);
@@ -209,8 +250,15 @@ public class ChatRoomListFragment extends Fragment {
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             ViewCache vh = (ViewCache)holder;
-            String title = mItems.get(position);
-            vh.tv_title.setText(title+" 님과의 대화");
+            Item item = mItems.get(position);
+            vh.tv_title.setText(item.room+" 님과의 대화");
+            Bitmap bmp = mAvatarMap.get(mItems.get(position).room);
+            Log.v(TAG, "mItems.get(position).room="+mItems.get(position).room+", bmp="+bmp);
+            if(bmp != null){
+                vh.iv_thumb.setImageBitmap(bmp);
+            }else{
+                vh.iv_thumb.setImageResource(R.drawable.default_user);
+            }
         }
 
         @Override
@@ -218,12 +266,12 @@ public class ChatRoomListFragment extends Fragment {
             return mItems.size();
         }
 
-        public String getItem(int index){
+        public Item getItem(int index){
             return mItems.get(index);
         }
 
-        public void addItem(String str){
-            mItems.add(str);
+        public void addItem(Item item){
+            mItems.add(item);
         }
 
         public void removeItem(int index){
@@ -250,15 +298,44 @@ public class ChatRoomListFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                int position = getAdapterPosition();
-                String item = mItems.get(position);
-
                 if(v.getId() == v_row.getId()){
                     mListener.rowOnClicked(v, getAdapterPosition());
                 }else if(v.getId() == iv_delete.getId()){
                     mListener.deleteOnClicked(v, getAdapterPosition());
                 }
             }
+        }
+    }
+
+    class Item{
+        String room;
+        String sender;
+        String receiver;
+        String image;
+        long lastTime;
+        int sportsid;
+        int locationid;
+        public Item(String room, String sender, String receiver, String image, long date, int sportsid, int locationid){
+            this.room = room;
+            this.sender = sender;
+            this.receiver = receiver;
+            this.image = image;
+            this.lastTime = date;
+            this.sportsid = sportsid;
+            this.locationid = locationid;
+        }
+
+        @Override
+        public String toString() {
+            return "Item{" +
+                    "room='" + room + '\'' +
+                    ", sender='" + sender + '\'' +
+                    ", receiver='" + receiver + '\'' +
+                    ", image='" + image + '\'' +
+                    ", lastTime=" + lastTime +
+                    ", sportsid=" + sportsid +
+                    ", locationid=" + locationid +
+                    '}';
         }
     }
 }

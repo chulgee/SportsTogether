@@ -89,6 +89,9 @@ public class MyContentProvider extends ContentProvider {
         public static final String COLUMN_MESSAGE = "message";
         public static final String COLUMN_FROM = "from_who";
         public static final String COLUMN_MESSAGE_TYPE = "message_type";
+        public static final String COLUMN_SPORTSID = "sportsid";
+        public static final String COLUMN_LOCATIONID = "locationid";
+        public static final String COLUMN_IMAGE = "image";
 
         public DbHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
             super(context, name, factory, version);
@@ -105,6 +108,9 @@ public class MyContentProvider extends ContentProvider {
                     + COLUMN_MESSAGE + " text not null, "
                     + COLUMN_FROM + " integer, "
                     + COLUMN_MESSAGE_TYPE + " integer, "
+                    + COLUMN_SPORTSID + " integer, "
+                    + COLUMN_LOCATIONID + " integer, "
+                    + COLUMN_IMAGE + " text, "
                     + "UNIQUE(" + COLUMN_DATE + ") ON CONFLICT REPLACE"
                     + ");");
         }

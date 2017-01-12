@@ -64,6 +64,14 @@ public class Message  implements Serializable{
         return room;
     }
 
+    public int getSportsid() {
+        return sportsid;
+    }
+
+    public int getLocationid() {
+        return locationid;
+    }
+
     @Override
     public String toString() {
         return "Message{" +
