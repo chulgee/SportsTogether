@@ -115,14 +115,12 @@ public class BulletinListViewModel extends BaseObservable {
         int reqFriends = 0;
         final Call<String> call =
                 gitHubService.getProfiles(username, sportsid, locationid, reqFriends);
-        Logger.d("executeHttp before");
         RetrofitHelper.enqueueWithRetry(call, new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 Log.d("executeHttp Test", "code = " + response.code() + " is successful = " + response.isSuccessful());
                 Log.d("executeHttp Test", "body = " + response.body().toString());
                 Log.d("executeHttp Test", "message = " + response.toString());
-                //JSONObject obj = (JSONObject)response.body();
                 JSONObject obj = null;
                 try {
                     obj = new JSONObject(response.body());
@@ -140,8 +138,9 @@ public class BulletinListViewModel extends BaseObservable {
                     Log.v(TAG, "me: " + me.toString());
                     Intent i = new Intent(mActivity, ChatActivity.class);
                     Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(buddy.getUsername())
-                            .message("Conversation get started").date(new Date().getTime()).image(buddy.getImage()).build();
+                            .message("Conversation gets started").date(new Date().getTime()).image(buddy.getImage()).build();
                     i.putExtra("Message", message);
+                    i.putExtra("Buddy", buddy);
                     mActivity.startActivity(i);
                 } catch (JSONException e) {
                     e.printStackTrace();

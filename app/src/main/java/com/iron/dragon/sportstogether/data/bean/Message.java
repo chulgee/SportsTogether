@@ -32,6 +32,10 @@ public class Message  implements Serializable{
         return from;
     }
 
+    public void setFrom(int who) {
+        from = who;
+    }
+
     public int getMsgType() {
         return msgType;
     }

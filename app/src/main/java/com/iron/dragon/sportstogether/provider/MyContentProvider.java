@@ -103,8 +103,8 @@ public class MyContentProvider extends ContentProvider {
                     + COLUMN_SENDER + " text not null, "
                     + COLUMN_RECEIVER + " text not null, "
                     + COLUMN_MESSAGE + " text not null, "
-                    + COLUMN_FROM + " integer not null, "
-                    + COLUMN_MESSAGE_TYPE + " integer not null, "
+                    + COLUMN_FROM + " integer, "
+                    + COLUMN_MESSAGE_TYPE + " integer, "
                     + "UNIQUE(" + COLUMN_DATE + ") ON CONFLICT REPLACE"
                     + ");");
         }

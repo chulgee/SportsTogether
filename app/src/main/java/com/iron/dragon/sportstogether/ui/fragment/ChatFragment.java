@@ -43,6 +43,7 @@ import org.json.JSONObject;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -81,6 +82,7 @@ public class ChatFragment extends Fragment {
     String mContents;
     Profile mMe;
     Profile mBuddy;
+    GitHubService mRetrofit;
 
     Handler mHandler = new Handler();
 
@@ -101,7 +103,7 @@ public class ChatFragment extends Fragment {
      *
      * @return A new instance of fragment ChatFragment.
      */
-    public static ChatFragment newInstance(Message message) {
+    public static ChatFragment newInstance(Message message, Profile buddy_profile) {
         ChatFragment fragment = new ChatFragment();
         String buddy = null;
         if(message.getFrom() == Message.PARAM_FROM_ME){
@@ -110,9 +112,10 @@ public class ChatFragment extends Fragment {
             buddy = message.getSender();
         }
         sChatRoom.put(buddy, fragment);
-        Log.v(TAG, "sChatRoom newInstance buddy="+buddy+", fragment="+fragment);
+        Log.v(TAG, "sChatRoom newInstance buddy_profile="+buddy_profile+", fragment="+fragment);
         Bundle args = new Bundle();
         args.putSerializable(PARAM_FRAG_MSG, message);
+        args.putSerializable("Buddy", buddy_profile);
         fragment.setArguments(args);
         return fragment;
     }
@@ -128,6 +131,7 @@ public class ChatFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+        mRetrofit = GitHubService.retrofit.create(GitHubService.class);
     }
 
     @Override
@@ -154,11 +158,6 @@ public class ChatFragment extends Fragment {
                 Log.v(TAG, "hi sChatRoom.size()="+sChatRoom.size());
                 Log.v(TAG, "getFragmentManager().getBackStackEntryCount()="+getFragmentManager().getBackStackEntryCount());
                 mActivity.finish();
-                /*if(sChatRoom.size() > 1)
-                    getFragmentManager().beginTransaction().remove(ChatFragment.this).commit();
-                else {
-                    mActivity.finish();
-                }*/
                 break;
             case R.id.btnSend:
                 if(!etMessage.getText().toString().isEmpty()) {
@@ -229,34 +228,46 @@ public class ChatFragment extends Fragment {
     private void initView(){
 
         Bundle bd = getArguments();
-        Message message = (Message)bd.get(PARAM_FRAG_MSG);
-        if (message != null) {
-            if(message.getFrom() == Message.PARAM_FROM_ME){
-                mBuddyName = message.getReceiver();
-            }else{
-                mBuddyName = message.getSender();
-            }
-        }
-        Log.v(TAG, "initView message="+message);
+        Message message = (Message)bd.getSerializable(PARAM_FRAG_MSG);
+        mBuddy = (Profile)bd.getSerializable("Buddy");
+        Log.v(TAG, "initView message="+message+", buddy="+mBuddy);
 
-        tvBuddy.setText(mBuddyName);
-        /*if(message != null){
-            updateUI(message);
-        }*/
+        if(mBuddy != null){
+            if(message != null) {
+                if(message.getFrom() == Message.PARAM_FROM_ME){
+                    mBuddyName = message.getReceiver();
+                }else{
+                    mBuddyName = message.getSender();
+                }
+                tvBuddy.setText(mBuddyName);
+
+                if(mBuddy.getImage() != null && !mBuddy.getImage().isEmpty()) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            fetchAvaTar(mBuddy.getImage());
+                        }
+                    });
+                }
+            }
+        }else{
+            //loadBuddyProfile(message);
+        }
+
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-       // loadBuddyProfile();
+        //loadBuddyProfile();
     }
 
-    private void loadBuddyProfile(){
+    private void loadBuddyProfile(Message message){
         // buddy의 profile 가져오기
-        GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
+
         Log.v(TAG, "mBuddyName="+mBuddyName+", mMe.getSportsid()="+mMe.getSportsid()+", mMe.getLocationid()="+mMe.getLocationid());
         final Call<String> call =
-                gitHubService.getProfiles(mBuddyName, mMe.getSportsid(), mMe.getLocationid(), 0);
+                mRetrofit.getProfiles(message.getSender(), mMe.getSportsid(), mMe.getLocationid(), 0);
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
@@ -308,6 +319,7 @@ public class ChatFragment extends Fragment {
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 Log.v(TAG, "fetchAvaTar mBuddyName="+mBuddyName+", bitmap="+bitmap);
                 mAvatarMap.put(mBuddyName, bitmap);
+                mAdapter.notifyDataSetChanged();
             }
             @Override
             public void onBitmapFailed(Drawable errorDrawable) {

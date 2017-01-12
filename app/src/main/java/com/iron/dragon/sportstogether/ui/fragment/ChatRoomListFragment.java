@@ -19,6 +19,8 @@ import android.widget.Toast;
 
 import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper;
 
+import com.google.gson.Gson;
+import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.provider.MyContentProvider;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
@@ -27,11 +29,19 @@ import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.util.DbUtil;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by user on 2016-08-12.
@@ -76,11 +86,7 @@ public class ChatRoomListFragment extends Fragment {
                 String item = mAdapter.getItem(position);
                 //Toast.makeText(getContext(), "this item="+item, Toast.LENGTH_SHORT).show();
                 Profile me = LoginPreferences.GetInstance().getLocalProfile(getContext());
-                Intent i = new Intent(getActivity(), ChatActivity.class);
-                Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(item)
-                        .message("Conversation get started").date(new Date().getTime()).image(null).build();
-                i.putExtra("Message", message);
-                startActivity(i);
+                loadBuddyProfile(item, me);
             }
 
             @Override
@@ -90,6 +96,52 @@ public class ChatRoomListFragment extends Fragment {
 
         });
         lv_room.setAdapter(mAdapter);
+    }
+
+    private void loadBuddyProfile(String buddy, final Profile me){
+        // buddy의 profile 가져오기
+        Log.v(TAG, "buddy="+buddy+", sportsid="+me.getSportsid()+", locationid="+me.getLocationid());
+        GitHubService retrofit = GitHubService.retrofit.create(GitHubService.class);
+        final Call<String> call =
+                retrofit.getProfiles(buddy, me.getSportsid(), me.getLocationid(), 0);
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                Log.d("loadBuddyProfile", "code = " + response.code() + " is successful = " + response.isSuccessful());
+                Log.d("loadBuddyProfile", "body = " + response.body().toString());
+                Log.d("loadBuddyProfile", "message = " + response.toString());
+                if (response.isSuccessful()) {
+                    JSONObject obj = null;
+                    try {
+                        obj = new JSONObject(response.body().toString());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    Gson gson = new Gson();
+                    Profile buddy = null;
+                    try {
+                        String command = obj.getString("command");
+                        String code = obj.getString("code");
+                        JSONArray arr = obj.getJSONArray("message");
+                        buddy = gson.fromJson(arr.get(0).toString(), Profile.class);
+                        Log.v(TAG, "buddy: "+buddy.toString());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    Intent i = new Intent(getActivity(), ChatActivity.class);
+                    Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(buddy.getUsername())
+                            .message("Conversation get started").date(new Date().getTime()).image(null).build();
+                    i.putExtra("Message", message);
+                    i.putExtra("Buddy", buddy);
+                    startActivity(i);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                Log.d("Test", "error message = " + t.getMessage());
+            }
+        });
     }
 
     private void asyncLoadChatRoom(){

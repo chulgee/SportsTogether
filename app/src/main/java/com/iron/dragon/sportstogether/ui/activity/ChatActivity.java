@@ -17,15 +17,18 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
+import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.ui.fragment.ChatFragment;
 import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.DbUtil;
 import com.iron.dragon.sportstogether.util.PushWakeLock;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -35,6 +38,9 @@ import java.util.Iterator;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFragmentInteractionListener{
     private static final String TAG = "ChatActivity";
@@ -90,7 +96,10 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
     private void processIntent(Intent intent) {
         if (intent != null) {
             Message message = (Message)intent.getSerializableExtra("Message");
-            mCurrentFrag = ChatFragment.newInstance(message);
+            Profile buddy = (Profile)intent.getSerializableExtra("Buddy");
+            Log.v(TAG, "processIntent buddy="+buddy);
+            Log.v(TAG, "processIntent message="+message);
+            mCurrentFrag = ChatFragment.newInstance(message, buddy);
             Log.v(TAG, "processIntent mCurrentFrag="+mCurrentFrag);
 
             FragmentTransaction ft = fm.beginTransaction();
@@ -102,7 +111,9 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
     private void processNewIntent(Intent intent) {
         if (intent != null) {
             Message message = (Message)intent.getSerializableExtra("Message");
-
+            Profile buddy = (Profile)intent.getSerializableExtra("Buddy");
+            Log.v(TAG, "processNewIntent buddy="+buddy);
+            Log.v(TAG, "processNewIntent message="+message);
             // find fragment for buddy
             String key;
             if(message.getFrom() == Message.PARAM_FROM_ME){
@@ -121,7 +132,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
                 showFragment(key);
             }else{
                 FragmentTransaction ft = fm.beginTransaction();
-                mCurrentFrag = ChatFragment.newInstance(message);
+                mCurrentFrag = ChatFragment.newInstance(message, buddy);
                 ft.add(R.id.frag_chat, mCurrentFrag);
                 //ft.addToBackStack(null);
                 ft.commit();
@@ -137,9 +148,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
         mThread.send(message);
     }
 
-    public ChatFragment createFragment(Message message){
-        return ChatFragment.newInstance(message);
-    }
+
 
     class ChatThread extends Thread {
         public static final String TAG = "ChatThread";
@@ -170,13 +179,12 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
             Gson gson = new Gson();
             String json = gson.toJson(message);
             System.out.println("send() 호출됨. json="+json);
-
             try {
-                JSONObject obj = new JSONObject();
-                obj.put("sender", message.getSender());
+                JSONObject obj = new JSONObject(json);
+                /*obj.put("sender", message.getSender());
                 obj.put("receiver", message.getReceiver());
                 obj.put("contents", message.getMessage());
-                obj.put("date", message.getDate());
+                obj.put("date", message.getDate());*/
                 mSocket.emit("send", obj);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -235,23 +243,13 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
             @Override
             public void call(Object... args) {
                 Log.v(TAG, "onSend");
-                JSONObject obj = (JSONObject)args[0];
-                String sender = null;
-                String receiver = null;
-                String contents = null;
-                long date = 0;
-                try {
-                    sender = obj.getString("sender");
-                    receiver = obj.getString("receiver");
-                    contents = obj.getString("contents");
-                    date = (long)obj.getLong("date");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                final Message message = new Message.Builder(Message.PARAM_FROM_OTHER).msgType(Message.PARAM_TYPE_MESSAGE).sender(sender).receiver(receiver).message(contents).date(date).room(sender).build();
+                JSONObject obj = (JSONObject) args[0];
+                Gson gson = new Gson();
+                final Message message = gson.fromJson(obj.toString(), Message.class);
+                message.setFrom(Message.PARAM_FROM_OTHER);
                 DbUtil.insert(ChatActivity.this, message);
                 Log.v(TAG, message.toString());
-
+                String sender = message.getSender();
                 PushWakeLock.acquireWakeLock(ChatActivity.this, 5000);
                 Log.v(TAG, "onSend mCurrentFrag.mBuddyName="+mCurrentFrag.getBuddyName());
                 if(!mPaused){ // 포그라운드 러닝상태
@@ -321,10 +319,57 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
         }
     }
 
+    private void loadBuddyProfile(final Message message){
+        // buddy의 profile 가져오기
+        GitHubService retrofit = GitHubService.retrofit.create(GitHubService.class);
+        final Call<String> call =
+                retrofit.getProfiles(message.getSender(), me.getSportsid(), me.getLocationid(), 0);
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                Log.d("loadBuddyProfile", "code = " + response.code() + " is successful = " + response.isSuccessful());
+                Log.d("loadBuddyProfile", "body = " + response.body().toString());
+                Log.d("loadBuddyProfile", "message = " + response.toString());
+                if (response.isSuccessful()) {
+                    JSONObject obj = null;
+                    try {
+                        obj = new JSONObject(response.body());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    Gson gson = new Gson();
+                    Profile buddy = null;
+                    try {
+                        String command = obj.getString("command");
+                        String code = obj.getString("code");
+                        JSONArray arr = obj.getJSONArray("message");
+                        buddy = gson.fromJson(arr.get(0).toString(), Profile.class);
+                        Log.v(TAG, "buddy: "+buddy.toString());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    postMsgNoti(message, buddy);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                Log.d("Test", "error message = " + t.getMessage());
+            }
+        });
+    }
+
     void createMsgNoti(Message message){
+
+        loadBuddyProfile(message);
+
+    }
+
+    void postMsgNoti(Message message, Profile buddy){
         Intent i = new Intent(ChatActivity.this, ChatActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
         i.putExtra("Message", message);
+        i.putExtra("Buddy", buddy);
         PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification.Builder builder = new Notification.Builder(getApplicationContext());
