@@ -41,19 +41,18 @@ public class ChatRoomListFragment extends Fragment {
     private static final String TAG = "ChatRoomListFragment";
     RecyclerView lv_room;
     MyAdapter mAdapter;
-    Set<String> mSet = new HashSet<String>();
+
+    public interface OnClickCallback{
+        void rowOnClicked(View v, int position);
+        void deleteOnClicked(View v, int position);
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.chat_room_frag, container, false);
 
-        lv_room = (RecyclerView) rootView.findViewById(R.id.lv_room);
-        LinearLayoutManager llm = new LinearLayoutManager(getContext());
-        llm.setOrientation(LinearLayoutManager.VERTICAL);
-        lv_room.setLayoutManager(llm);
-        mAdapter = new MyAdapter(getContext(), null);
-        lv_room.setAdapter(mAdapter);
+        init(rootView);
 
         return rootView;
     }
@@ -62,8 +61,38 @@ public class ChatRoomListFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mAdapter.notifyDataSetChanged();
+        asyncLoadChatRoom();
+    }
 
+    public void init(View rootView){
+        lv_room = (RecyclerView) rootView.findViewById(R.id.lv_room);
+        LinearLayoutManager llm = new LinearLayoutManager(getContext());
+        llm.setOrientation(LinearLayoutManager.VERTICAL);
+        lv_room.setLayoutManager(llm);
+        mAdapter = new MyAdapter(getContext(), null, new OnClickCallback(){
+
+            @Override
+            public void rowOnClicked(View v, int position) {
+                String item = mAdapter.getItem(position);
+                //Toast.makeText(getContext(), "this item="+item, Toast.LENGTH_SHORT).show();
+                Profile me = LoginPreferences.GetInstance().getLocalProfile(getContext());
+                Intent i = new Intent(getActivity(), ChatActivity.class);
+                Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(item)
+                        .message("Conversation get started").date(new Date().getTime()).image(null).build();
+                i.putExtra("Message", message);
+                startActivity(i);
+            }
+
+            @Override
+            public void deleteOnClicked(View v, int position) {
+                asyncRemoveChatRoom(position, mAdapter.getItem(position));
+            }
+
+        });
+        lv_room.setAdapter(mAdapter);
+    }
+
+    private void asyncLoadChatRoom(){
         AsyncQueryHandler queryHandler = new AsyncQueryHandler(getActivity().getContentResolver()) {
             @Override
             protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
@@ -83,18 +112,20 @@ public class ChatRoomListFragment extends Fragment {
         };
         // TIP : inject group by clause into selection
         queryHandler.startQuery(1, null, MyContentProvider.CONTENT_URI, new String[]{DbHelper.COLUMN_ROOM, DbHelper.COLUMN_DATE, DbHelper.COLUMN_SENDER, DbHelper.COLUMN_RECEIVER}
-                                , "sender=sender group by "+DbHelper.COLUMN_ROOM, null, " date asc");
+                , "sender=sender group by "+DbHelper.COLUMN_ROOM, null, " date asc");
     }
 
-    private void removeChatRoom(final int index, String roomName){
+    private void asyncRemoveChatRoom(final int index, String roomName){
+
         AsyncQueryHandler queryHandler = new AsyncQueryHandler(getActivity().getContentResolver()) {
+
             @Override
             protected void onDeleteComplete(int token, Object cookie, int result) {
                 super.onDeleteComplete(token, cookie, result);
                 Log.v(TAG, "onDeleteComplete result="+result);
                 mAdapter.removeItem(index);
                 mAdapter.notifyItemRemoved(index);
-                Toast.makeText(getContext(), "deletion successful", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getContext(), "deletion successful", Toast.LENGTH_SHORT).show();
             }
         };
         String where = MyContentProvider.DbHelper.COLUMN_ROOM+"=?";
@@ -102,13 +133,17 @@ public class ChatRoomListFragment extends Fragment {
     }
 
     class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
-        private List<String> items;
-        public MyAdapter(Context context, List<String> items){
-            if(items == null)
-                this.items = new ArrayList<String>();
+        private List<String> mItems;
+        private OnClickCallback mListener;
+
+        public MyAdapter(Context context, List<String> items, OnClickCallback listener){
+            mListener = listener;
+
+            if(mItems == null)
+                this.mItems = new ArrayList<String>();
             else
-                this.items = items;
-            Log.v(TAG, "items="+this.items);
+                this.mItems = items;
+            Log.v(TAG, "items="+this.mItems);
         }
 
         @Override
@@ -116,80 +151,62 @@ public class ChatRoomListFragment extends Fragment {
             View v;
             Log.v(TAG, "parent="+parent);
             v = LayoutInflater.from(getContext()).inflate(R.layout.chat_room_list_item, parent, false);
-            /*v.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int position = lv_room.indexOfChild(v);
-                    String item = items.get(position);
-                    Toast.makeText(getContext(), "item="+item, Toast.LENGTH_SHORT).show();
-                    Profile me = LoginPreferences.GetInstance().getLocalProfile(getContext());
-                    Intent i = new Intent(getActivity(), ChatActivity.class);
-                    Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(item)
-                            .message("Conversation get started").date(new Date().getTime()).image(null).build();
-                    i.putExtra("Message", message);
-                    startActivity(i);
-                }
-            });*/
             return new ViewCache(v);
         }
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             ViewCache vh = (ViewCache)holder;
-            String title = items.get(position);
-            vh.tv_title.setText(title+" 와의 대화");
+            String title = mItems.get(position);
+            vh.tv_title.setText(title+" 님과의 대화");
         }
 
         @Override
         public int getItemCount() {
-            return items.size();
+            return mItems.size();
+        }
+
+        public String getItem(int index){
+            return mItems.get(index);
         }
 
         public void addItem(String str){
-            items.add(str);
+            mItems.add(str);
         }
 
         public void removeItem(int index){
-            items.remove(index);
+            mItems.remove(index);
         }
 
-        class ViewCache extends RecyclerView.ViewHolder{
+        class ViewCache extends RecyclerView.ViewHolder implements View.OnClickListener{
+            View v_row;
             ImageView iv_thumb;
             TextView tv_title;
             TextView tv_subtitle;
             ImageView iv_delete;
+
             public ViewCache(View v) {
                 super(v);
-                v.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        int position = getAdapterPosition();
-                        String item = items.get(position);
-                        //Toast.makeText(getContext(), "item="+item, Toast.LENGTH_SHORT).show();
-                        Profile me = LoginPreferences.GetInstance().getLocalProfile(getContext());
-                        Intent i = new Intent(getActivity(), ChatActivity.class);
-                        Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(item)
-                                .message("Conversation get started").date(new Date().getTime()).image(null).build();
-                        i.putExtra("Message", message);
-                        startActivity(i);
-                    }
-                });
+                v_row = v;
+                v.setOnClickListener(this);
                 iv_thumb = (ImageView)v.findViewById(R.id.iv_thumb);
                 tv_title = (TextView)v.findViewById(R.id.tv_room_title);
                 tv_subtitle = (TextView)v.findViewById(R.id.tv_room_subtitle);
                 iv_delete = (ImageView)v.findViewById(R.id.iv_delete);
-                iv_delete.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        int position = getAdapterPosition();
-                        String item = items.get(position);
-                        //Toast.makeText(getContext(), "iv_delete item="+item, Toast.LENGTH_SHORT).show();
-                        //DbUtil.delete(getContext(), item);
-                        removeChatRoom(position, item);
-                    }
-                });
+                iv_delete.setOnClickListener(this);
+            }
+
+            @Override
+            public void onClick(View v) {
+                int position = getAdapterPosition();
+                String item = mItems.get(position);
+
+                if(v.getId() == v_row.getId()){
+                    mListener.rowOnClicked(v, getAdapterPosition());
+                }else if(v.getId() == iv_delete.getId()){
+                    mListener.deleteOnClicked(v, getAdapterPosition());
+                }
             }
         }
-
     }
 }
