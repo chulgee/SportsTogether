@@ -164,7 +164,7 @@ public class ChatFragment extends Fragment {
                     mContents = etMessage.getText().toString();
                     etMessage.setText("");
                     Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_MESSAGE).sender(mMe.getUsername()).receiver(mBuddyName)
-                            .message(mContents).date(new Date().getTime()).room(mBuddyName).build();
+                            .message(mContents).date(new Date().getTime()).room(mBuddyName).image(mMe.getImage()).build();
                     DbUtil.insert(getActivity(), message);
                     updateUI(message);
                     mActivity.send(message);
