@@ -165,9 +165,11 @@ public class ChatFragment extends Fragment {
                     etMessage.setText("");
                     Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_MESSAGE).sender(mMe.getUsername()).receiver(mBuddyName)
                             .message(mContents).date(new Date().getTime()).room(mBuddyName).image(mMe.getImage()).build();
-                    DbUtil.insert(getActivity(), message);
+                    Log.v(TAG, "send message="+message);
                     updateUI(message);
                     mActivity.send(message);
+                    message.setImage(mBuddy.getImage());
+                    DbUtil.insert(getActivity(), message);
                 }else
                     Toast.makeText(getActivity(), "Please enter message", Toast.LENGTH_SHORT).show();
                 break;
@@ -251,7 +253,7 @@ public class ChatFragment extends Fragment {
                 }
             }
         }else{
-            //loadBuddyProfile(message);
+            Toast.makeText(getActivity(), "친구정보가 없습니다.", Toast.LENGTH_SHORT).show();
         }
 
     }

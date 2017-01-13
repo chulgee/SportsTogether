@@ -53,18 +53,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Profile buddy = gson.fromJson(str_profile, Profile.class);
         Message message = gson.fromJson(str_message, Message.class);
+        message.setFrom(Message.PARAM_FROM_OTHER);
+        message.setRoom(message.getSender());
         Log.v(TAG, "buddy="+buddy);
         Log.v(TAG, "message="+message);
 
-        long date = message.getDate();
-
-        /*Message message = new Message.Builder(Message.PARAM_FROM_OTHER).msgType(Message.PARAM_TYPE_MESSAGE).sender(sender)
-                .receiver(receiver).message(contents).date(date).room(sender).build();*/
         DbUtil.insert(getApplicationContext(), message);
 
         Intent i = new Intent(this, ChatActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        i.putExtra("Message", message);
+        Message startMessage = new Message.Builder(Message.PARAM_FROM_OTHER).msgType(Message.PARAM_TYPE_LOG).sender(message.getSender()).receiver(message.getReceiver())
+                .message("Conversation gets started").date(new Date().getTime()).image(message.getImage()).build();
+        i.putExtra("Message", startMessage);
         i.putExtra("Buddy", buddy);
         PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -83,13 +83,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         PushWakeLock.acquireWakeLock(this, 5000);
 
         Profile me = LoginPreferences.GetInstance().getLocalProfile(getApplicationContext());
-        //loadBuddyProfile(sender, me);
-
-        /*Intent i1 = new Intent(this, FloatingService.class);
-        i1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        i1.putExtra("Message", message);
-        startService(i1);*/
-
     }
 
     private void loadBuddyProfile(String buddy, final Profile me){
