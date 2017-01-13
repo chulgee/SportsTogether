@@ -82,7 +82,7 @@ public class ChatRoomListFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        asyncLoadChatRoom();
+        loadChatRoom();
     }
 
     public void init(View rootView){
@@ -155,7 +155,7 @@ public class ChatRoomListFragment extends Fragment {
         });
     }
 
-    private void asyncLoadChatRoom(){
+    private void loadChatRoom(){
         AsyncQueryHandler queryHandler = new AsyncQueryHandler(getActivity().getContentResolver()) {
             @Override
             protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
