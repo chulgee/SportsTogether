@@ -4,14 +4,19 @@ import android.content.Context;
 import android.databinding.BindingAdapter;
 import android.databinding.DataBindingUtil;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.iron.dragon.sportstogether.R;
+import com.iron.dragon.sportstogether.data.LoginPreferences;
+import com.iron.dragon.sportstogether.data.bean.Bulletin;
 import com.iron.dragon.sportstogether.data.bean.Bulletin_image;
+import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.databinding.BulletinListFooterBinding;
 import com.iron.dragon.sportstogether.databinding.BulletinListHeaderBinding;
 import com.iron.dragon.sportstogether.databinding.BulletinListItemBinding;
@@ -86,9 +91,18 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         }
 
         public boolean onLongClickItem(View view) {
-            onItemHolderLongClick(this);
             index = getAdapterPosition();
+            ListItem item = getItem(index);
+            if (item instanceof EventItem) {
+                Bulletin bulletin = ((EventItem) item).getBulletin();
+                Profile me = (Profile) LoginPreferences.GetInstance().getLocalProfile(mContext);
+                if(me.getUsername().equals(bulletin.getUsername())){
+                    Toast.makeText(mContext, "너 잖아~", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+            }
             Logger.d("AdapterPosition = " + index);
+            onItemHolderLongClick(this);
             return true;
         }
     }
