@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,6 +18,7 @@ import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.ui.fragment.ChatFragment;
 
 public class FloatingService extends Service implements View.OnTouchListener {
+    private static final String TAG = "FloatingService";
     int start_x, start_y;
     int prev_x, prev_y;
     private WindowManager.LayoutParams mParams;
@@ -50,6 +52,7 @@ public class FloatingService extends Service implements View.OnTouchListener {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mMessage = (Message)intent.getSerializableExtra(ChatFragment.PARAM_FRAG_MSG);
+        Log.v(TAG, "");
         return super.onStartCommand(intent, flags, startId);
     }
 
