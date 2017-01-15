@@ -18,6 +18,7 @@ import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
+import com.iron.dragon.sportstogether.service.FloatingService;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.util.DbUtil;
 import com.iron.dragon.sportstogether.util.PushWakeLock;
@@ -53,36 +54,41 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Profile buddy = gson.fromJson(str_profile, Profile.class);
         Message message = gson.fromJson(str_message, Message.class);
-        message.setFrom(Message.PARAM_FROM_OTHER);
-        message.setRoom(message.getSender());
-        Log.v(TAG, "buddy="+buddy);
-        Log.v(TAG, "message="+message);
+        if(message.getSender().equals("server")){
+            Intent i = new Intent(this, FloatingService.class);
+            i.putExtra("Message", message);
+            startService(i);
+        }else{
+            message.setFrom(Message.PARAM_FROM_OTHER);
+            message.setRoom(message.getSender());
+            Log.v(TAG, "buddy="+buddy);
+            Log.v(TAG, "message="+message);
 
-        DbUtil.insert(getApplicationContext(), message);
+            DbUtil.insert(getApplicationContext(), message);
 
-        Intent i = new Intent(this, ChatActivity.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        Message startMessage = new Message.Builder(Message.PARAM_FROM_OTHER).msgType(Message.PARAM_TYPE_LOG).sender(message.getSender()).receiver(message.getReceiver())
-                .message("Conversation gets started").date(new Date().getTime()).image(message.getImage()).build();
-        i.putExtra("Message", startMessage);
-        i.putExtra("Buddy", buddy);
-        PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+            Intent i = new Intent(this, ChatActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            Message startMessage = new Message.Builder(Message.PARAM_FROM_OTHER).msgType(Message.PARAM_TYPE_LOG).sender(message.getSender()).receiver(message.getReceiver())
+                    .message("Conversation gets started").date(new Date().getTime()).image(message.getImage()).build();
+            i.putExtra("Message", startMessage);
+            i.putExtra("Buddy", buddy);
+            PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Notification.Builder builder = new Notification.Builder(getApplicationContext());
-        builder.setSmallIcon(R.drawable.friend_icon_normal);
-        builder.setTicker(message.getSender()+": "+message.getMessage());
-        builder.setContentTitle("함께 운동해요");
-        builder.setContentIntent(pi);
-        builder.setAutoCancel(true);
-        builder.setPriority(Notification.PRIORITY_HIGH);
-        NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-        nm.notify(1, builder.build());
+            Notification.Builder builder = new Notification.Builder(getApplicationContext());
+            builder.setSmallIcon(R.drawable.friend_icon_normal);
+            builder.setTicker(message.getSender()+": "+message.getMessage());
+            builder.setContentTitle("함께 운동해요");
+            builder.setContentIntent(pi);
+            builder.setAutoCancel(true);
+            builder.setPriority(Notification.PRIORITY_HIGH);
+            NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+            nm.notify(1, builder.build());
 
-        mVibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        mVibe.vibrate(300);
-        PushWakeLock.acquireWakeLock(this, 5000);
+            mVibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            mVibe.vibrate(300);
+            PushWakeLock.acquireWakeLock(this, 5000);
+        }
 
-        Profile me = LoginPreferences.GetInstance().getLocalProfile(getApplicationContext());
     }
 
     private void loadBuddyProfile(String buddy, final Profile me){
