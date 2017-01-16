@@ -11,6 +11,8 @@ import android.util.Log;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;
@@ -24,6 +26,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
 
 import retrofit2.Call;
@@ -49,18 +53,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Profile buddy = gson.fromJson(str_profile, Profile.class);
         Message message = gson.fromJson(str_message, Message.class);
+        message.setFrom(Message.PARAM_FROM_OTHER);
+        message.setRoom(message.getSender());
         Log.v(TAG, "buddy="+buddy);
         Log.v(TAG, "message="+message);
 
-        long date = message.getDate();
-
-        /*Message message = new Message.Builder(Message.PARAM_FROM_OTHER).msgType(Message.PARAM_TYPE_MESSAGE).sender(sender)
-                .receiver(receiver).message(contents).date(date).room(sender).build();*/
         DbUtil.insert(getApplicationContext(), message);
 
         Intent i = new Intent(this, ChatActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        i.putExtra("Message", message);
+        Message startMessage = new Message.Builder(Message.PARAM_FROM_OTHER).msgType(Message.PARAM_TYPE_LOG).sender(message.getSender()).receiver(message.getReceiver())
+                .message("Conversation gets started").date(new Date().getTime()).image(message.getImage()).build();
+        i.putExtra("Message", startMessage);
         i.putExtra("Buddy", buddy);
         PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 

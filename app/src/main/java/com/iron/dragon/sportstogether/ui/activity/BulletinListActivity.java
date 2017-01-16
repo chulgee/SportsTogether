@@ -16,9 +16,12 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.iron.dragon.sportstogether.R;
+import com.iron.dragon.sportstogether.data.LoginPreferences;
+import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.data.viewmodel.BulletinListViewModel;
 import com.iron.dragon.sportstogether.databinding.BulletinActBinding;
 import com.iron.dragon.sportstogether.ui.adapter.BulletinRecyclerViewAdapter;

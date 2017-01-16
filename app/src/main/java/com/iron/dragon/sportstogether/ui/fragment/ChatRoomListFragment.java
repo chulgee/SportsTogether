@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -79,7 +80,7 @@ public class ChatRoomListFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        asyncLoadChatRoom();
+        loadChatRoom();
     }
 
     public void init(View rootView){
@@ -99,7 +100,7 @@ public class ChatRoomListFragment extends Fragment {
 
             @Override
             public void deleteOnClicked(View v, int position) {
-                asyncRemoveChatRoom(position, mAdapter.getItem(position).room);
+                removeChatRoom(position, mAdapter.getItem(position).room);
             }
 
         });
@@ -152,7 +153,7 @@ public class ChatRoomListFragment extends Fragment {
         });
     }
 
-    private void asyncLoadChatRoom(){
+    private void loadChatRoom(){
         AsyncQueryHandler queryHandler = new AsyncQueryHandler(getActivity().getContentResolver()) {
             @Override
             protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
@@ -205,7 +206,7 @@ public class ChatRoomListFragment extends Fragment {
         });
     }
 
-    private void asyncRemoveChatRoom(final int index, String roomName){
+    private void removeChatRoom(final int index, String roomName){
 
         AsyncQueryHandler queryHandler = new AsyncQueryHandler(getActivity().getContentResolver()) {
 
@@ -252,9 +253,9 @@ public class ChatRoomListFragment extends Fragment {
             Bitmap bmp = mAvatarMap.get(mItems.get(position).room);
             Log.v(TAG, "mItems.get(position).room="+mItems.get(position).room+", bmp="+bmp);
             if(bmp != null){
-                vh.iv_thumb.setImageBitmap(bmp);
+                vh.civ_thumb.setImageBitmap(bmp);
             }else{
-                vh.iv_thumb.setImageResource(R.drawable.default_user);
+                vh.civ_thumb.setImageResource(R.drawable.default_user);
             }
         }
 
@@ -277,7 +278,7 @@ public class ChatRoomListFragment extends Fragment {
 
         class ViewCache extends RecyclerView.ViewHolder implements View.OnClickListener{
             View v_row;
-            ImageView iv_thumb;
+            CircleImageView civ_thumb;
             TextView tv_title;
             TextView tv_subtitle;
             ImageView iv_delete;
@@ -286,7 +287,7 @@ public class ChatRoomListFragment extends Fragment {
                 super(v);
                 v_row = v;
                 v.setOnClickListener(this);
-                iv_thumb = (ImageView)v.findViewById(R.id.iv_thumb);
+                civ_thumb = (CircleImageView)v.findViewById(R.id.civ_thumb);
                 tv_title = (TextView)v.findViewById(R.id.tv_room_title);
                 tv_subtitle = (TextView)v.findViewById(R.id.tv_room_subtitle);
                 iv_delete = (ImageView)v.findViewById(R.id.iv_delete);

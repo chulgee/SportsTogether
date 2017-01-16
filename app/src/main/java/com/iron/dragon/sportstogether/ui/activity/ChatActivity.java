@@ -248,6 +248,8 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
                 Gson gson = new Gson();
                 final Message message = gson.fromJson(obj.toString(), Message.class);
                 message.setFrom(Message.PARAM_FROM_OTHER);
+                message.setRoom(message.getSender());
+                Log.v(TAG, "onSend message="+message);
                 DbUtil.insert(ChatActivity.this, message);
                 Log.v(TAG, message.toString());
                 String sender = message.getSender();

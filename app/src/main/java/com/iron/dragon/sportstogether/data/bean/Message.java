@@ -36,6 +36,14 @@ public class Message  implements Serializable{
         from = who;
     }
 
+    public void setRoom(String _room) {
+        room = _room;
+    }
+
+    public void setImage(String _image){
+        image = _image;
+    }
+
     public int getMsgType() {
         return msgType;
     }

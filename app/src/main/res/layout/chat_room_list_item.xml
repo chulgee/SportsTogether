@@ -3,14 +3,18 @@
     android:layout_width="match_parent"
     android:layout_height="60dp"
     android:orientation="horizontal"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="?android:attr/selectableItemBackground"
     android:padding="5dp">
 
-    <ImageView
-        android:id="@+id/iv_thumb"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:src="@drawable/default_user"/>
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/civ_thumb"
+        android:layout_width="50dip"
+        android:layout_height="50dip"
+        android:src="@drawable/default_user"
+        app:civ_border_width="2dp"
+        app:civ_border_color="#FF000000"
+        />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -34,7 +38,7 @@
         android:id="@+id/iv_delete"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:src="@drawable/cancel"
+        android:src="@drawable/delete"
         android:background="@drawable/md_btn_selector"/>
 
 </LinearLayout>
