@@ -17,23 +17,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper;
-import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper.COLUMN_DATE;
-import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper.COLUMN_LOCATIONID;
-import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper.COLUMN_SPORTSID;
 
 import com.google.gson.Gson;
-import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
-import com.iron.dragon.sportstogether.provider.MyContentProvider;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
+import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
+import com.iron.dragon.sportstogether.provider.MyContentProvider;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.util.Const;
-import com.iron.dragon.sportstogether.util.DbUtil;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -44,15 +37,18 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper;
+import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper.COLUMN_DATE;
+import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper.COLUMN_LOCATIONID;
+import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper.COLUMN_SPORTSID;
 
 /**
  * Created by user on 2016-08-12.
@@ -63,6 +59,7 @@ public class ChatRoomListFragment extends Fragment {
     RecyclerView lv_room;
     MyAdapter mAdapter;
     Map<String, Bitmap> mAvatarMap = new HashMap<String, Bitmap>();
+    private int sportsid;
 
     public interface OnClickCallback{
         void rowOnClicked(View v, int position);
@@ -97,7 +94,7 @@ public class ChatRoomListFragment extends Fragment {
             public void rowOnClicked(View v, int position) {
                 Item item = mAdapter.getItem(position);
                 //Toast.makeText(getContext(), "this item="+item, Toast.LENGTH_SHORT).show();
-                Profile me = LoginPreferences.GetInstance().getLocalProfile(getContext());
+                Profile me = LoginPreferences.GetInstance().loadSharedPreferencesProfile(getContext(), sportsid);
                 loadBuddyProfile(item.room, me);
             }
 
@@ -169,7 +166,7 @@ public class ChatRoomListFragment extends Fragment {
                         String receiver = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_RECEIVER));
                         String image = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_IMAGE));
                         long time = cursor.getInt(cursor.getColumnIndex(COLUMN_DATE));
-                        int sportsid = cursor.getInt(cursor.getColumnIndex(COLUMN_SPORTSID));
+                        sportsid = cursor.getInt(cursor.getColumnIndex(COLUMN_SPORTSID));
                         int locationid = cursor.getInt(cursor.getColumnIndex(COLUMN_LOCATIONID));
                         Item item = new Item(room, sender, receiver, image, time, sportsid, locationid );
                         Log.v(TAG, "item="+item);

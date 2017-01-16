@@ -112,7 +112,7 @@ public class BulletinListViewModel extends BaseObservable {
     private void executeHttp(Bulletin bulletin) {
 
         String username = bulletin.getUsername();
-        int sportsid = bulletin.getSportsid();
+        final int sportsid = bulletin.getSportsid();
         int locationid = bulletin.getLocationid();
         int reqFriends = 0;
         final Call<String> call =
@@ -135,7 +135,8 @@ public class BulletinListViewModel extends BaseObservable {
                     String code = obj.getString("code");
                     JSONArray arr = obj.getJSONArray("message");
                     Profile buddy = gson.fromJson(arr.get(0).toString(), Profile.class);
-                    Profile me = LoginPreferences.GetInstance().getLocalProfile(mActivity.getApplicationContext());
+//                    Profile me = LoginPreferences.GetInstance().getLocalProfile(mActivity.getApplicationContext());
+                    Profile me = LoginPreferences.GetInstance().loadSharedPreferencesProfile(mActivity.getApplicationContext(), sportsid);
                     Log.v(TAG, "buddy: " + buddy.toString());
                     Log.v(TAG, "me: " + me.toString());
                     Intent i = new Intent(mActivity, ChatActivity.class);
@@ -183,7 +184,8 @@ public class BulletinListViewModel extends BaseObservable {
     public BulletinListViewModel(BulletinListActivity bulletinListActivity, int extra_sports) {
         mActivity = bulletinListActivity;
         mSportsId = extra_sports;
-        mLocationId = LoginPreferences.GetInstance().GetLocalProfileLocation(mActivity);
+//        mLocationId = LoginPreferences.GetInstance().GetLocalProfileLocation(mActivity);
+        mLocationId = LoginPreferences.GetInstance().loadSharedPreferencesProfile(mActivity.getApplicationContext(), mSportsId).getLocationid();
         gitHubService = GitHubService.retrofit.create(GitHubService.class);
 
         getBuddyCount();
@@ -405,17 +407,18 @@ public class BulletinListViewModel extends BaseObservable {
     public void onClickFab(View v) {
         mActivity.setBottomSheetState(BottomSheetBehavior.STATE_EXPANDED);
     }
-
     public void onClickSend(View v) {
         Logger.d("clickclick");
+        Profile p = LoginPreferences.GetInstance().loadSharedPreferencesProfile(mActivity.getApplicationContext(), mSportsId);
+
         final Bulletin bulletin = new Bulletin.Builder()
                 .setRegid(LoginPreferences.GetInstance().GetRegid(mActivity))
                 .setSportsid(mSportsId)
                 .setLocationid(mLocationId)
-                .setUsername(LoginPreferences.GetInstance().GetLocalProfileUserName(mActivity))
+                .setUsername(p.getUsername())
                 .setComment(Content)
                 .setDate(System.currentTimeMillis())
-                .setImage(LoginPreferences.GetInstance().GetLocalProfileImage(mActivity))
+                .setImage(p.getImage())
                 .setType(1).build();
         final Call<Bulletin> call =
                 gitHubService.postBulletin(bulletin);

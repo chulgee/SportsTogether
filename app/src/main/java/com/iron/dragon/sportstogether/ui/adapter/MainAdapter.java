@@ -73,14 +73,14 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
             @Override
             public void onClick(View v) {
 
-                boolean login = LoginPreferences.GetInstance().GetLogin(mContext.getApplicationContext());
+                boolean login = LoginPreferences.GetInstance().IsLogin(mContext.getApplicationContext(), id);
                 Log.v(TAG, "login="+login);
 
                 // if 로그인 되어있으면 게시판으로
                 // else 로그인안되어 있으면 profile edit창으로
                 Intent i = new Intent();
                 if(login){
-                    Profile profile = LoginPreferences.GetInstance().getLocalProfile(mContext);
+                    Profile profile = LoginPreferences.GetInstance().loadSharedPreferencesProfile(mContext, id);
                     i.putExtra("MyProfile", profile);
                     i.putExtra("Extra_Sports", id);
                     i.putExtra("Extra_SportsImg", finalRes);
@@ -89,6 +89,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
                     //requestFriends();
                     Toast.makeText(mContext.getApplicationContext(), "Logged in", Toast.LENGTH_SHORT).show();
                 }else{
+                    i.putExtra("Extra_Sports", id);
                     i.setClass(mContext, LoginActivity.class);
                     mContext.startActivity(i);
                 }

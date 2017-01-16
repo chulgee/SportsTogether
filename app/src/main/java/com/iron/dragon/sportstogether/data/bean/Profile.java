@@ -56,6 +56,10 @@ public class Profile implements Serializable{
         return username;
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public int getAge() {
         return age;
     }

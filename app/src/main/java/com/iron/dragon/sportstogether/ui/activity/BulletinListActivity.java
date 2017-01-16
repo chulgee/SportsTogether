@@ -52,8 +52,8 @@ public class BulletinListActivity extends AppCompatActivity  {
         mBinding = DataBindingUtil.setContentView(this, R.layout.bulletin_act);
         mBinding.setViewModel(mViewModel);
         setSupportActionBar(mBinding.toolbar);
-        mViewModel.LoadBulletinData();
         InitLayout();
+        mViewModel.LoadBulletinData();
     }
 
     @Override
@@ -138,8 +138,6 @@ public class BulletinListActivity extends AppCompatActivity  {
                 mViewModel.RefreshData();
             }
         });
-        /*bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.commentLayout));
-        bottomSheetBehavior.setBottomSheetCallback(mViewModel.BottomSheetCallback());*/
 
     }
 
