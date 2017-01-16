@@ -105,13 +105,22 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.d("Test", "LoginActivity");
         setContentView(R.layout.profile_act);
-        InitData();
         ButterKnife.bind(this);
+        InitData();
+        Intent i = getIntent();
+        processIntent(i);
 
+        mSpSportsType.setSelection(mSportsId);
+        mSpSportsType.setEnabled(false);
+        Logger.d("parent mSpSportsType.getSelectedItemPosition() = " + mSpSportsType.getSelectedItemPosition() + " mSportsId = " + mSportsId);
+    }
+
+    private void processIntent(Intent i) {
+        mSportsId = i.getIntExtra("Extra_Sports", 0);
     }
 
     private void InitData() {
-            gitHubService = GitHubService.retrofit.create(GitHubService.class);
+        gitHubService = GitHubService.retrofit.create(GitHubService.class);
     }
 
 
@@ -148,7 +157,8 @@ public class LoginActivity extends AppCompatActivity {
 
 
     protected void saveLocalProfile(Profile p) {
-        LoginPreferences.GetInstance().SetLocalProfile(this, p);
+        Logger.d("saveLocalProfile = " + p);
+        LoginPreferences.GetInstance().saveSharedPreferencesProfile(this, p);
     }
 
     protected void toBulletinListActivity() {
@@ -158,11 +168,6 @@ public class LoginActivity extends AppCompatActivity {
         i.putExtra("Extra_Sports", mSportsId);
         startActivity(i);
         finish();
-    }
-
-
-    private void setLogged() {
-        LoginPreferences.GetInstance().SetLogin(getApplicationContext(), true);
     }
 
     @OnClick({R.id.bt_commit, R.id.bt_cancel})
@@ -181,7 +186,7 @@ public class LoginActivity extends AppCompatActivity {
                 pi.set_mGender(mSpGender.getSelectedItemPosition());
                 pi.set_mLocation(mSpLocation.getSelectedItemPosition());
                 pi.set_mPhoneNum(mEtPhoneNum.getText().toString());
-                pi.set_mSportsType(mSpSportsType.getSelectedItemPosition());
+                pi.set_mSportsType(mSportsId);
                 pi.set_mLevel(mSpLevel.getSelectedItemPosition());
                 pi.set_mImage("");
 
@@ -203,7 +208,7 @@ public class LoginActivity extends AppCompatActivity {
                         Log.v(TAG, Const.SPORTS.BADMINTON.name());
                         Log.v(TAG, "" + Const.SPORTS.values());
 
-                        setLogged();
+//                        setLogged();
 
                         if(mCropImagedUri == null) {
                             saveLocalProfile(p);

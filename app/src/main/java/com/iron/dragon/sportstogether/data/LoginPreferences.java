@@ -1,24 +1,24 @@
 package com.iron.dragon.sportstogether.data;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.iron.dragon.sportstogether.SportsApplication;
+import com.google.gson.Gson;
+import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.bean.Profile;
-import com.orhanobut.logger.Logger;
+
+import java.util.ArrayList;
 
 /**
  * Created by P11872 on 2015-08-20.
  */
 public class LoginPreferences {
-    static private SharedPreferences.Editor mEditor;
-    static private SharedPreferences mPref;
 
-    public static final String USER_AUTHENTICATED = "user_authenticated"; //value is a Boolean
-    public static final String REGID = "regid"; //value is a Boolean
     private static volatile LoginPreferences mLoginPreferences;
+
+    /*public static final String USER_AUTHENTICATED = "user_authenticated"; //value is a Boolean
+    public static final String REGID = "regid"; //value is a Boolean
 
     private static final String PROFILE_NICKNAME = "_nickname";
 
@@ -31,6 +31,12 @@ public class LoginPreferences {
     private static final String PROFILE_LEVEL = "level";
     private static final String PROFILE_IMAGE = "image";
 
+    private static final String MY_PROFILE = "my_profile";
+*/
+
+    private static final String PROFILE_NICKNAME = "_nickname";
+    public static final String REGID = "regid"; //value is a Boolean
+    private static final String PROFILE_IMAGE = "image";
 
     private LoginPreferences(){
 
@@ -45,7 +51,30 @@ public class LoginPreferences {
         return mLoginPreferences;
     }
 
-    public String GetLocalProfileUserName(Context context) {
+    public void SetRegid(Context context, String regid){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(REGID, regid);
+        editor.apply();
+    }
+
+    public String GetRegid(Context context){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String regid = sharedPreferences.getString(REGID, "");
+        return regid;
+    }
+
+    public boolean IsLogin(Context context, int id) {
+        String[] temp = context.getResources().getStringArray(R.array.sportstype);
+        SharedPreferences appSharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(context.getApplicationContext());
+        Gson gson = new Gson();
+        boolean isLogin = false;
+        String json = appSharedPrefs.getString(context.getResources().getStringArray(R.array.sportstype)[id], "");
+        return !json.equals("");
+    }
+
+    /*public String GetProfileUserName(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getString(PROFILE_NICKNAME, null);
     }
@@ -57,7 +86,7 @@ public class LoginPreferences {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getString(PROFILE_IMAGE, null);
     }
-    public boolean GetLogin(Context context) {
+    public boolean IsLogin(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getBoolean(LoginPreferences.USER_AUTHENTICATED, false);
     }
@@ -118,5 +147,57 @@ public class LoginPreferences {
                 .clear()
                 .apply();
     }
+*/
+    public void saveSharedPreferencesProfile(Context context, Profile profile) {
+        setCommonPreference(context, profile);
+        SharedPreferences appSharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(context.getApplicationContext());
+        SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(profile);
+        prefsEditor.putString(context.getResources().getStringArray(R.array.sportstype)[profile.getSportsid()], json);
+        prefsEditor.apply();
+    }
 
+    private void setCommonPreference(Context context, Profile profile) {
+        profile.setRegid(GetRegid(context));
+    }
+
+    public Profile loadSharedPreferencesProfile(Context context, int sportsId) {
+        SharedPreferences appSharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(context.getApplicationContext());
+        Gson gson = new Gson();
+        String json = appSharedPrefs.getString(context.getResources().getStringArray(R.array.sportstype)[sportsId], "");
+        return gson.fromJson(json, Profile.class);
+    }
+
+    public ArrayList<Profile> loadSharedPreferencesProfileAll(Context context) {
+        String[] temp = context.getResources().getStringArray(R.array.sportstype);
+        SharedPreferences appSharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(context.getApplicationContext());
+        Gson gson = new Gson();
+        ArrayList<Profile> profileList = new ArrayList<>();
+        for(String key:temp) {
+
+            String json = appSharedPrefs.getString(key, "");
+            if(!json.equals("")) {
+                profileList.add(gson.fromJson(json, Profile.class));
+            }
+        }
+        return profileList;
+    }
+
+
+    // temp
+    public void SetLogout(Context context) {
+        String[] temp = context.getResources().getStringArray(R.array.sportstype);
+        SharedPreferences appSharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(context.getApplicationContext());
+        for(String key:temp) {
+            SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
+            Gson gson = new Gson();
+            prefsEditor.putString(key, null);
+            prefsEditor.apply();
+        }
+    }
 }

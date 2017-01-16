@@ -22,14 +22,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper;
-
-import com.iron.dragon.sportstogether.provider.MyContentProvider;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
+import com.iron.dragon.sportstogether.provider.MyContentProvider;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.ui.adapter.MessageAdapter;
 import com.iron.dragon.sportstogether.util.Const;
@@ -43,7 +41,6 @@ import org.json.JSONObject;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -52,6 +49,8 @@ import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -65,6 +64,7 @@ public class ChatFragment extends Fragment {
 
     public static final String TAG = "ChatFragment";
     public static final String PARAM_FRAG_MSG = "Message";
+    private static int mSportsId;
 
     @BindView(R.id.lvList) RecyclerView rView;
     @BindView(R.id.ibtnBack) ImageButton ibtnBack;
@@ -117,6 +117,7 @@ public class ChatFragment extends Fragment {
         args.putSerializable(PARAM_FRAG_MSG, message);
         args.putSerializable("Buddy", buddy_profile);
         fragment.setArguments(args);
+        mSportsId = buddy_profile.getSportsid();
         return fragment;
     }
 
@@ -140,7 +141,7 @@ public class ChatFragment extends Fragment {
         Log.v(TAG, "onCreateView");
         View v = inflater.inflate(R.layout.chat_frag, container, false);
         ButterKnife.bind(this, v);
-        mMe = LoginPreferences.GetInstance().getLocalProfile(getActivity());
+        mMe = LoginPreferences.GetInstance().loadSharedPreferencesProfile(getActivity(), mSportsId);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         rView.setLayoutManager(llm);

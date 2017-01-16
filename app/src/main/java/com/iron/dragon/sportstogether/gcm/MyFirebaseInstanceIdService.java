@@ -41,7 +41,8 @@ public class MyFirebaseInstanceIdService extends FirebaseInstanceIdService {
         GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
         Profile profile = new Profile();
         profile.setRegid(regid);
-        String curRegid = LoginPreferences.GetInstance().getLocalProfile(context).getRegid();
+        //String curRegid = LoginPreferences.GetInstance().getLocalProfile(context).getRegid();   what??
+        String curRegid = LoginPreferences.GetInstance().GetRegid(context);
         final Call<Profile> call = gitHubService.putProfilesRegid(curRegid, profile);
         call.enqueue(new Callback<Profile>() {
             @Override

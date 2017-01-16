@@ -17,7 +17,6 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;
@@ -54,6 +53,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
     FragmentManager fm = getFragmentManager();
 
     Handler mHandler = new Handler();
+    private int mSportsId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +97,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
         if (intent != null) {
             Message message = (Message)intent.getSerializableExtra("Message");
             Profile buddy = (Profile)intent.getSerializableExtra("Buddy");
+            mSportsId = buddy.getSportsid();
             Log.v(TAG, "processIntent buddy="+buddy);
             Log.v(TAG, "processIntent message="+message);
             mCurrentFrag = ChatFragment.newInstance(message, buddy);
@@ -154,7 +155,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
         public static final String TAG = "ChatThread";
         @Override
         public void run() {
-            me = LoginPreferences.GetInstance().getLocalProfile(ChatActivity.this);
+            me = LoginPreferences.GetInstance().loadSharedPreferencesProfile(ChatActivity.this, mSportsId);
             createSocket();
         }
 

@@ -11,8 +11,6 @@ import android.util.Log;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;
@@ -26,8 +24,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Date;
-import java.util.Iterator;
 import java.util.Map;
 
 import retrofit2.Call;
@@ -82,7 +78,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         mVibe.vibrate(300);
         PushWakeLock.acquireWakeLock(this, 5000);
 
-        Profile me = LoginPreferences.GetInstance().getLocalProfile(getApplicationContext());
+//        Profile me = LoginPreferences.GetInstance().getLocalProfile(getApplicationContext());
+        Profile me = LoginPreferences.GetInstance().loadSharedPreferencesProfile(getApplicationContext(), buddy.getSportsid());
         //loadBuddyProfile(sender, me);
 
         /*Intent i1 = new Intent(this, FloatingService.class);
