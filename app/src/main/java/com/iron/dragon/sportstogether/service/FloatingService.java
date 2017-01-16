@@ -4,12 +4,18 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.IBinder;
+import android.support.v7.view.WindowCallbackWrapper;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.iron.dragon.sportstogether.R;
@@ -25,7 +31,8 @@ public class FloatingService extends Service implements View.OnTouchListener {
     WindowManager wm;
     View view;
     Message mMessage;
-
+    ImageView iv_new_friend;
+    AnimationDrawable mNewFriendAni;
     public FloatingService() {
     }
 
@@ -38,22 +45,42 @@ public class FloatingService extends Service implements View.OnTouchListener {
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.v(TAG, "onCreate");
+
+
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
         view = View.inflate(this, R.layout.floating_buddy, null);
         view.setOnTouchListener(this);
-        wm = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
 
+        iv_new_friend = (ImageView)view.findViewById(R.id.iv_new_friend);
+        iv_new_friend.setBackgroundResource(R.drawable.new_friend);
+        mNewFriendAni = (AnimationDrawable)iv_new_friend.getBackground();
+        mMessage = (Message)intent.getSerializableExtra(ChatFragment.PARAM_FRAG_MSG);
+        Log.v(TAG, "onStartCommand intent="+intent);
+        wm = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
+        //LinearLayout layout = new LinearLayout(this);
+        //layout.addView(view);
+        view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(View v) {
+                Log.v(TAG, "onViewAttachedToWindow");
+                mNewFriendAni.start();
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(View v) {
+                Log.v(TAG, "onViewDetachedFromWindow");
+            }
+        });
         mParams = new WindowManager.LayoutParams(300, 300, WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
         mParams.gravity = Gravity.LEFT | Gravity.TOP;
 
         wm.addView(view, mParams);
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        mMessage = (Message)intent.getSerializableExtra(ChatFragment.PARAM_FRAG_MSG);
-        Log.v(TAG, "");
-        return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
     }
 
     @Override
@@ -61,6 +88,7 @@ public class FloatingService extends Service implements View.OnTouchListener {
 
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
+
                 start_x = (int)event.getRawX();
                 start_y = (int)event.getRawY();
                 prev_x = mParams.x;
@@ -92,6 +120,7 @@ public class FloatingService extends Service implements View.OnTouchListener {
                     public void onClick(View v) {
                         wm.removeView(view);
                         Toast.makeText(FloatingService.this, "hello,", Toast.LENGTH_SHORT).show();
+                        stopSelf();
                     }
                 });
                 break;
