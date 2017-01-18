@@ -322,7 +322,8 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
 
     private void loadBuddyProfile(final Message message){
         // buddy의 profile 가져오기
-        GitHubService retrofit = GitHubService.retrofit.create(GitHubService.class);
+        GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+        GitHubService retrofit = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
         final Call<String> call =
                 retrofit.getProfiles(message.getSender(), me.getSportsid(), me.getLocationid(), 0);
         call.enqueue(new Callback<String>() {

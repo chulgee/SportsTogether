@@ -16,9 +16,9 @@ import com.iron.dragon.sportstogether.databinding.BulletinListFooterBinding;
 import com.iron.dragon.sportstogether.databinding.BulletinListHeaderBinding;
 import com.iron.dragon.sportstogether.databinding.BulletinListItemBinding;
 import com.iron.dragon.sportstogether.databinding.BulletinMyCustomViewBinding;
-import com.iron.dragon.sportstogether.ui.adapter.item.EventItem;
-import com.iron.dragon.sportstogether.ui.adapter.item.HeaderItem;
-import com.iron.dragon.sportstogether.ui.adapter.item.ListItem;
+import com.iron.dragon.sportstogether.ui.adapter.item.BulletinEventItem;
+import com.iron.dragon.sportstogether.ui.adapter.item.BulletinHeaderItem;
+import com.iron.dragon.sportstogether.ui.adapter.item.BulletinListItem;
 import com.orhanobut.logger.Logger;
 import com.squareup.picasso.Picasso;
 
@@ -41,7 +41,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     public void setIndex(int index) {
         this.index = index;
     }
-    private ArrayList<ListItem> malBulletin;
+    private ArrayList<BulletinListItem> malBulletin;
     private OnItemLongClickListener IonItemLongClickListener;
     private OnFooterItemClickListener IonFooterItemClickListener;
     private Context mContext;
@@ -51,11 +51,11 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     }
 
 
-    public void addItem(ListItem bulletin) {
+    public void addItem(BulletinListItem bulletin) {
         int insertIndex = 1;
-        if(bulletin.getType() == ListItem.TYPE_HEADER && malBulletin.contains(bulletin)) {
+        if(bulletin.getType() == BulletinListItem.TYPE_HEADER && malBulletin.contains(bulletin)) {
             return;
-        } else if(bulletin.getType() == ListItem.TYPE_HEADER && !malBulletin.contains(bulletin)) {
+        } else if(bulletin.getType() == BulletinListItem.TYPE_HEADER && !malBulletin.contains(bulletin)) {
             insertIndex = 0;
         }
         malBulletin.add(insertIndex, bulletin);
@@ -63,12 +63,12 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
 
     }
 
-    public void setItem(ArrayList<ListItem> bulletins) {
+    public void setItem(ArrayList<BulletinListItem> bulletins) {
         malBulletin = bulletins;
         notifyDataSetChanged();
     }
 
-    public ListItem getItem(int index){
+    public BulletinListItem getItem(int index){
         return malBulletin.get(index);
     }
 
@@ -160,7 +160,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             BulletinListFooterBinding binding = DataBindingUtil
                     .inflate(LayoutInflater.from(mContext), R.layout.bulletin_list_footer, parent, false);
             return new FooterViewHolder(binding);
-        } else if (viewType == ListItem.TYPE_HEADER) {
+        } else if (viewType == BulletinListItem.TYPE_HEADER) {
             BulletinListHeaderBinding binding = DataBindingUtil
                     .inflate(LayoutInflater.from(mContext), R.layout.bulletin_list_header, parent, false);
             return new ViewHolderHeader(binding);
@@ -177,15 +177,15 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         if( type == FOOTER_VIEW) {
             final FooterViewHolder viewHolderFooter = (FooterViewHolder) holder;
             viewHolderFooter.mBinding.executePendingBindings();
-        } else if (type == ListItem.TYPE_HEADER) {
+        } else if (type == BulletinListItem.TYPE_HEADER) {
             final ViewHolderHeader viewHolderHeader = (ViewHolderHeader) holder;
-            viewHolderHeader.mBinding.setListitem((HeaderItem) malBulletin.get(position));
+            viewHolderHeader.mBinding.setListitem((BulletinHeaderItem) malBulletin.get(position));
             viewHolderHeader.mBinding.executePendingBindings();
         } else {
             final ViewHolderItem viewHolderItem = (ViewHolderItem) holder;
-            viewHolderItem.mBinding.setListitem((EventItem)malBulletin.get(position));
+            viewHolderItem.mBinding.setListitem((BulletinEventItem)malBulletin.get(position));
 
-            EventItem item = (EventItem) malBulletin.get(position);
+            BulletinEventItem item = (BulletinEventItem) malBulletin.get(position);
 
             if (item.getBulletin().getBulletin_image() != null && item.getBulletin().getBulletin_image().size() > 0 && viewHolderItem.mBinding.llAttachImage.getChildCount() == 0) {
                 addViewToViewGroup(viewHolderItem.mBinding.llAttachImage);
@@ -207,7 +207,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     @Override
     public void onViewRecycled(RecyclerView.ViewHolder holder) {
         super.onViewRecycled(holder);
-        if(holder.getItemViewType() == ListItem.TYPE_EVENT) {
+        if(holder.getItemViewType() == BulletinListItem.TYPE_EVENT) {
             final ViewHolderItem viewHolderItem = (ViewHolderItem) holder;
             viewHolderItem.mBinding.llAttachImage.removeAllViews();
         }

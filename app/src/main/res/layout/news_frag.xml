@@ -1,14 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#fcead1">
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable
+            name="viewModel"
+            type="com.iron.dragon.sportstogether.data.viewmodel.NewsFragViewModel"/>
+    </data>
+    <LinearLayout
+        android:orientation="vertical" android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#fcead1">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="작업중"
-        android:id="@+id/textView"
-        android:textSize="50dp" />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/news_recyclerviewer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#ffbfd1dd"
+            android:padding="4dp"
+            android:listSelector="@android:color/transparent"
+            >
+        </android.support.v7.widget.RecyclerView>
 
-</LinearLayout>
+    </LinearLayout>
+</layout>

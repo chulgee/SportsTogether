@@ -8,7 +8,7 @@
         <import type="com.iron.dragon.sportstogether.util.StringUtil"/>
         <variable
             name="listitem"
-            type="com.iron.dragon.sportstogether.ui.adapter.item.EventItem"/>
+            type="com.iron.dragon.sportstogether.ui.adapter.item.BulletinEventItem"/>
         <variable
             name="viewholderitem"
             type="com.iron.dragon.sportstogether.ui.adapter.BulletinRecyclerViewAdapter.ViewHolderItem"/>

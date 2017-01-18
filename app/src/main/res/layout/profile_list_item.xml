@@ -8,7 +8,7 @@
         <import type="com.iron.dragon.sportstogether.util.StringUtil"/>
         <variable
             name="profileitem"
-            type="com.iron.dragon.sportstogether.ui.adapter.item.ProfileItem"/>
+            type="com.iron.dragon.sportstogether.ui.adapter.item.ProfileManagerItem"/>
         <variable
             name="viewholderitem"
             type="com.iron.dragon.sportstogether.ui.adapter.ProfileManagerRecyclerViewAdapter.ViewHolderItem"/>

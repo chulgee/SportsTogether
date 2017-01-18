@@ -16,7 +16,7 @@ import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.databinding.ProfileListItemBinding;
 import com.iron.dragon.sportstogether.ui.activity.ProfileActivity;
 import com.iron.dragon.sportstogether.ui.activity.ProfileManagerActivity;
-import com.iron.dragon.sportstogether.ui.adapter.item.ProfileItem;
+import com.iron.dragon.sportstogether.ui.adapter.item.ProfileManagerItem;
 import com.orhanobut.logger.Logger;
 import com.squareup.picasso.Picasso;
 
@@ -27,7 +27,7 @@ import java.util.ArrayList;
  */
 
 public class ProfileManagerRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private ArrayList<ProfileItem> malProfiles;
+    private ArrayList<ProfileManagerItem> malProfiles;
     private Context mContext;
     public ProfileManagerRecyclerViewAdapter(ProfileManagerActivity profileManagerActivity) {
         mContext = profileManagerActivity;
@@ -44,7 +44,7 @@ public class ProfileManagerRecyclerViewAdapter extends RecyclerView.Adapter<Recy
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         final ProfileManagerRecyclerViewAdapter.ViewHolderItem viewHolderItem = (ProfileManagerRecyclerViewAdapter.ViewHolderItem) holder;
         viewHolderItem.mBinding.setProfileitem(malProfiles.get(position));
-        ProfileItem profileitem = malProfiles.get(position);
+        ProfileManagerItem profileitem = malProfiles.get(position);
         ((ViewHolderItem) holder).mBinding.getViewholderitem().profileSportsType.set(mContext.getString(R.string.profile_sports, mContext.getResources().getStringArray(R.array.sportstype)[profileitem.getProfile().getSportsid()]));
         ((ViewHolderItem) holder).mBinding.getViewholderitem().profileLocation.set(mContext.getString(R.string.profile_location, mContext.getResources().getStringArray(R.array.location)[profileitem.getProfile().getLocationid()]));
         ((ViewHolderItem) holder).mBinding.getViewholderitem().profileLevel.set(mContext.getString(R.string.profile_level, mContext.getResources().getStringArray(R.array.level)[profileitem.getProfile().getLevel()]));
@@ -55,7 +55,7 @@ public class ProfileManagerRecyclerViewAdapter extends RecyclerView.Adapter<Recy
         return malProfiles==null? 0 : malProfiles.size();
     }
 
-    public void setItem(ArrayList<ProfileItem> list) {
+    public void setItem(ArrayList<ProfileManagerItem> list) {
         malProfiles = list;
     }
 
@@ -73,7 +73,7 @@ public class ProfileManagerRecyclerViewAdapter extends RecyclerView.Adapter<Recy
              profileLevel = new ObservableField<>();
             mBinding.setViewholderitem(this);
         }
-        public void onClickItem(View view, ProfileItem profile) {
+        public void onClickItem(View view, ProfileManagerItem profile) {
             Intent i = new Intent();
             i.putExtra("MyProfile", LoginPreferences.GetInstance().loadSharedPreferencesProfile(mContext, profile.getProfile().getSportsid()));
             i.setClass(mContext, ProfileActivity.class);

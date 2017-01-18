@@ -109,7 +109,8 @@ public class ChatRoomListFragment extends Fragment {
     private void loadBuddyProfile(String buddy, final Profile me){
         // buddy의 profile 가져오기
         Log.v(TAG, "buddy="+buddy+", sportsid="+me.getSportsid()+", locationid="+me.getLocationid());
-        GitHubService retrofit = GitHubService.retrofit.create(GitHubService.class);
+        GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+        GitHubService retrofit = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
         final Call<String> call =
                 retrofit.getProfiles(buddy, me.getSportsid(), me.getLocationid(), 0);
         call.enqueue(new Callback<String>() {

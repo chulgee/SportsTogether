@@ -174,7 +174,8 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
         println("웹서버에 요청함 : " + Const.MAIN_URL);
 
         *//*
-        GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
+        * GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+        GitHubService gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
         final Call<JSONObject> call = gitHubService.getProfiles(username, position, 0, 1);
         call.enqueue(new Callback<JSONObject>() {
             @Override

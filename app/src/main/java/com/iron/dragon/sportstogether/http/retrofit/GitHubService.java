@@ -1,15 +1,20 @@
 package com.iron.dragon.sportstogether.http.retrofit;
 
 import com.iron.dragon.sportstogether.data.bean.Bulletin;
+import com.iron.dragon.sportstogether.data.bean.News;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.util.Const;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.Interceptor;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -107,13 +112,49 @@ public interface GitHubService {
             @PartMap() Map<String, RequestBody> partMap,
             @Part MultipartBody.Part file);
 
-    static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-    public static final Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(Const.MAIN_URL)
-            .client(httpClient.build())
-            .addConverterFactory(ScalarsConverterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create())
-            .build();
+    @GET("search/news.json")
+    Call<News> getNews(
+            @Query("query") String query
+    );
 
+    public class ServiceGenerator {
+        public static String apiBaseUrl = Const.MAIN_URL;
+        static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+        static OkHttpClient.Builder httpNewsClient = new OkHttpClient.Builder().addInterceptor(new Interceptor() {
+            @Override
+            public Response intercept(Interceptor.Chain chain) throws IOException {
+                Request original = chain.request();
+
+                // Request customization: add request headers
+                Request.Builder requestBuilder = original.newBuilder()
+                        .header("Host", "openapi.naver.com")
+                        .addHeader("User-Agent", "curl/7.49.1")
+                        .addHeader("Accept", "*/*")
+                        .addHeader("X-Naver-Client-Id", Const.NAVER_CLIENT_ID)
+                        .addHeader("X-Naver-Client-Secret", Const.NAVER_CLIENT_SECRET); // <-- this is the important line
+                Request request = requestBuilder.build();
+                return chain.proceed(request);
+            }
+        });
+        public static Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(Const.MAIN_URL)
+                .client(httpClient.build())
+                .addConverterFactory(ScalarsConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+
+        public static void changeApiBaseUrl(String newApiBaseUrl) {
+            apiBaseUrl = newApiBaseUrl;
+
+            retrofit = new Retrofit.Builder()
+                    .baseUrl(apiBaseUrl)
+                    .client(httpNewsClient.build())
+                    .addConverterFactory(ScalarsConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+        }
+
+    }
 
 }
