@@ -7,8 +7,8 @@ import com.orhanobut.logger.Logger;
  * Created by P16018 on 2017-01-13.
  */
 
-public class ProfileItem {
-    Profile mProfile;
+public class ProfileManagerItem {
+    private Profile mProfile;
     public void setProfile(Profile profile) {
         mProfile= profile;
     }

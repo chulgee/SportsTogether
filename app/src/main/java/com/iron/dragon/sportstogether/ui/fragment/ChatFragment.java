@@ -132,7 +132,8 @@ public class ChatFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
-        mRetrofit = GitHubService.retrofit.create(GitHubService.class);
+        GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+        mRetrofit = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
     }
 
     @Override

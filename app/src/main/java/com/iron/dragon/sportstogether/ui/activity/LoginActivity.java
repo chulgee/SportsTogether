@@ -120,7 +120,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void InitData() {
-        gitHubService = GitHubService.retrofit.create(GitHubService.class);
+        GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+        gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
     }
 
 
@@ -179,7 +180,8 @@ public class LoginActivity extends AppCompatActivity {
                 LoginPreferences.GetInstance().SetRegid(getApplicationContext(), regid);
                 SportsApplication app = (SportsApplication) getApplication();
                 app.setRegid(regid);
-                gitHubService = GitHubService.retrofit.create(GitHubService.class);
+                GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+                gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
                 final ProfileItem pi = new ProfileItem();
                 pi.set_mNickName(mEtNickName.getText().toString());
                 pi.set_mAge(mSpAge.getSelectedItemPosition());
@@ -312,7 +314,8 @@ public class LoginActivity extends AppCompatActivity {
 
     protected void uploadFile(Profile p, Uri fileUri) {
         // create upload_profile service client
-//        GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
+//        GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+//        GitHubService gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
 
         new ResizeBitmapTask(p).execute(new File(fileUri.getPath()));//Util.getFileFromUri(getContentResolver(), fileUri);
         mCropImagedUri = null;
