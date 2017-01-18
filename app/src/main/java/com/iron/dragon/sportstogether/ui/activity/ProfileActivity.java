@@ -20,6 +20,7 @@ import com.iron.dragon.sportstogether.data.bean.ProfileItem;
 import com.iron.dragon.sportstogether.http.CallbackWithExists;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
+import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.StringUtil;
 import com.orhanobut.logger.Logger;
 import com.squareup.picasso.Picasso;
@@ -114,7 +115,8 @@ public class ProfileActivity extends LoginActivity  {
                 LoginPreferences.GetInstance().SetRegid(getApplicationContext(), regid);
                 SportsApplication app = (SportsApplication) getApplication();
                 app.setRegid(regid);
-                gitHubService = GitHubService.retrofit.create(GitHubService.class);
+                GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+                gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
                 final ProfileItem pi = new ProfileItem();
                 pi.set_mNickName(mEtNickName.getText().toString());
                 pi.set_mAge(mSpAge.getSelectedItemPosition());

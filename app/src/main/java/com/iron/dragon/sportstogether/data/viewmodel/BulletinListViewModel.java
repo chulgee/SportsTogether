@@ -37,9 +37,9 @@ import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
 import com.iron.dragon.sportstogether.ui.activity.BulletinListActivity;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
-import com.iron.dragon.sportstogether.ui.adapter.item.EventItem;
-import com.iron.dragon.sportstogether.ui.adapter.item.HeaderItem;
-import com.iron.dragon.sportstogether.ui.adapter.item.ListItem;
+import com.iron.dragon.sportstogether.ui.adapter.item.BulletinEventItem;
+import com.iron.dragon.sportstogether.ui.adapter.item.BulletinHeaderItem;
+import com.iron.dragon.sportstogether.ui.adapter.item.BulletinListItem;
 import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.ImageUtil;
 import com.iron.dragon.sportstogether.util.Util;
@@ -101,10 +101,10 @@ public class BulletinListViewModel extends BaseObservable {
 
     private TreeMap<String, ArrayList<Bulletin>> mTMBulletinMap = new TreeMap<>(Collections.reverseOrder());
 
-    public void excuteChatting(ListItem listItem) {
-        Log.v(TAG, "listItem: " + listItem);
-        if (listItem instanceof EventItem) {
-            Bulletin bulletin = ((EventItem) listItem).getBulletin();
+    public void excuteChatting(BulletinListItem bulletinListItem) {
+        Log.v(TAG, "bulletinListItem: " + bulletinListItem);
+        if (bulletinListItem instanceof BulletinEventItem) {
+            Bulletin bulletin = ((BulletinEventItem) bulletinListItem).getBulletin();
             Log.v(TAG, "bulletin: " + bulletin.toString());
             executeHttp(bulletin);
         }
@@ -186,7 +186,8 @@ public class BulletinListViewModel extends BaseObservable {
         mSportsId = extra_sports;
 //        mLocationId = LoginPreferences.GetInstance().GetLocalProfileLocation(mActivity);
         mLocationId = LoginPreferences.GetInstance().loadSharedPreferencesProfile(mActivity.getApplicationContext(), mSportsId).getLocationid();
-        gitHubService = GitHubService.retrofit.create(GitHubService.class);
+        GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+        gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
 
         getBuddyCount();
 
@@ -250,13 +251,13 @@ public class BulletinListViewModel extends BaseObservable {
                     mTMBulletinMap.get(sDate).add(bulletin);
                 }
             }
-            ArrayList<ListItem> listItems = new ArrayList<>();
+            ArrayList<BulletinListItem> bulletinListItems = new ArrayList<>();
 
             for (String date : mTMBulletinMap.keySet()) {
                 Logger.d("convert data = " + date);
-                HeaderItem header = new HeaderItem();
+                BulletinHeaderItem header = new BulletinHeaderItem();
                 header.setDate(date);
-                listItems.add(header);
+                bulletinListItems.add(header);
                 ArrayList<Bulletin> ar = mTMBulletinMap.get(date);
                 Collections.sort(ar, new Comparator<Bulletin>() {
                     @Override
@@ -266,13 +267,13 @@ public class BulletinListViewModel extends BaseObservable {
                 });
 
                 for (Bulletin event : ar) {
-                    EventItem item = new EventItem();
+                    BulletinEventItem item = new BulletinEventItem();
                     item.setBulletin(event);
-                    listItems.add(item);
+                    bulletinListItems.add(item);
                 }
 
             }
-            mActivity.setListItem(listItems);
+            mActivity.setListItem(bulletinListItems);
 
         }
     }
@@ -445,9 +446,9 @@ public class BulletinListViewModel extends BaseObservable {
     }
 
     private void updatePosting(Bulletin res_bulletin) {
-        HeaderItem header = new HeaderItem();
+        BulletinHeaderItem header = new BulletinHeaderItem();
         header.setDate(Util.getStringDate(res_bulletin.getDate()));
-        EventItem item = new EventItem();
+        BulletinEventItem item = new BulletinEventItem();
         item.setBulletin(res_bulletin);
         mActivity.showPosting(header, item);
         postDone();

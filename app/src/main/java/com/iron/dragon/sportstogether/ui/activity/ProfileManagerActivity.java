@@ -10,7 +10,7 @@ import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.viewmodel.ProfileManagerViewModel;
 import com.iron.dragon.sportstogether.databinding.ProfileManagerActBinding;
 import com.iron.dragon.sportstogether.ui.adapter.ProfileManagerRecyclerViewAdapter;
-import com.iron.dragon.sportstogether.ui.adapter.item.ProfileItem;
+import com.iron.dragon.sportstogether.ui.adapter.item.ProfileManagerItem;
 import com.iron.dragon.sportstogether.ui.view.DividerItemDecoration;
 import com.iron.dragon.sportstogether.util.ToastUtil;
 import com.orhanobut.logger.Logger;
@@ -50,7 +50,7 @@ public class ProfileManagerActivity extends AppCompatActivity {
         ToastUtil.show(getApplicationContext(), string);
     }
 
-    public void setListItem(ArrayList<ProfileItem> list) {
+    public void setListItem(ArrayList<ProfileManagerItem> list) {
         if(list == null) Logger.d("setListItem list is null");
         ProfileManagerRecyclerViewAdapter adapter = (ProfileManagerRecyclerViewAdapter) mBinding.profileManagerContent.profilesRecyclerviewer.getAdapter();
         if(adapter==null) Logger.d("setListItem adapter is null");
