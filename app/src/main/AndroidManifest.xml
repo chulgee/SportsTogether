@@ -34,9 +34,6 @@
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
-
-                <data android:scheme="@string/KAKAO_CLIENT_SCHEME"
-                      android:host="@string/kakaolink_host" />
             </intent-filter>
         </activity>
         <activity
