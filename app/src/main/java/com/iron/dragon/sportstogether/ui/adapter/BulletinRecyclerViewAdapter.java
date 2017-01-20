@@ -4,7 +4,6 @@ import android.content.Context;
 import android.databinding.BindingAdapter;
 import android.databinding.DataBindingUtil;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,10 +91,10 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
 
         public boolean onLongClickItem(View view) {
             index = getAdapterPosition();
-            ListItem item = getItem(index);
-            if (item instanceof EventItem) {
-                Bulletin bulletin = ((EventItem) item).getBulletin();
-                Profile me = (Profile) LoginPreferences.GetInstance().getLocalProfile(mContext);
+            BulletinListItem item = getItem(index);
+            if (item instanceof BulletinEventItem) {
+                Bulletin bulletin = ((BulletinEventItem) item).getBulletin();
+                Profile me = (Profile) LoginPreferences.GetInstance().loadSharedPreferencesProfile(mContext, bulletin.getSportsid());
                 if(me.getUsername().equals(bulletin.getUsername())){
                     Toast.makeText(mContext, "너 잖아~", Toast.LENGTH_SHORT).show();
                     return true;

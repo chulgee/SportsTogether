@@ -34,6 +34,9 @@
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
+
+                <data android:scheme="@string/KAKAO_CLIENT_SCHEME"
+                      android:host="@string/kakaolink_host" />
             </intent-filter>
         </activity>
         <activity
@@ -97,6 +100,11 @@
             android:label="@string/title_activity_profile_manager"
             android:theme="@style/AppTheme">
         </activity>
+
+        <meta-data
+            android:name="com.kakao.sdk.AppKey"
+            android:value="@string/KAKAO_CLIENT_APIKEY"/>
+        
     </application>
 
 </manifest>

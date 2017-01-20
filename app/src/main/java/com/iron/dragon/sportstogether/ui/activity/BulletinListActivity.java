@@ -16,12 +16,9 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.iron.dragon.sportstogether.R;
-import com.iron.dragon.sportstogether.data.LoginPreferences;
-import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.data.viewmodel.BulletinListViewModel;
 import com.iron.dragon.sportstogether.databinding.BulletinActBinding;
 import com.iron.dragon.sportstogether.ui.adapter.BulletinRecyclerViewAdapter;
@@ -30,6 +27,10 @@ import com.iron.dragon.sportstogether.ui.adapter.item.BulletinHeaderItem;
 import com.iron.dragon.sportstogether.ui.adapter.item.BulletinListItem;
 import com.iron.dragon.sportstogether.ui.view.DividerItemDecoration;
 import com.iron.dragon.sportstogether.util.ToastUtil;
+import com.kakao.kakaolink.AppActionBuilder;
+import com.kakao.kakaolink.KakaoLink;
+import com.kakao.kakaolink.KakaoTalkLinkMessageBuilder;
+import com.kakao.util.KakaoParameterException;
 import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
@@ -163,6 +164,16 @@ public class BulletinListActivity extends AppCompatActivity  {
             case R.id.action_chat:
                 // get buddy's profile
                 mViewModel.excuteChatting(adapter.getItem(adapter.getIndex()));
+                return true;
+            case R.id.action_share:
+                try {
+                    final KakaoLink kakaoLink = KakaoLink.getKakaoLink(getApplicationContext());
+                    final KakaoTalkLinkMessageBuilder kakaoTalkLinkMessageBuilder = kakaoLink.createKakaoTalkLinkMessageBuilder();
+                    kakaoTalkLinkMessageBuilder.addAppLink("자세히 보기", new AppActionBuilder().setUrl("market://details?id=com.iron.dragon.sportstogether").build()); // PC 카카오톡 에서 사용하게 될 웹사이트 주소
+                    kakaoLink.sendMessage(kakaoTalkLinkMessageBuilder, BulletinListActivity.this);
+                } catch (KakaoParameterException e) {
+                    e.printStackTrace();
+                }
                 return true;
             default:
                 return super.onContextItemSelected(item);
