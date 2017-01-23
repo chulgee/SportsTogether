@@ -26,8 +26,6 @@ import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.provider.MyContentProvider;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
-import com.iron.dragon.sportstogether.ui.activity.MainActivity;
-import com.iron.dragon.sportstogether.ui.activity.MainActivity.MainViewPagerAdapter;
 import com.iron.dragon.sportstogether.util.Const;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -83,13 +81,6 @@ public class ChatRoomListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         loadChatRoom();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        //MainViewPagerAdapter adapter = ((MainActivity)getActivity()).getAdapter();
-        //adapter.notifyDataSetChanged();
     }
 
     public void init(View rootView){
