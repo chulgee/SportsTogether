@@ -4,7 +4,7 @@ package com.iron.dragon.sportstogether.ui.adapter.item;
  * Created by P16018 on 2016-12-08.
  */
 
-public class HeaderItem extends ListItem {
+public class BulletinHeaderItem extends BulletinListItem {
 
     private String mDate;
 
@@ -26,9 +26,9 @@ public class HeaderItem extends ListItem {
     {
         boolean isEqual= false;
 
-        if (object != null && object instanceof HeaderItem)
+        if (object != null && object instanceof BulletinHeaderItem)
         {
-            isEqual = (this.mDate.equals(((HeaderItem) object).getDate()));
+            isEqual = (this.mDate.equals(((BulletinHeaderItem) object).getDate()));
         }
 
         return isEqual;

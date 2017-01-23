@@ -9,6 +9,7 @@ import com.iron.dragon.sportstogether.SportsApplication;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
+import com.iron.dragon.sportstogether.util.Const;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -38,10 +39,12 @@ public class MyFirebaseInstanceIdService extends FirebaseInstanceIdService {
 
     static public void sendRegidToServer(final Context context, final String regid){
         Log.v(TAG, "sendRegidToServer id :" + regid);
-        GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
+        GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+        GitHubService gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
         Profile profile = new Profile();
         profile.setRegid(regid);
-        String curRegid = LoginPreferences.GetInstance().getLocalProfile(context).getRegid();
+        //String curRegid = LoginPreferences.GetInstance().getLocalProfile(context).getRegid();   what??
+        String curRegid = LoginPreferences.GetInstance().GetRegid(context);
         final Call<Profile> call = gitHubService.putProfilesRegid(curRegid, profile);
         call.enqueue(new Callback<Profile>() {
             @Override

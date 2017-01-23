@@ -25,9 +25,9 @@ import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.data.viewmodel.BulletinListViewModel;
 import com.iron.dragon.sportstogether.databinding.BulletinActBinding;
 import com.iron.dragon.sportstogether.ui.adapter.BulletinRecyclerViewAdapter;
-import com.iron.dragon.sportstogether.ui.adapter.item.EventItem;
-import com.iron.dragon.sportstogether.ui.adapter.item.HeaderItem;
-import com.iron.dragon.sportstogether.ui.adapter.item.ListItem;
+import com.iron.dragon.sportstogether.ui.adapter.item.BulletinEventItem;
+import com.iron.dragon.sportstogether.ui.adapter.item.BulletinHeaderItem;
+import com.iron.dragon.sportstogether.ui.adapter.item.BulletinListItem;
 import com.iron.dragon.sportstogether.ui.view.DividerItemDecoration;
 import com.iron.dragon.sportstogether.util.ToastUtil;
 import com.orhanobut.logger.Logger;
@@ -52,8 +52,8 @@ public class BulletinListActivity extends AppCompatActivity  {
         mBinding = DataBindingUtil.setContentView(this, R.layout.bulletin_act);
         mBinding.setViewModel(mViewModel);
         setSupportActionBar(mBinding.toolbar);
-        mViewModel.LoadBulletinData();
         InitLayout();
+        mViewModel.LoadBulletinData();
     }
 
     @Override
@@ -74,13 +74,13 @@ public class BulletinListActivity extends AppCompatActivity  {
         return super.onOptionsItemSelected(item);
     }
 
-    public void showPosting(HeaderItem header, EventItem item) {
+    public void showPosting(BulletinHeaderItem header, BulletinEventItem item) {
         BulletinRecyclerViewAdapter adapter = (BulletinRecyclerViewAdapter) mBinding.boardRecyclerviewer.getAdapter();
         if (adapter.getItemCount() == 0) {
-            ArrayList<ListItem> listItems = new ArrayList<>();
-            listItems.add(item);
-            listItems.add(header);
-            adapter.setItem(listItems);
+            ArrayList<BulletinListItem> bulletinListItems = new ArrayList<>();
+            bulletinListItems.add(item);
+            bulletinListItems.add(header);
+            adapter.setItem(bulletinListItems);
         } else {
             adapter.addItem(header);
             adapter.addItem(item);
@@ -138,8 +138,6 @@ public class BulletinListActivity extends AppCompatActivity  {
                 mViewModel.RefreshData();
             }
         });
-        /*bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.commentLayout));
-        bottomSheetBehavior.setBottomSheetCallback(mViewModel.BottomSheetCallback());*/
 
     }
 
@@ -186,9 +184,9 @@ public class BulletinListActivity extends AppCompatActivity  {
         mBinding.progressView.startAnimation();
     }
 
-    public void setListItem(ArrayList<ListItem> listItems) {
+    public void setListItem(ArrayList<BulletinListItem> bulletinListItems) {
         BulletinRecyclerViewAdapter adapter = (BulletinRecyclerViewAdapter) mBinding.boardRecyclerviewer.getAdapter();
-        adapter.setItem(listItems);
+        adapter.setItem(bulletinListItems);
     }
 
     public void clearAdapter() {

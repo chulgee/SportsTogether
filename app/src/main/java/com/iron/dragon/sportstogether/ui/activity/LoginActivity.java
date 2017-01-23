@@ -105,13 +105,23 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.d("Test", "LoginActivity");
         setContentView(R.layout.profile_act);
-        InitData();
         ButterKnife.bind(this);
+        InitData();
+        Intent i = getIntent();
+        processIntent(i);
 
+        mSpSportsType.setSelection(mSportsId);
+        mSpSportsType.setEnabled(false);
+        Logger.d("parent mSpSportsType.getSelectedItemPosition() = " + mSpSportsType.getSelectedItemPosition() + " mSportsId = " + mSportsId);
+    }
+
+    private void processIntent(Intent i) {
+        mSportsId = i.getIntExtra("Extra_Sports", 0);
     }
 
     private void InitData() {
-            gitHubService = GitHubService.retrofit.create(GitHubService.class);
+        GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+        gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
     }
 
 
@@ -148,7 +158,8 @@ public class LoginActivity extends AppCompatActivity {
 
 
     protected void saveLocalProfile(Profile p) {
-        LoginPreferences.GetInstance().SetLocalProfile(this, p);
+        Logger.d("saveLocalProfile = " + p);
+        LoginPreferences.GetInstance().saveSharedPreferencesProfile(this, p);
     }
 
     protected void toBulletinListActivity() {
@@ -160,11 +171,6 @@ public class LoginActivity extends AppCompatActivity {
         finish();
     }
 
-
-    private void setLogged() {
-        LoginPreferences.GetInstance().SetLogin(getApplicationContext(), true);
-    }
-
     @OnClick({R.id.bt_commit, R.id.bt_cancel})
     public void onClick(View view) {
         switch (view.getId()) {
@@ -174,14 +180,15 @@ public class LoginActivity extends AppCompatActivity {
                 LoginPreferences.GetInstance().SetRegid(getApplicationContext(), regid);
                 SportsApplication app = (SportsApplication) getApplication();
                 app.setRegid(regid);
-                gitHubService = GitHubService.retrofit.create(GitHubService.class);
+                GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+                gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
                 final ProfileItem pi = new ProfileItem();
                 pi.set_mNickName(mEtNickName.getText().toString());
                 pi.set_mAge(mSpAge.getSelectedItemPosition());
                 pi.set_mGender(mSpGender.getSelectedItemPosition());
                 pi.set_mLocation(mSpLocation.getSelectedItemPosition());
                 pi.set_mPhoneNum(mEtPhoneNum.getText().toString());
-                pi.set_mSportsType(mSpSportsType.getSelectedItemPosition());
+                pi.set_mSportsType(mSportsId);
                 pi.set_mLevel(mSpLevel.getSelectedItemPosition());
                 pi.set_mImage("");
 
@@ -203,7 +210,7 @@ public class LoginActivity extends AppCompatActivity {
                         Log.v(TAG, Const.SPORTS.BADMINTON.name());
                         Log.v(TAG, "" + Const.SPORTS.values());
 
-                        setLogged();
+//                        setLogged();
 
                         if(mCropImagedUri == null) {
                             saveLocalProfile(p);
@@ -307,7 +314,8 @@ public class LoginActivity extends AppCompatActivity {
 
     protected void uploadFile(Profile p, Uri fileUri) {
         // create upload_profile service client
-//        GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
+//        GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+//        GitHubService gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
 
         new ResizeBitmapTask(p).execute(new File(fileUri.getPath()));//Util.getFileFromUri(getContentResolver(), fileUri);
         mCropImagedUri = null;

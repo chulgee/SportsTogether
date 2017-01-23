@@ -6,7 +6,7 @@ import com.iron.dragon.sportstogether.data.bean.Bulletin;
  * Created by P16018 on 2016-12-08.
  */
 
-public class EventItem extends ListItem {
+public class BulletinEventItem extends BulletinListItem {
     private Bulletin mBulletin;
 
     @Override

@@ -20,7 +20,9 @@ import com.iron.dragon.sportstogether.data.bean.ProfileItem;
 import com.iron.dragon.sportstogether.http.CallbackWithExists;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
+import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.StringUtil;
+import com.orhanobut.logger.Logger;
 import com.squareup.picasso.Picasso;
 
 import butterknife.ButterKnife;
@@ -36,12 +38,13 @@ public class ProfileActivity extends LoginActivity  {
         super.onCreate(savedInstanceState);
         setSupportActionBar(mToolbar);
         InitLayout();
-        Intent i = getIntent();
-        processIntent(i);
+        processIntent(getIntent());
+        Logger.d("child mSpSportsType.getSelectedItemPosition() = " + mSpSportsType.getSelectedItemPosition() + " mSportsId = " + mSportsId);
     }
     private void processIntent(Intent i) {
         mSportsId = i.getIntExtra("Extra_Sports", 0);
         final Profile myprofile = (Profile) i.getSerializableExtra("MyProfile");
+        Logger.d("child myprofile = " + myprofile);
         if (myprofile != null) {
             handler.post(new Runnable() {
                 @Override
@@ -112,7 +115,8 @@ public class ProfileActivity extends LoginActivity  {
                 LoginPreferences.GetInstance().SetRegid(getApplicationContext(), regid);
                 SportsApplication app = (SportsApplication) getApplication();
                 app.setRegid(regid);
-                gitHubService = GitHubService.retrofit.create(GitHubService.class);
+                GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+                gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
                 final ProfileItem pi = new ProfileItem();
                 pi.set_mNickName(mEtNickName.getText().toString());
                 pi.set_mAge(mSpAge.getSelectedItemPosition());
@@ -140,7 +144,7 @@ public class ProfileActivity extends LoginActivity  {
                         Log.v(TAG, "onResponse response.isSuccessful()=" + response.isSuccessful());
 
                         if(mCropImagedUri == null) {
-                            profile.setImage(LoginPreferences.GetInstance().GetLocalProfileImage(ProfileActivity.this));
+                            profile.setImage(LoginPreferences.GetInstance().loadSharedPreferencesProfile(getApplicationContext(), mSportsId).getImage());
                             saveLocalProfile(profile);
                             toBulletinListActivity();
                         } else {

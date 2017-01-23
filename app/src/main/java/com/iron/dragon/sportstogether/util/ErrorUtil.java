@@ -15,7 +15,8 @@ import retrofit2.Response;
  */
 public class ErrorUtil {
     public static Error parse(Response response){
-        Converter<ResponseBody, Error> errorConverter = GitHubService.retrofit.responseBodyConverter(Error.class, new Annotation[0]);
+        GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+        Converter<ResponseBody, Error> errorConverter = GitHubService.ServiceGenerator.retrofit.responseBodyConverter(Error.class, new Annotation[0]);
 
         Error error = null;
 

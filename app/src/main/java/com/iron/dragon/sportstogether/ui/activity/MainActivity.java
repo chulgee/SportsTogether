@@ -23,7 +23,6 @@ import android.widget.Toast;
 
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
-import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.gcm.MyFirebaseInstanceIdService;
 import com.iron.dragon.sportstogether.ui.fragment.BookFragment;
 import com.iron.dragon.sportstogether.ui.fragment.ChatRoomListFragment;
@@ -211,21 +210,12 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        boolean login = LoginPreferences.GetInstance().GetLogin(getApplicationContext());
         Intent i = new Intent();
         if (id == R.id.nav_setting) {
             // Handle the camera action
         } else if (id == R.id.nav_myinfo) {
-            if(login) {
-                Profile profile = LoginPreferences.GetInstance().getLocalProfile(this);
-                i.putExtra("MyProfile", profile);
-                i.setClass(this, ProfileActivity.class);
-                startActivity(i);
-            } else {
-                i.setClass(this, LoginActivity.class);
-                startActivity(i);
-            }
-            Toast.makeText(getApplicationContext(), "Logged in", Toast.LENGTH_SHORT).show();
+            i.setClass(this, ProfileManagerActivity.class);
+            startActivity(i);
 
         } else if (id == R.id.nav_announcement) {
 
@@ -234,7 +224,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_share) {
             MyFirebaseInstanceIdService.sendRegidToServer(getApplicationContext(), "hello,I am regid");
         } else if (id == R.id.nav_send) {
-            LoginPreferences.GetInstance().SetLogin(this, false);
+            LoginPreferences.GetInstance().SetLogout(this);
             Toast.makeText(getApplicationContext(), "Logged out", Toast.LENGTH_SHORT).show();
         }
 
