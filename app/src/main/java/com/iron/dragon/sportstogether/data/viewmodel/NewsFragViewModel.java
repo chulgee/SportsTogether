@@ -41,13 +41,13 @@ public class NewsFragViewModel extends BaseObservable {
         RetrofitHelper.enqueueWithRetry(call, new Callback<News>() {
             @Override
             public void onResponse(Call<News> call, Response<News> response) {
-                Log.d(TAG, "server contacted at: " + call.request().url());
+                /*Log.d(TAG, "server contacted at: " + call.request().url());
                 Log.d("Test", "code = " + response.code() + " issuccessful = " + response.isSuccessful());
                 Log.d("Test", "body = " + response.body().toString());
                 Log.d("Test", "message = " + response.message());
 
                 News list = response.body();
-                initListView(list.getNewsInfo());
+                initListView(list.getNewsInfo());*/
             }
 
             @Override
