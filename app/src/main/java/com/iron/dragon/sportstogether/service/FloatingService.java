@@ -57,8 +57,8 @@ public class FloatingService extends Service implements View.OnTouchListener {
         view.setOnTouchListener(this);
 
         iv_new_friend = (ImageView)view.findViewById(R.id.iv_new_friend);
-        iv_new_friend.setBackgroundResource(R.drawable.new_friend);
-        mNewFriendAni = (AnimationDrawable)iv_new_friend.getBackground();
+        iv_new_friend.setBackgroundResource(R.drawable.run);
+        //mNewFriendAni = (AnimationDrawable)iv_new_friend.getBackground();
         mMessage = (Message)intent.getSerializableExtra(ChatFragment.PARAM_FRAG_MSG);
         Log.v(TAG, "onStartCommand intent="+intent);
         wm = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
@@ -68,12 +68,33 @@ public class FloatingService extends Service implements View.OnTouchListener {
             @Override
             public void onViewAttachedToWindow(View v) {
                 Log.v(TAG, "onViewAttachedToWindow");
-                mNewFriendAni.start();
+                //mNewFriendAni.start();
             }
 
             @Override
             public void onViewDetachedFromWindow(View v) {
                 Log.v(TAG, "onViewDetachedFromWindow");
+            }
+        });
+        TextView tv = (TextView)view.findViewById(R.id.tv_floating_title);
+        tv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent i = new Intent(FloatingService.this, ChatActivity.class);
+                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        i.putExtra("Message", mMessage);
+                        startActivity(i);
+                        wm.removeView(view);
+                        Toast.makeText(FloatingService.this, "h...", Toast.LENGTH_SHORT).show();
+                    }
+                });
+        ImageView iv = (ImageView)view.findViewById(R.id.iv_floating_cancel);
+        iv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                wm.removeView(view);
+                Toast.makeText(FloatingService.this, "hello,", Toast.LENGTH_SHORT).show();
+                stopSelf();
             }
         });
         //mParams = new WindowManager.LayoutParams(300, 300, WindowManager.LayoutParams.TYPE_PHONE,
@@ -106,26 +127,7 @@ public class FloatingService extends Service implements View.OnTouchListener {
                 break;
             case MotionEvent.ACTION_UP:
                 View tv = view.findViewById(R.id.tv_floating_title);
-                tv.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent i = new Intent(FloatingService.this, ChatActivity.class);
-                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        i.putExtra("Message", mMessage);
-                        startActivity(i);
-                        wm.removeView(view);
-                        Toast.makeText(FloatingService.this, "h...", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                View iv = view.findViewById(R.id.iv_floating_cancel);
-                iv.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        wm.removeView(view);
-                        Toast.makeText(FloatingService.this, "hello,", Toast.LENGTH_SHORT).show();
-                        stopSelf();
-                    }
-                });
+
                 break;
         }
 

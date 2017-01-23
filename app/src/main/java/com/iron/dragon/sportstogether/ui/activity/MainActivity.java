@@ -15,6 +15,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -113,7 +114,10 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-    /*
+    public MainViewPagerAdapter getAdapter(){
+        return adapter;
+    }
+
     public void onFragmentChange(int position) {
         if (position == 0) {
             pager.setCurrentItem(0);
@@ -121,10 +125,15 @@ public class MainActivity extends AppCompatActivity
             pager.setCurrentItem(1);
         } else if (position == 2) {
             pager.setCurrentItem(2);
+        }else if(position == 3){
+            Toast.makeText(this, "chat room", Toast.LENGTH_SHORT).show();
+            pager.setCurrentItem(3);
+            adapter.notifyDataSetChanged();
         }
-    }*/
+    }
 
-    class MainViewPagerAdapter extends FragmentStatePagerAdapter {
+    public static class MainViewPagerAdapter extends FragmentStatePagerAdapter {
+        private static final String TAG = "MainViewPagerAdapter";
         ArrayList<Fragment> items = new ArrayList<Fragment>();
         ArrayList<String> titles = new ArrayList<String>();
 
@@ -145,6 +154,17 @@ public class MainActivity extends AppCompatActivity
         @Override
         public Fragment getItem(int position) {
             return items.get(position);
+        }
+
+        @Override
+        public int getItemPosition(Object item) {
+            Log.v(TAG, "this is item="+item);
+
+            if(item instanceof ChatRoomListFragment){
+                return POSITION_NONE;
+            }
+
+            return POSITION_UNCHANGED;
         }
 
         @Override
