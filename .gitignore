@@ -6,3 +6,6 @@
 .DS_Store
 /build
 /captures
+.idea/encodings.xml
+.idea/inspectionProfiles/
+/gradle.properties

@@ -47,8 +47,6 @@ public class FloatingService extends Service implements View.OnTouchListener {
     public void onCreate() {
         super.onCreate();
         Log.v(TAG, "onCreate");
-
-
     }
 
     @Override
