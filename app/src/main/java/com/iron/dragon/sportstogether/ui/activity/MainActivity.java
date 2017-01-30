@@ -23,13 +23,17 @@ import android.widget.Toast;
 
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
+import com.iron.dragon.sportstogether.data.bean.Message;
+import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.gcm.MyFirebaseInstanceIdService;
+import com.iron.dragon.sportstogether.service.FloatingService;
 import com.iron.dragon.sportstogether.ui.fragment.BookFragment;
 import com.iron.dragon.sportstogether.ui.fragment.ChatRoomListFragment;
 import com.iron.dragon.sportstogether.ui.fragment.NewsFragment;
 import com.iron.dragon.sportstogether.ui.fragment.SportsFragment;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -222,7 +226,15 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_cs) {
 
         } else if (id == R.id.nav_share) {
-            MyFirebaseInstanceIdService.sendRegidToServer(getApplicationContext(), "hello,I am regid");
+            //1. MyFirebaseInstanceIdService.sendRegidToServer(getApplicationContext(), "hello,I am regid");
+
+            Intent intent = new Intent(this, FloatingService.class);
+            Message m = new Message.Builder(Message.PARAM_FROM_OTHER).msgType(Message.PARAM_TYPE_LOG).sender("server")
+                    .message("new friend coming").date(new Date().getTime()).build();
+            intent.putExtra("Message", m);
+            Profile buddy = new Profile("regid", "철기", 0, 0, 1, 0, "12345", 0, null);
+            intent.putExtra("Buddy", buddy);
+            startService(intent);
         } else if (id == R.id.nav_send) {
             LoginPreferences.GetInstance().SetLogout(this);
             Toast.makeText(getApplicationContext(), "Logged out", Toast.LENGTH_SHORT).show();

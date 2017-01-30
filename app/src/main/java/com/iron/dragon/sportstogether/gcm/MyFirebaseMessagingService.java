@@ -51,22 +51,48 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Profile buddy = gson.fromJson(str_profile, Profile.class);
         Message message = gson.fromJson(str_message, Message.class);
+        Log.v(TAG, "From server, message : "+message.toString());
+        Log.v(TAG, "From server,   buddy : "+buddy.toString());
         if(message.getSender().equals("server")){
-            Intent i = new Intent(this, FloatingService.class);
+            Log.v(TAG, "New buddy="+buddy);
+            Log.v(TAG, "New message="+message);
+
+            // post noti to go to friendListActivity
+            Intent i = new Intent(this, ChatActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
             i.putExtra("Message", message);
-            startService(i);
+            i.putExtra("Buddy", buddy);
+            PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            Notification.Builder builder = new Notification.Builder(getApplicationContext());
+            builder.setSmallIcon(R.drawable.friend_icon_normal);
+            builder.setTicker(buddy.getUsername()+"님이 들어왔어요");
+            builder.setContentTitle("새로운 친구 입장");
+            builder.setContentIntent(pi);
+            builder.setAutoCancel(true);
+            builder.setPriority(Notification.PRIORITY_HIGH);
+            NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+            nm.notify(1, builder.build());
+
+            // show new friend coming gif on current window
+            Intent intent = new Intent(this, FloatingService.class);
+            intent.putExtra("Message", message);
+            intent.putExtra("Buddy", buddy);
+            startService(intent);
         }else{
+
             message.setFrom(Message.PARAM_FROM_OTHER);
             message.setRoom(message.getSender());
-            Log.v(TAG, "buddy="+buddy);
-            Log.v(TAG, "message="+message);
+            Log.v(TAG, "Chat buddy="+buddy);
+            Log.v(TAG, "Chat message="+message);
 
             DbUtil.insert(getApplicationContext(), message);
 
-            Intent i = new Intent(this, ChatActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            // post noti to go to ChatActivity
             Message startMessage = new Message.Builder(Message.PARAM_FROM_OTHER).msgType(Message.PARAM_TYPE_LOG).sender(message.getSender()).receiver(message.getReceiver())
                     .message("Conversation gets started").date(new Date().getTime()).image(message.getImage()).build();
+            Intent i = new Intent(this, ChatActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
             i.putExtra("Message", startMessage);
             i.putExtra("Buddy", buddy);
             PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -80,59 +106,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             builder.setPriority(Notification.PRIORITY_HIGH);
             NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
             nm.notify(1, builder.build());
-
-            mVibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-            mVibe.vibrate(300);
-            PushWakeLock.acquireWakeLock(this, 5000);
         }
 
-    }
-
-    private void loadBuddyProfile(String buddy, final Profile me){
-        // buddy의 profile 가져오기
-        Log.v(TAG, "buddy="+buddy+", sportsid="+me.getSportsid()+", locationid="+me.getLocationid());
-        GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
-        GitHubService retrofit = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
-        final Call<String> call =
-                retrofit.getProfiles(buddy, me.getSportsid(), me.getLocationid(), 0);
-        call.enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                Log.d("loadBuddyProfile", "code = " + response.code() + " is successful = " + response.isSuccessful());
-                Log.d("loadBuddyProfile", "body = " + response.body().toString());
-                Log.d("loadBuddyProfile", "message = " + response.toString());
-                if (response.isSuccessful()) {
-                    JSONObject obj = null;
-                    try {
-                        obj = new JSONObject(response.body().toString());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    Gson gson = new Gson();
-                    Profile buddy = null;
-                    try {
-                        String command = obj.getString("command");
-                        String code = obj.getString("code");
-                        JSONArray arr = obj.getJSONArray("message");
-                        buddy = gson.fromJson(arr.get(0).toString(), Profile.class);
-                        Log.v(TAG, "buddy: "+buddy.toString());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    /*Intent i = new Intent(getActivity(), ChatActivity.class);
-                    Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(buddy.getUsername())
-                            .message("Conversation get started").date(new Date().getTime()).image(null).build();
-                    i.putExtra("Message", message);
-                    i.putExtra("Buddy", buddy);
-                    startActivity(i);*/
-                }
-            }
-
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                Log.d("Test", "error message = " + t.getMessage());
-            }
-        });
+        // wake device
+        mVibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        mVibe.vibrate(300);
+        PushWakeLock.acquireWakeLock(this, 5000);
     }
 
     private void println(String data){

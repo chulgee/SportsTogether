@@ -115,7 +115,7 @@ public class BulletinListViewModel extends BaseObservable {
         int locationid = bulletin.getLocationid();
         int reqFriends = 0;
         final Call<String> call =
-                gitHubService.getProfiles(username, sportsid, locationid, reqFriends);
+                gitHubService.getProfiles(username, sportsid, locationid, reqFriends, -1);
         RetrofitHelper.enqueueWithRetry(call, new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
