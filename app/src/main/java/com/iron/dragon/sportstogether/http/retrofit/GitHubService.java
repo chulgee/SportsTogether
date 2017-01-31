@@ -2,6 +2,7 @@ package com.iron.dragon.sportstogether.http.retrofit;
 
 import com.iron.dragon.sportstogether.data.bean.Bulletin;
 import com.iron.dragon.sportstogether.data.bean.News;
+import com.iron.dragon.sportstogether.data.bean.Notice;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.util.Const;
 
@@ -115,6 +116,11 @@ public interface GitHubService {
     @GET("search/news.json")
     Call<News> getNews(
             @Query("query") String query
+    );
+
+    @GET("notice")
+    Call<List<Notice>> getNotice(
+            @Query("reqNum") int reqNum
     );
 
     public class ServiceGenerator {

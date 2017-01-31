@@ -64,8 +64,10 @@
         <activity
             android:name=".ui.activity.ChatActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
-        <activity android:name=".ui.activity.BuddyActivity"
+        <activity
+            android:name=".ui.activity.BuddyActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
+
         <service
             android:name=".gcm.MyFirebaseInstanceIdService"
             android:enabled="true"
@@ -96,12 +98,16 @@
         <activity
             android:name=".ui.activity.ProfileManagerActivity"
             android:label="@string/title_activity_profile_manager"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
 
         <meta-data
             android:name="com.kakao.sdk.AppKey"
             android:value="@string/KAKAO_CLIENT_APIKEY" />
 
+        <activity
+            android:name=".ui.activity.NoticeBoardActivity"
+            android:theme="@style/AppTheme" />
+        <activity android:name=".ui.activity.NoticeDetailActivity"></activity>
     </application>
 
 </manifest>

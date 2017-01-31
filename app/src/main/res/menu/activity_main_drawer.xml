@@ -10,7 +10,7 @@
         <item
             android:id="@+id/nav_myinfo"
             android:icon="@drawable/ic_menu_gallery"
-            android:title="회원관리" />
+            android:title="내 프로필" />
         <item
             android:id="@+id/nav_announcement"
             android:icon="@drawable/ic_menu_slideshow"
@@ -18,18 +18,14 @@
         <item
             android:id="@+id/nav_cs"
             android:icon="@drawable/ic_menu_manage"
-            android:title="고객센터" />
+            android:title="개발자에게 문의하기" />
     </group>
     <item android:title="공유">
         <menu>
             <item
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_menu_share"
-                android:title="다른사람에게 알려주기" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="전송하기" />
+                android:title="친구에게 어플 추천하기" />
         </menu>
     </item>
 

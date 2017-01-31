@@ -222,22 +222,29 @@ public class MainActivity extends AppCompatActivity
             startActivity(i);
 
         } else if (id == R.id.nav_announcement) {
-
+            i.setClass(this, NoticeBoardActivity.class);
+            startActivity(i);
         } else if (id == R.id.nav_cs) {
-
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("message/rfc822");
+            intent.putExtra(Intent.EXTRA_EMAIL  , new String[]{"chulchoicezee@gmail.com"});
+            intent.putExtra(Intent.EXTRA_SUBJECT, "개발자에게 문의합니다.");
+            intent.putExtra(Intent.EXTRA_TEXT   , "");
+            startActivity(Intent.createChooser(intent, "개발자에게 이메일 보내기"));
         } else if (id == R.id.nav_share) {
             //1. MyFirebaseInstanceIdService.sendRegidToServer(getApplicationContext(), "hello,I am regid");
 
             Intent intent = new Intent(this, FloatingService.class);
+            if(FloatingService.getFloating()){
+                stopService(intent);
+            }
             Message m = new Message.Builder(Message.PARAM_FROM_OTHER).msgType(Message.PARAM_TYPE_LOG).sender("server")
                     .message("new friend coming").date(new Date().getTime()).build();
             intent.putExtra("Message", m);
             Profile buddy = new Profile("regid", "철기", 0, 0, 1, 0, "12345", 0, null);
             intent.putExtra("Buddy", buddy);
             startService(intent);
-        } else if (id == R.id.nav_send) {
-            LoginPreferences.GetInstance().SetLogout(this);
-            Toast.makeText(getApplicationContext(), "Logged out", Toast.LENGTH_SHORT).show();
+
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
