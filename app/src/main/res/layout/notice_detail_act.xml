@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_notice_detail"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.iron.dragon.sportstogether.ui.activity.NoticeDetailActivity">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/tv_notice_detail_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="10dp"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginTop="10dp"/>
+            <TextView
+                android:id="@+id/tv_notice_detail_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="22dp"
+                android:layout_marginTop="10dp"/>
+            <View
+                android:layout_width="match_parent"
+                android:background="@android:color/darker_gray"
+                android:layout_height="1dp"
+                android:layout_marginTop="10dp"/>
+            <TextView
+                android:id="@+id/tv_notice_detail_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18dp"
+                android:layout_marginTop="20dp"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

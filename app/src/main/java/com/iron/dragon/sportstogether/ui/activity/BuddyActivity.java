@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -34,6 +35,7 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
 
     BuddyPresenter mPresenter;
     Profile mBuddy;
+    DividerItemDecoration mDividerItemDecoration;
 
     @Override
     public void updateView(List<Profile> profiles) {
@@ -80,9 +82,14 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
         Intent i = getIntent();
         mBuddy = (Profile)i.getSerializableExtra("Buddy");
         lv_buddy = (RecyclerView) findViewById(R.id.lv_buddy);
-        LinearLayoutManager llm = new LinearLayoutManager(this);
-        llm.setOrientation(LinearLayoutManager.VERTICAL);
-        lv_buddy.setLayoutManager(llm);
+
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        lv_buddy.setLayoutManager(mLayoutManager);
+        mDividerItemDecoration = new DividerItemDecoration(this,
+                mLayoutManager.getOrientation());
+        lv_buddy.addItemDecoration(mDividerItemDecoration);
+
         BuddyModel buddyModel = new BuddyModel(this, mBuddy.getSportsid(), mBuddy.getLocationid());
         mPresenter = new BuddyPresenterImpl(this, buddyModel);
         mAdapter = new MyAdapter(this, mPresenter);

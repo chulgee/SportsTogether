@@ -76,6 +76,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             // show new friend coming gif on current window
             Intent intent = new Intent(this, FloatingService.class);
+            if(FloatingService.getFloating()){
+                stopService(intent);
+            }
             intent.putExtra("Message", message);
             intent.putExtra("Buddy", buddy);
             startService(intent);

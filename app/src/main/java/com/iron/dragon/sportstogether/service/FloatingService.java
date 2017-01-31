@@ -38,7 +38,16 @@ public class FloatingService extends Service implements View.OnTouchListener, Vi
     Message mMessage;
     Profile mBuddy;
     boolean isMove = false;
+    public static boolean isFloating = false;
     //AnimationDrawable mNewFriendAni;
+
+    public synchronized static boolean getFloating() {
+        return isFloating;
+    }
+
+    public synchronized static void setFloating(boolean isFloating) {
+        FloatingService.isFloating = isFloating;
+    }
 
     public FloatingService() {
     }
@@ -63,7 +72,10 @@ public class FloatingService extends Service implements View.OnTouchListener, Vi
 
         Log.v(TAG, "onStartCommand intent="+intent);
 
-        initView();
+        if(!getFloating()) {
+            initView();
+            setFloating(true);
+        }
 
         return START_STICKY;
     }
@@ -100,12 +112,14 @@ public class FloatingService extends Service implements View.OnTouchListener, Vi
     public void onClick(View v) {
         if(v.getId() == R.id.iv_floating_cancel){
             wm.removeView(view);
-            Toast.makeText(FloatingService.this, "just destroy it,", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(FloatingService.this, "just destroy it,", Toast.LENGTH_SHORT).show();
             stopSelf();
+            setFloating(false);
         }else if(v.getId() == R.id.tv_floating_title){
             wm.removeView(view);
-            Toast.makeText(FloatingService.this, "go to buddy list,", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(FloatingService.this, "go to buddy list,", Toast.LENGTH_SHORT).show();
             stopSelf();
+            setFloating(false);
             Intent i = new Intent(FloatingService.this, BuddyActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
             i.putExtra("Buddy", mBuddy);
@@ -114,6 +128,15 @@ public class FloatingService extends Service implements View.OnTouchListener, Vi
         }else if(v.getId() == R.id.iv_floating_image){
             Toast.makeText(FloatingService.this, "텍스트를 눌러주셈~", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(view != null && view.isAttachedToWindow())
+            wm.removeView(view);
+        setFloating(false);
+
     }
 
     void initView(){
