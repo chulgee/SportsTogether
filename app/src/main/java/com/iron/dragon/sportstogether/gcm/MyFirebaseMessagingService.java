@@ -48,7 +48,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         String str_profile = data.get("profile");
         String str_message = data.get("message");
-
+        Log.v(TAG, "str_profile="+str_profile);
         Profile buddy = gson.fromJson(str_profile, Profile.class);
         Message message = gson.fromJson(str_message, Message.class);
         Log.v(TAG, "From server, message : "+message.toString());
