@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity
 
         adapter.addItem(mSports, "스포츠");
         adapter.addItem(mNews, "뉴스");
-        adapter.addItem(mBooking, "예약");
+        //adapter.addItem(mBooking, "예약");
         adapter.addItem(mChatRoom, "채팅");
 
         pager.setAdapter(adapter);
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity
         tabs.getTabAt(0).setText(adapter.getPageTitle(0));
         tabs.getTabAt(1).setText(adapter.getPageTitle(1));
         tabs.getTabAt(2).setText(adapter.getPageTitle(2));
-        tabs.getTabAt(3).setText(adapter.getPageTitle(3));
+        //tabs.getTabAt(3).setText(adapter.getPageTitle(3));
 
         tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
