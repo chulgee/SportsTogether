@@ -169,7 +169,7 @@ public class BulletinListActivity extends AppCompatActivity  {
                 try {
                     final KakaoLink kakaoLink = KakaoLink.getKakaoLink(getApplicationContext());
                     final KakaoTalkLinkMessageBuilder kakaoTalkLinkMessageBuilder = kakaoLink.createKakaoTalkLinkMessageBuilder();
-                    kakaoTalkLinkMessageBuilder.addAppLink("ÀÚ¼¼È÷ º¸±â", new AppActionBuilder().setUrl("market://details?id=com.iron.dragon.sportstogether").build()); // PC Ä«Ä«¿ÀÅå ¿¡¼­ »ç¿ëÇÏ°Ô µÉ À¥»çÀÌÆ® ÁÖ¼Ò
+                    kakaoTalkLinkMessageBuilder.addAppLink("ìì„¸íˆ ë³´ê¸°", new AppActionBuilder().setUrl("market://details?id=com.iron.dragon.sportstogether").build()); // PC ì¹´ì¹´ì˜¤í†¡ ì—ì„œ ì‚¬ìš©í•˜ê²Œ ë  ì›¹ì‚¬ì´íŠ¸ ì£¼ì†Œ
                     kakaoLink.sendMessage(kakaoTalkLinkMessageBuilder, BulletinListActivity.this);
                 } catch (KakaoParameterException e) {
                     e.printStackTrace();

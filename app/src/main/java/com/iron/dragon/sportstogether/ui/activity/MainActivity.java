@@ -23,13 +23,21 @@ import android.widget.Toast;
 
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
+import com.iron.dragon.sportstogether.data.bean.Message;
+import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.gcm.MyFirebaseInstanceIdService;
+import com.iron.dragon.sportstogether.service.FloatingService;
 import com.iron.dragon.sportstogether.ui.fragment.BookFragment;
 import com.iron.dragon.sportstogether.ui.fragment.ChatRoomListFragment;
 import com.iron.dragon.sportstogether.ui.fragment.NewsFragment;
 import com.iron.dragon.sportstogether.ui.fragment.SportsFragment;
+import com.kakao.kakaolink.AppActionBuilder;
+import com.kakao.kakaolink.KakaoLink;
+import com.kakao.kakaolink.KakaoTalkLinkMessageBuilder;
+import com.kakao.util.KakaoParameterException;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -213,19 +221,44 @@ public class MainActivity extends AppCompatActivity
         Intent i = new Intent();
         if (id == R.id.nav_setting) {
             // Handle the camera action
+            LoginPreferences.GetInstance().SetLogout(this);
+            Toast.makeText(this, "log out", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_myinfo) {
             i.setClass(this, ProfileManagerActivity.class);
             startActivity(i);
 
         } else if (id == R.id.nav_announcement) {
-
+            i.setClass(this, NoticeBoardActivity.class);
+            startActivity(i);
         } else if (id == R.id.nav_cs) {
-
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("message/rfc822");
+            intent.putExtra(Intent.EXTRA_EMAIL  , new String[]{"chulchoicezee@gmail.com"});
+            intent.putExtra(Intent.EXTRA_SUBJECT, "개발자에게 문의합니다.");
+            intent.putExtra(Intent.EXTRA_TEXT   , "");
+            startActivity(Intent.createChooser(intent, "개발자에게 이메일 보내기"));
         } else if (id == R.id.nav_share) {
-            MyFirebaseInstanceIdService.sendRegidToServer(getApplicationContext(), "hello,I am regid");
-        } else if (id == R.id.nav_send) {
-            LoginPreferences.GetInstance().SetLogout(this);
-            Toast.makeText(getApplicationContext(), "Logged out", Toast.LENGTH_SHORT).show();
+            //1. MyFirebaseInstanceIdService.sendRegidToServer(getApplicationContext(), "hello,I am regid");
+
+            /*2. Intent intent = new Intent(this, FloatingService.class);
+            if(FloatingService.getFloating()){
+                stopService(intent);
+            }
+            Message m = new Message.Builder(Message.PARAM_FROM_OTHER).msgType(Message.PARAM_TYPE_LOG).sender("server")
+                    .message("new friend coming").date(new Date().getTime()).build();
+            intent.putExtra("Message", m);
+            Profile buddy = new Profile("regid", "도깨비신부 지은탁 뿅뿅", 0, 0, 1, 0, "12345", 0, null);
+            intent.putExtra("Buddy", buddy);
+            startService(intent);*/
+
+            try {
+                final KakaoLink kakaoLink = KakaoLink.getKakaoLink(getApplicationContext());
+                final KakaoTalkLinkMessageBuilder kakaoTalkLinkMessageBuilder = kakaoLink.createKakaoTalkLinkMessageBuilder();
+                kakaoTalkLinkMessageBuilder.addAppLink("자세히 보기", new AppActionBuilder().setUrl("market://details?id=com.iron.dragon.sportstogether").build()); // PC 카카오톡 에서 사용하게 될 웹사이트 주소
+                kakaoLink.sendMessage(kakaoTalkLinkMessageBuilder, this);
+            } catch (KakaoParameterException e) {
+                e.printStackTrace();
+            }
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

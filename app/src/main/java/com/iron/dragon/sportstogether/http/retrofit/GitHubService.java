@@ -2,6 +2,7 @@ package com.iron.dragon.sportstogether.http.retrofit;
 
 import com.iron.dragon.sportstogether.data.bean.Bulletin;
 import com.iron.dragon.sportstogether.data.bean.News;
+import com.iron.dragon.sportstogether.data.bean.Notice;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.util.Const;
 
@@ -44,7 +45,7 @@ public interface GitHubService {
     // 친구 목록 가져오려면 reqFriends = 1 넣는다. otherwise, 자신 포함됨.
     @GET("profiles")
     Call<String> getProfiles(
-            @Query("username") String username, @Query("sportsid") int sportsid, @Query("locationid") int locationid, @Query("reqFriends") int reqFriends
+            @Query("username") String username, @Query("sportsid") int sportsid, @Query("locationid") int locationid, @Query("reqFriends") int reqFriends, @Query("level") int level
     );
 
     @GET("profiles/{id}")
@@ -115,6 +116,11 @@ public interface GitHubService {
     @GET("search/news.json")
     Call<News> getNews(
             @Query("query") String query
+    );
+
+    @GET("notice")
+    Call<List<Notice>> getNotice(
+            @Query("reqNum") int reqNum
     );
 
     public class ServiceGenerator {

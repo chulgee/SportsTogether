@@ -327,7 +327,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
         GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
         GitHubService retrofit = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
         final Call<String> call =
-                retrofit.getProfiles(message.getSender(), me.getSportsid(), me.getLocationid(), 0);
+                retrofit.getProfiles(message.getSender(), me.getSportsid(), me.getLocationid(), 0, -1);
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {

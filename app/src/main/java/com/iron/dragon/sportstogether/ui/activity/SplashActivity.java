@@ -13,6 +13,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.iron.dragon.sportstogether.R;
 
@@ -22,11 +23,10 @@ import com.iron.dragon.sportstogether.R;
  */
 public class SplashActivity extends AppCompatActivity {
 
-    private static final String TAG = "SplashActivity_";
+    private static final String TAG = "SplashActivity";
 
-    private static final int MY_PERMISSIONS_WRITE_EXTERNAL_STORAGE = 1;
-
-    private boolean canOverlay = false;
+    private static final int REQ_CODE_WRITE_EXTERNAL_STORAGE = 1;
+    private static final int REQ_CODE_OVERLAY_WINDOW = 2;
 
     Handler handler = new Handler();
 
@@ -36,41 +36,18 @@ public class SplashActivity extends AppCompatActivity {
 
         setContentView(R.layout.splash_act);
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        requestPermission(this);
 
-
-            } else {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        MY_PERMISSIONS_WRITE_EXTERNAL_STORAGE);
-            }
-        } else {
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                    finish();
-                }
-            }, 2000);
-        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case MY_PERMISSIONS_WRITE_EXTERNAL_STORAGE:
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            case REQ_CODE_WRITE_EXTERNAL_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                            finish();
-                        }
-                    }, 2000);
+                    checkOverlayPermission(this);
 
                 } else {
                     finish();
@@ -79,27 +56,69 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-        // Trigger the initial hide() shortly after the activity has been
-        // created, to briefly hint to the user that UI controls
-        // are available.
+        Log.v(TAG, "requestCode="+requestCode+", resultCode="+resultCode);
 
+        if(requestCode == REQ_CODE_OVERLAY_WINDOW){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Settings.canDrawOverlays(this)) {
+                handleGoToMain();
+                Toast.makeText(this, "Overlay available", Toast.LENGTH_SHORT).show();
+            } else {
+                finish();
+                Toast.makeText(this, "Overlay not available", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    void requestPermission(Context context){
+
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                Toast.makeText(context, "You must allow this permission to use this app", Toast.LENGTH_SHORT).show();
+            }
+
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQ_CODE_WRITE_EXTERNAL_STORAGE);
+
+        } else {
+
+            checkOverlayPermission(context);
+
+        }
+    }
+
+    void checkOverlayPermission(Context ctx){
+
+        boolean canOverlay = canOverlayWindow(ctx);
+
+        if(canOverlay)
+            handleGoToMain();
+        else
+            Log.v(TAG, "wait result on onActivityResult");
+    }
+
+    void handleGoToMain(){
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                finish();
+            }
+        }, 2000);
     }
 
     public boolean canOverlayWindow(Context context) {
         boolean ret = false;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-                && !Settings.canDrawOverlays(context)) {
-            canOverlay = ret = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(context)) {
             Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent, 1);
+            startActivityForResult(intent, REQ_CODE_OVERLAY_WINDOW);
         } else {
-            canOverlay = ret = true;
+            ret = true;
         }
-        Log.v(TAG, "canOverlayWindow canOverlay="+canOverlay);
+
         return ret;
     }
 

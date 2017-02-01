@@ -21,10 +21,14 @@ import android.widget.Toast;
 
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.bean.Message;
+import com.iron.dragon.sportstogether.data.bean.Profile;
+import com.iron.dragon.sportstogether.ui.activity.BuddyActivity;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.ui.fragment.ChatFragment;
 
-public class FloatingService extends Service implements View.OnTouchListener {
+import pl.droidsonroids.gif.GifImageView;
+
+public class FloatingService extends Service implements View.OnTouchListener, View.OnClickListener{
     private static final String TAG = "FloatingService";
     int start_x, start_y;
     int prev_x, prev_y;
@@ -32,78 +36,47 @@ public class FloatingService extends Service implements View.OnTouchListener {
     WindowManager wm;
     View view;
     Message mMessage;
-    ImageView iv_new_friend;
-    AnimationDrawable mNewFriendAni;
+    Profile mBuddy;
+    boolean isMove = false;
+    public static boolean isFloating = false;
+    //AnimationDrawable mNewFriendAni;
+
+    public synchronized static boolean getFloating() {
+        return isFloating;
+    }
+
+    public synchronized static void setFloating(boolean isFloating) {
+        FloatingService.isFloating = isFloating;
+    }
+
     public FloatingService() {
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.v(TAG, "onCreate");
-
-
+        wm = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
         view = View.inflate(this, R.layout.floating_buddy, null);
-        view.setOnTouchListener(this);
-
-        iv_new_friend = (ImageView)view.findViewById(R.id.iv_new_friend);
-        iv_new_friend.setBackgroundResource(R.drawable.run);
-        //mNewFriendAni = (AnimationDrawable)iv_new_friend.getBackground();
         mMessage = (Message)intent.getSerializableExtra(ChatFragment.PARAM_FRAG_MSG);
-        Log.v(TAG, "onStartCommand intent="+intent);
-        wm = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
-        //LinearLayout layout = new LinearLayout(this);
-        //layout.addView(view);
-        view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-            @Override
-            public void onViewAttachedToWindow(View v) {
-                Log.v(TAG, "onViewAttachedToWindow");
-                //mNewFriendAni.start();
-            }
+        mBuddy = (Profile)intent.getSerializableExtra("Buddy");
 
-            @Override
-            public void onViewDetachedFromWindow(View v) {
-                Log.v(TAG, "onViewDetachedFromWindow");
-            }
-        });
-        TextView tv = (TextView)view.findViewById(R.id.tv_floating_title);
-        tv.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent i = new Intent(FloatingService.this, ChatActivity.class);
-                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        i.putExtra("Message", mMessage);
-                        startActivity(i);
-                        wm.removeView(view);
-                        Toast.makeText(FloatingService.this, "h...", Toast.LENGTH_SHORT).show();
-                    }
-                });
-        ImageView iv = (ImageView)view.findViewById(R.id.iv_floating_cancel);
-        iv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                wm.removeView(view);
-                Toast.makeText(FloatingService.this, "hello,", Toast.LENGTH_SHORT).show();
-                stopSelf();
-            }
-        });
-        //mParams = new WindowManager.LayoutParams(300, 300, WindowManager.LayoutParams.TYPE_PHONE,
-          //      WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
-        mParams = new WindowManager.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
-                , WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-                , PixelFormat.TRANSPARENT);
-        mParams.gravity = Gravity.LEFT | Gravity.TOP;
-        wm.addView(view, mParams);
+        Log.v(TAG, "onStartCommand intent="+intent);
+
+        if(!getFloating()) {
+            initView(mBuddy);
+            setFloating(true);
+        }
+
         return START_STICKY;
     }
 
@@ -112,25 +85,99 @@ public class FloatingService extends Service implements View.OnTouchListener {
 
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
-
                 start_x = (int)event.getRawX();
                 start_y = (int)event.getRawY();
                 prev_x = mParams.x;
                 prev_y = mParams.y;
-                break;
+                isMove = false;
+                return false;
+
             case MotionEvent.ACTION_MOVE:
                 int x = (int)(event.getRawX() - start_x);//이동거리
                 int y = (int)(event.getRawY() - start_y);//이동거리
                 mParams.x = prev_x + x;
                 mParams.y = prev_y + y;
                 wm.updateViewLayout(view, mParams);
-                break;
-            case MotionEvent.ACTION_UP:
-                View tv = view.findViewById(R.id.tv_floating_title);
+                isMove = true;
+                return true;
 
-                break;
+            case MotionEvent.ACTION_UP:
+                return isMove;
         }
 
-        return true;
+        return false;
+    }
+
+    @Override
+    public void onClick(View v) {
+        if(v.getId() == R.id.iv_floating_cancel){
+            wm.removeView(view);
+            //Toast.makeText(FloatingService.this, "just destroy it,", Toast.LENGTH_SHORT).show();
+            stopSelf();
+            setFloating(false);
+        }else if(v.getId() == R.id.tv_floating_title){
+            wm.removeView(view);
+            //Toast.makeText(FloatingService.this, "go to buddy list,", Toast.LENGTH_SHORT).show();
+            stopSelf();
+            setFloating(false);
+            Intent i = new Intent(FloatingService.this, BuddyActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            i.putExtra("Buddy", mBuddy);
+            Log.v(TAG, "Buddy : "+mBuddy.toString());
+            startActivity(i);
+        }else if(v.getId() == R.id.iv_floating_image){
+            Toast.makeText(FloatingService.this, "텍스트를 눌러주셈~", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(view != null && view.isAttachedToWindow())
+            wm.removeView(view);
+        setFloating(false);
+
+    }
+
+    void initView(Profile buddy){
+
+        ImageView iv_floating_image;
+        TextView tv_floating_title;
+        ImageView iv_floating_cancel;
+
+        iv_floating_image = (ImageView)view.findViewById(R.id.iv_floating_image);
+        iv_floating_image.setOnTouchListener(this);
+        iv_floating_image.setOnClickListener(this);
+
+        tv_floating_title = (TextView)view.findViewById(R.id.tv_floating_title);
+        tv_floating_title.setOnTouchListener(this);
+        tv_floating_title.setOnClickListener(this);
+        tv_floating_title.setText(buddy.getUsername()+" 님 입장\n@눌러서 친구확인");
+
+        iv_floating_cancel = (ImageView)view.findViewById(R.id.iv_floating_cancel);
+        iv_floating_cancel.setOnTouchListener(this);
+        iv_floating_cancel.setOnClickListener(this);
+
+        /*mNewFriendAni = (AnimationDrawable)iv_new_friend.getBackground();
+        LinearLayout layout = new LinearLayout(this);
+        layout.addView(view);
+        view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(View v) {
+                Log.v(TAG, "onViewAttachedToWindow");
+                //mNewFriendAni.start();
+            }
+            @Override
+            public void onViewDetachedFromWindow(View v) {
+                Log.v(TAG, "onViewDetachedFromWindow");
+            }
+        });*/
+
+        mParams = new WindowManager.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
+                , WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                , PixelFormat.TRANSPARENT);
+        mParams.gravity = Gravity.LEFT | Gravity.TOP;
+
+        wm.addView(view, mParams);
     }
 }

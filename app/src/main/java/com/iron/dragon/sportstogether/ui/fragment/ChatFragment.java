@@ -270,7 +270,7 @@ public class ChatFragment extends Fragment {
 
         Log.v(TAG, "mBuddyName="+mBuddyName+", mMe.getSportsid()="+mMe.getSportsid()+", mMe.getLocationid()="+mMe.getLocationid());
         final Call<String> call =
-                mRetrofit.getProfiles(message.getSender(), mMe.getSportsid(), mMe.getLocationid(), 0);
+                mRetrofit.getProfiles(message.getSender(), mMe.getSportsid(), mMe.getLocationid(), 0, -1);
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
