@@ -18,7 +18,7 @@ public class UnreadView extends View{
 
     private Paint paint;
     private RectF rect;
-    private int number;
+    private int count;
 
     public UnreadView(Context context) {
         super(context, null);
@@ -30,7 +30,7 @@ public class UnreadView extends View{
         //rect = new RectF();
         paint.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
         float scale = getResources().getDisplayMetrics().density;
-        paint.setTextSize(12.0f*scale);
+        paint.setTextSize(10.0f*scale);
         paint.setAntiAlias(true);
     }
 
@@ -40,9 +40,13 @@ public class UnreadView extends View{
         //paint.setColor(Color.WHITE);
         //canvas.drawCircle(30, 30, 40, paint);
         paint.setColor(Color.RED);
-        canvas.drawCircle(30, 30, 30, paint);
+        canvas.drawCircle(25, 25, 25, paint);
         paint.setColor(Color.WHITE);
         paint.setTextAlign(Paint.Align.CENTER);
-        canvas.drawText(""+1, 20, 40, paint);
+        canvas.drawText(""+count, 25, 35, paint);
+    }
+
+    public void setUnreadCount(int count){
+        this.count = count;
     }
 }

@@ -1,5 +1,7 @@
 package com.iron.dragon.sportstogether.util;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -75,5 +77,29 @@ public class Util {
             e.printStackTrace();
         }
         return response;
+    }
+
+    public static int getUnreadChatFor(Context context, String room){
+        SharedPreferences pref = context.getSharedPreferences("pref_unread", Context.MODE_PRIVATE);
+        int count = pref.getInt(room, 0);
+        Log.v(TAG, "getUnreadChatFor count = "+count);
+        return count;
+    }
+
+    public static void plusUnreadCount(Context context, String room){
+        SharedPreferences pref = context.getSharedPreferences("pref_unread", Context.MODE_PRIVATE);
+        int count = pref.getInt(room, 0);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putInt(room, ++count);
+        editor.commit();
+        Log.v(TAG, "plusUnreadCount count = "+count);
+    }
+
+    public static void setUnreadToZero(Context context, String room){
+        SharedPreferences pref = context.getSharedPreferences("pref_unread", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putInt(room, 0);
+        editor.commit();
+        Log.v(TAG, "setUnreadToZero count to 0");
     }
 }
