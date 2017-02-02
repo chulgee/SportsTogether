@@ -3,12 +3,14 @@ package com.iron.dragon.sportstogether.ui.fragment;
 import android.app.Fragment;
 import android.content.AsyncQueryHandler;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -32,6 +34,7 @@ import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.ui.adapter.MessageAdapter;
 import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.DbUtil;
+import com.iron.dragon.sportstogether.util.Util;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -244,6 +247,9 @@ public class ChatFragment extends Fragment {
                     mBuddyName = message.getSender();
                 }
                 tvBuddy.setText(mBuddyName);
+                Util.setUnreadToZero(getActivity(), mBuddyName);
+                Intent i = new Intent(Const.BR_REFRESH_CHAT_LIST);
+                //LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(i);
 
                 if(mBuddy.getImage() != null && !mBuddy.getImage().isEmpty()) {
                     mHandler.post(new Runnable() {

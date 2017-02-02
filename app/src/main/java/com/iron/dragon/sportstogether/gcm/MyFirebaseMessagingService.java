@@ -23,6 +23,7 @@ import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.DbUtil;
 import com.iron.dragon.sportstogether.util.PushWakeLock;
+import com.iron.dragon.sportstogether.util.Util;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -94,7 +95,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Log.v(TAG, "Chat message="+message);
 
             DbUtil.insert(getApplicationContext(), message);
-
+            Util.plusUnreadCount(getApplicationContext(), message.getRoom());
             // post noti to go to ChatActivity
             Message startMessage = new Message.Builder(Message.PARAM_FROM_OTHER).msgType(Message.PARAM_TYPE_LOG).sender(message.getSender()).receiver(message.getReceiver())
                     .message("Conversation gets started").date(new Date().getTime()).image(message.getImage()).build();

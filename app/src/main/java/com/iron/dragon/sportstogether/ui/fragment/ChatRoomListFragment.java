@@ -1,14 +1,18 @@
 package com.iron.dragon.sportstogether.ui.fragment;
 
 import android.content.AsyncQueryHandler;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -26,7 +30,9 @@ import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.provider.MyContentProvider;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
+import com.iron.dragon.sportstogether.ui.view.UnreadView;
 import com.iron.dragon.sportstogether.util.Const;
+import com.iron.dragon.sportstogether.util.Util;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -37,6 +43,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +57,7 @@ import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper
 import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper.COLUMN_LOCATIONID;
 import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper.COLUMN_SPORTSID;
 
+
 /**
  * Created by user on 2016-08-12.
  */
@@ -60,6 +68,7 @@ public class ChatRoomListFragment extends Fragment {
     MyAdapter mAdapter;
     Map<String, Bitmap> mAvatarMap = new HashMap<String, Bitmap>();
     private int sportsid;
+    private LocalBroadcastReceiver mLocalReceiver = new LocalBroadcastReceiver();
 
     public interface OnClickCallback{
         void rowOnClicked(View v, int position);
@@ -83,7 +92,20 @@ public class ChatRoomListFragment extends Fragment {
         loadChatRoom();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (mLocalReceiver != null)
+            LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mLocalReceiver);
+    }
+
     public void init(View rootView){
+
+        IntentFilter localFilter = new IntentFilter();
+        localFilter.addAction(Const.BR_REFRESH_CHAT_LIST);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mLocalReceiver, localFilter);
+
         lv_room = (RecyclerView) rootView.findViewById(R.id.lv_room);
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         llm.setOrientation(LinearLayoutManager.VERTICAL);
@@ -105,6 +127,23 @@ public class ChatRoomListFragment extends Fragment {
 
         });
         lv_room.setAdapter(mAdapter);
+
+        SharedPreferences pref = getActivity().getSharedPreferences("pref_unread", Context.MODE_PRIVATE);
+        pref.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                Log.v(TAG, "key="+key);
+                Iterator<Item> iter = mAdapter.mItems.iterator();
+                while(iter.hasNext()){
+                    Item item = (Item)iter.next();
+                    if(item.room.equals(key)){
+                        int count = sharedPreferences.getInt(key, 0);
+                        item.setUnread(count);
+                        mAdapter.notifyDataSetChanged();
+                    }
+                }
+            }
+        });
     }
 
     private void loadBuddyProfile(String buddy, final Profile me){
@@ -170,8 +209,9 @@ public class ChatRoomListFragment extends Fragment {
                         sportsid = cursor.getInt(cursor.getColumnIndex(COLUMN_SPORTSID));
                         int locationid = cursor.getInt(cursor.getColumnIndex(COLUMN_LOCATIONID));
                         Item item = new Item(room, sender, receiver, image, time, sportsid, locationid );
-                        Log.v(TAG, "item="+item);
-
+                        int count = Util.getUnreadChatFor(getActivity(), room);
+                        Log.v(TAG, "item="+item+", unread="+count);
+                        item.setUnread(count);
                         mAdapter.addItem(item);
                         mAdapter.notifyDataSetChanged();
                         if(item.image!=null){
@@ -251,6 +291,14 @@ public class ChatRoomListFragment extends Fragment {
             ViewCache vh = (ViewCache)holder;
             Item item = mItems.get(position);
             vh.tv_title.setText(item.room+" 님과의 대화");
+            int count = item.getUnread();
+            if(count > 0){
+                vh.cv_unread.setUnreadCount(count);
+                vh.cv_unread.setVisibility(View.VISIBLE);
+                vh.cv_unread.invalidate();
+            }else{
+                vh.cv_unread.setVisibility(View.GONE);
+            }
             Bitmap bmp = mAvatarMap.get(mItems.get(position).room);
             Log.v(TAG, "mItems.get(position).room="+mItems.get(position).room+", bmp="+bmp);
             if(bmp != null){
@@ -283,6 +331,7 @@ public class ChatRoomListFragment extends Fragment {
             TextView tv_title;
             TextView tv_subtitle;
             ImageView iv_delete;
+            UnreadView cv_unread;
 
             public ViewCache(View v) {
                 super(v);
@@ -292,6 +341,7 @@ public class ChatRoomListFragment extends Fragment {
                 tv_title = (TextView)v.findViewById(R.id.tv_room_title);
                 tv_subtitle = (TextView)v.findViewById(R.id.tv_room_subtitle);
                 iv_delete = (ImageView)v.findViewById(R.id.iv_delete);
+                cv_unread = (UnreadView)v.findViewById(R.id.cv_unread);
                 iv_delete.setOnClickListener(this);
             }
 
@@ -314,6 +364,8 @@ public class ChatRoomListFragment extends Fragment {
         long lastTime;
         int sportsid;
         int locationid;
+        int unread;
+
         public Item(String room, String sender, String receiver, String image, long date, int sportsid, int locationid){
             this.room = room;
             this.sender = sender;
@@ -322,6 +374,14 @@ public class ChatRoomListFragment extends Fragment {
             this.lastTime = date;
             this.sportsid = sportsid;
             this.locationid = locationid;
+        }
+
+        public int getUnread() {
+            return unread;
+        }
+
+        public void setUnread(int unread) {
+            this.unread = unread;
         }
 
         @Override
@@ -335,6 +395,14 @@ public class ChatRoomListFragment extends Fragment {
                     ", sportsid=" + sportsid +
                     ", locationid=" + locationid +
                     '}';
+        }
+    }
+
+    class LocalBroadcastReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mAdapter.notifyDataSetChanged();
         }
     }
 }
