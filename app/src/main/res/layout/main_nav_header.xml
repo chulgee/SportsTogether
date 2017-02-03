@@ -27,7 +27,7 @@
             android:paddingTop="@dimen/nav_header_vertical_spacing"
             android:text="Work out together"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
-        <TextView
+<!--        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="New"
@@ -40,7 +40,7 @@
         <com.iron.dragon.sportstogether.ui.view.UnreadView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:layout_gravity="right|bottom"/>
+            android:layout_gravity="right|bottom"/>-->
     </FrameLayout>
 
     <TextView

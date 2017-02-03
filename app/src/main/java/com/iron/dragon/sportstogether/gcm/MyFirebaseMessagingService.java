@@ -76,6 +76,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             builder.setContentIntent(pi);
             builder.setAutoCancel(true);
             builder.setPriority(Notification.PRIORITY_HIGH);
+
+            Util.plusUnreadCount(getApplicationContext(), message.getRoom());
+
             NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
             nm.notify(1, builder.build());
 
@@ -107,8 +110,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             Notification.Builder builder = new Notification.Builder(getApplicationContext());
             builder.setSmallIcon(R.drawable.friend_icon_normal);
-            builder.setTicker(message.getSender()+": "+message.getMessage());
+            //builder.setTicker(message.getSender()+": "+message.getMessage());
             builder.setContentTitle("함께 운동해요");
+            builder.setContentText(message.getSender()+": "+message.getMessage());
             builder.setContentIntent(pi);
             builder.setAutoCancel(true);
             builder.setPriority(Notification.PRIORITY_HIGH);
