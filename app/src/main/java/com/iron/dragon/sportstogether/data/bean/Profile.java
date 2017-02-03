@@ -43,7 +43,7 @@ public class Profile implements Serializable{
     protected String phone;
     protected int level;
     protected String image;
-
+    protected int unread;
 
     public String getRegid() {
         return regid;
@@ -84,12 +84,20 @@ public class Profile implements Serializable{
         return level;
     }
 
-
     public void setImage(String image) {
         this.image = image;
     }
+
     public String getImage() {
         return image;
+    }
+
+    public int getUnread() {
+        return unread;
+    }
+
+    public void setUnread(int unread) {
+        this.unread = unread;
     }
 
     @Override

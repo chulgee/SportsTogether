@@ -27,16 +27,7 @@
             android:paddingTop="@dimen/nav_header_vertical_spacing"
             android:text="Work out together"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
-<!--        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="New"
-            android:textColor="#FFF"
-            android:textSize="12dp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_gravity="right|top"
-            android:background="@drawable/badge_circle"/>
+<!--
         <com.iron.dragon.sportstogether.ui.view.UnreadView
             android:layout_width="20dp"
             android:layout_height="20dp"

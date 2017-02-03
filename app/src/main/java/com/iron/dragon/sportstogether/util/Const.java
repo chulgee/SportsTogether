@@ -16,8 +16,8 @@ public class Const {
     public static final String NEWS_URL = "https://openapi.naver.com/v1/"; // for naver news
     public static final String NAVER_CLIENT_ID = BuildConfig.NAVER_CLIENT_ID;
     public static final String NAVER_CLIENT_SECRET = BuildConfig.NAVER_CLIENT_SECRET;
-    public static final String BR_REFRESH_CHAT_LIST = "broadcast.refresh.chat.list";
-
+    public static final String PREF_UNREAD_CHAT = "pref_unread_chat";
+    public static final String PREF_UNREAD_BUDDY = "pref_unread_buddy";
 
     public enum SPORTS{
         BADMINTON,

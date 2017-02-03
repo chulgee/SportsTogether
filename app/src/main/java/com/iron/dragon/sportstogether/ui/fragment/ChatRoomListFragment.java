@@ -68,8 +68,8 @@ public class ChatRoomListFragment extends Fragment {
     MyAdapter mAdapter;
     Map<String, Bitmap> mAvatarMap = new HashMap<String, Bitmap>();
     private int sportsid;
-    private LocalBroadcastReceiver mLocalReceiver = new LocalBroadcastReceiver();
     SharedPreferences mPref;
+
     public interface OnClickCallback{
         void rowOnClicked(View v, int position);
         void deleteOnClicked(View v, int position);
@@ -120,15 +120,9 @@ public class ChatRoomListFragment extends Fragment {
         if(mPref != null){
             mPref.unregisterOnSharedPreferenceChangeListener(mPrefListener);
         }
-        if (mLocalReceiver != null)
-            LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mLocalReceiver);
     }
 
     public void init(View rootView){
-
-        IntentFilter localFilter = new IntentFilter();
-        localFilter.addAction(Const.BR_REFRESH_CHAT_LIST);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mLocalReceiver, localFilter);
 
         lv_room = (RecyclerView) rootView.findViewById(R.id.lv_room);
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
@@ -152,7 +146,7 @@ public class ChatRoomListFragment extends Fragment {
         });
         lv_room.setAdapter(mAdapter);
 
-        mPref = getActivity().getSharedPreferences("pref_unread", Context.MODE_PRIVATE);
+        mPref = getActivity().getSharedPreferences(Const.PREF_UNREAD_CHAT, Context.MODE_PRIVATE);
         mPref.registerOnSharedPreferenceChangeListener(mPrefListener);
     }
 
@@ -219,7 +213,7 @@ public class ChatRoomListFragment extends Fragment {
                         sportsid = cursor.getInt(cursor.getColumnIndex(COLUMN_SPORTSID));
                         int locationid = cursor.getInt(cursor.getColumnIndex(COLUMN_LOCATIONID));
                         Item item = new Item(room, sender, receiver, image, time, sportsid, locationid );
-                        int count = Util.getUnreadChatFor(getActivity(), room);
+                        int count = Util.getUnreadChat(getActivity(), room);
                         Log.v(TAG, "item="+item+", unread="+count);
                         item.setUnread(count);
                         mAdapter.addItem(item);

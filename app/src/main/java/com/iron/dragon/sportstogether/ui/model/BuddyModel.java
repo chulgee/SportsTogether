@@ -11,6 +11,7 @@ import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.util.Const;
+import com.iron.dragon.sportstogether.util.Util;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -76,6 +77,8 @@ public class BuddyModel {
                                 buddy = gson.fromJson(arr.get(i).toString(), Profile.class);
                                 buddies.add(buddy);
                                 Log.v(TAG, "buddy["+i+"]: "+buddy.toString());
+                                int count = Util.getUnreadBuddy(context, buddy.getUsername());
+                                buddy.setUnread(count);
                             }
                             cb.onLoad(buddies);
                         }

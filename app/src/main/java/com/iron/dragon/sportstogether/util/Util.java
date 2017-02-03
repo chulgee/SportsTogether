@@ -79,27 +79,43 @@ public class Util {
         return response;
     }
 
-    public static int getUnreadChatFor(Context context, String room){
-        SharedPreferences pref = context.getSharedPreferences("pref_unread", Context.MODE_PRIVATE);
+    public static int getUnreadChat(Context context, String room){
+        SharedPreferences pref = context.getSharedPreferences(Const.PREF_UNREAD_CHAT, Context.MODE_PRIVATE);
         int count = pref.getInt(room, 0);
-        Log.v(TAG, "getUnreadChatFor count = "+count);
+        Log.v(TAG, "getUnreadChat count = "+count);
         return count;
     }
 
-    public static void plusUnreadCount(Context context, String room){
-        SharedPreferences pref = context.getSharedPreferences("pref_unread", Context.MODE_PRIVATE);
+    public static void plusUnreadChat(Context context, String room){
+        SharedPreferences pref = context.getSharedPreferences(Const.PREF_UNREAD_CHAT, Context.MODE_PRIVATE);
         int count = pref.getInt(room, 0);
         SharedPreferences.Editor editor = pref.edit();
         editor.putInt(room, ++count);
         editor.commit();
-        Log.v(TAG, "plusUnreadCount count = "+count);
+        Log.v(TAG, "plusUnreadChat count = "+count);
     }
 
-    public static void setUnreadToZero(Context context, String room){
-        SharedPreferences pref = context.getSharedPreferences("pref_unread", Context.MODE_PRIVATE);
+    public static void setUnreadChat(Context context, String room, int value){
+        SharedPreferences pref = context.getSharedPreferences(Const.PREF_UNREAD_CHAT, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
-        editor.putInt(room, 0);
+        editor.putInt(room, value);
         editor.commit();
-        Log.v(TAG, "setUnreadToZero count to 0");
+        Log.v(TAG, "setUnreadChat count to "+value);
+    }
+
+
+    public static int getUnreadBuddy(Context context, String buddy){
+        SharedPreferences pref = context.getSharedPreferences(Const.PREF_UNREAD_BUDDY, Context.MODE_PRIVATE);
+        int count = pref.getInt(buddy, 0);
+        Log.v(TAG, "getUnreadBuddy count = "+count);
+        return count;
+    }
+
+    public static void setUnreadBuddy(Context context, String buddy, int value){
+        SharedPreferences pref = context.getSharedPreferences(Const.PREF_UNREAD_BUDDY, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putInt(buddy, value);
+        editor.commit();
+        Log.v(TAG, "setUnreadBuddy count to "+value);
     }
 }
