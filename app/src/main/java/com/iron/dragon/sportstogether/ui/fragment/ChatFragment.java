@@ -247,9 +247,7 @@ public class ChatFragment extends Fragment {
                     mBuddyName = message.getSender();
                 }
                 tvBuddy.setText(mBuddyName);
-                Util.setUnreadToZero(getActivity(), mBuddyName);
-                Intent i = new Intent(Const.BR_REFRESH_CHAT_LIST);
-                //LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(i);
+                Util.setUnreadChat(getActivity(), mBuddyName, 0);
 
                 if(mBuddy.getImage() != null && !mBuddy.getImage().isEmpty()) {
                     mHandler.post(new Runnable() {
