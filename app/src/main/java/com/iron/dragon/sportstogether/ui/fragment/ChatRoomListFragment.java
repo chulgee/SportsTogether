@@ -69,11 +69,32 @@ public class ChatRoomListFragment extends Fragment {
     Map<String, Bitmap> mAvatarMap = new HashMap<String, Bitmap>();
     private int sportsid;
     private LocalBroadcastReceiver mLocalReceiver = new LocalBroadcastReceiver();
-
+    SharedPreferences mPref;
     public interface OnClickCallback{
         void rowOnClicked(View v, int position);
         void deleteOnClicked(View v, int position);
     }
+
+    SharedPreferences.OnSharedPreferenceChangeListener mPrefListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            boolean found = false;
+            Iterator<Item> iter = mAdapter.mItems.iterator();
+            while(iter.hasNext()){
+                Item item = (Item)iter.next();
+                Log.v(TAG, "key="+key+", item.room="+item.room);
+                if(item.room.equals(key)){
+                    int count = sharedPreferences.getInt(key, 0);
+                    item.setUnread(count);
+                    mAdapter.notifyDataSetChanged();
+                    found = true;
+                }
+            }
+            if(!found){
+                loadChatRoom();
+            }
+        }
+    };
 
     @Nullable
     @Override
@@ -96,6 +117,9 @@ public class ChatRoomListFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
 
+        if(mPref != null){
+            mPref.unregisterOnSharedPreferenceChangeListener(mPrefListener);
+        }
         if (mLocalReceiver != null)
             LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mLocalReceiver);
     }
@@ -128,22 +152,8 @@ public class ChatRoomListFragment extends Fragment {
         });
         lv_room.setAdapter(mAdapter);
 
-        SharedPreferences pref = getActivity().getSharedPreferences("pref_unread", Context.MODE_PRIVATE);
-        pref.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                Log.v(TAG, "key="+key);
-                Iterator<Item> iter = mAdapter.mItems.iterator();
-                while(iter.hasNext()){
-                    Item item = (Item)iter.next();
-                    if(item.room.equals(key)){
-                        int count = sharedPreferences.getInt(key, 0);
-                        item.setUnread(count);
-                        mAdapter.notifyDataSetChanged();
-                    }
-                }
-            }
-        });
+        mPref = getActivity().getSharedPreferences("pref_unread", Context.MODE_PRIVATE);
+        mPref.registerOnSharedPreferenceChangeListener(mPrefListener);
     }
 
     private void loadBuddyProfile(String buddy, final Profile me){
