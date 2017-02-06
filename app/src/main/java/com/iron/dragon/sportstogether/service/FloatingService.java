@@ -85,23 +85,27 @@ public class FloatingService extends Service implements View.OnTouchListener, Vi
 
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
-                start_x = (int)event.getRawX();
-                start_y = (int)event.getRawY();
+                start_x = (int)event.getRawX(); // start_x는 down한 지점
+                start_y = (int)event.getRawY(); // start_y는 down한 지점
                 prev_x = mParams.x;
                 prev_y = mParams.y;
                 isMove = false;
                 return false;
 
             case MotionEvent.ACTION_MOVE:
-                int x = (int)(event.getRawX() - start_x);//이동거리
-                int y = (int)(event.getRawY() - start_y);//이동거리
-                mParams.x = prev_x + x;
-                mParams.y = prev_y + y;
+                int x = (int)(event.getRawX() - start_x);// x는 down한 지점 기준의 x변화량
+                int y = (int)(event.getRawY() - start_y);// y는 down한 지점 기준의 y변화량
+                mParams.x = prev_x + x; // mParams.x는 down한 상태에서 move 이벤트가 올때마다 변화량을 계산하여 view를 그릴 현재 위치를 계산해놓는다.
+                mParams.y = prev_y + y; // mParams.y는 down한 상태에서 move 이벤트가 올때마다 변화량을 계산하여 view를 그릴 현재 위치를 계산해놓는다.
                 wm.updateViewLayout(view, mParams);
-                isMove = true;
+                //isMove = true;
                 return true;
 
             case MotionEvent.ACTION_UP:
+                int a = Math.abs((int)(event.getRawX() - start_x));// x는 down한 지점 기준의 x변화량
+                int b = Math.abs((int)(event.getRawY() - start_y));// y는 down한 지점 기준의 y변화량
+                if(a > 10 || b > 10)
+                    isMove = true;
                 return isMove;
         }
 

@@ -3,6 +3,7 @@ package com.iron.dragon.sportstogether.data;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.iron.dragon.sportstogether.R;
@@ -20,6 +21,7 @@ import java.util.List;
  */
 public class LoginPreferences {
 
+    private static final String TAG = "LoginPreferences";
     private static volatile LoginPreferences mLoginPreferences;
 
     /*public static final String USER_AUTHENTICATED = "user_authenticated"; //value is a Boolean
@@ -101,7 +103,6 @@ public class LoginPreferences {
                 .getDefaultSharedPreferences(context.getApplicationContext());
         Gson gson = new Gson();
         boolean isLogin = false;
-        //String json = appSharedPrefs.getString(context.getResources().getStringArray(R.array.sportstype)[id], "");
         String json = appSharedPrefs.getString(StringUtil.getStringFromSports(context, id), "");
         return !json.equals("");
     }
@@ -204,7 +205,6 @@ public class LoginPreferences {
     }
 
     public ArrayList<Profile> loadSharedPreferencesProfileAll(Context context) {
-        //String[] temp = context.getResources().getStringArray(R.array.sportstype);
         String[] temp = StringUtil.getStringArrFromSportsType(context);
         SharedPreferences appSharedPrefs = PreferenceManager
                 .getDefaultSharedPreferences(context.getApplicationContext());
@@ -222,7 +222,6 @@ public class LoginPreferences {
 
     // temp
     public void SetLogout(Context context) {
-        //String[] temp = context.getResources().getStringArray(R.array.sportstype);
         String[] temp = StringUtil.getStringArrFromSportsType(context);
         SharedPreferences appSharedPrefs = PreferenceManager
                 .getDefaultSharedPreferences(context.getApplicationContext());
