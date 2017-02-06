@@ -93,7 +93,7 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
         sb.append("레벨 : " + StringUtil.getStringFromLevel(this, item.getLevel())+"\n");
         String phone = item.getPhone();
         if(phone == null || phone.isEmpty()) phone = "없음";
-        sb.append("전화번호 : " + item.getPhone()+"\n");
+        sb.append("전화번호 : " + phone+"\n");
         builder.setMessage(sb.toString());
         builder.create().show();
     }
