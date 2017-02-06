@@ -63,4 +63,10 @@ public class NewsFragment extends Fragment {
         if(adapter==null) Logger.d("setListItem adapter is null");
         adapter.setItem(listItems);
     }
+
+
+    public void InvalidateAdapter() {
+        NewsRecyclerViewAdapter adapter = (NewsRecyclerViewAdapter) mBinding.newsRecyclerviewer.getAdapter();
+        adapter.notifyDataSetChanged();
+    }
 }

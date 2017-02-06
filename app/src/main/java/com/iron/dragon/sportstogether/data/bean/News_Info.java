@@ -11,6 +11,10 @@ public class News_Info {
     private String description;
     private String pubDate;
 
+
+
+    private String image;
+
     public String getTitle() {
         return title;
     }
@@ -51,5 +55,10 @@ public class News_Info {
         this.pubDate = pubDate;
     }
 
-
+    public String getImage() {
+        return image;
+    }
+    public void setImage(String image) {
+        this.image = image;
+    }
 }
