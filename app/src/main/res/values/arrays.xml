@@ -25,7 +25,7 @@
         <item>은평구</item>
 
     </string-array>
-    <string-array name="sportstype">
+    <string-array name="sportstype_">
         <item>배드민턴</item>
         <item>테니스</item>
         <item>탁구</item>

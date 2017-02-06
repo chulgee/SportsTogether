@@ -115,7 +115,6 @@
             app:ms_arrowSize="16dp"
             android:enabled="false"
             app:ms_floatingLabelColor="#00FF00"
-            android:entries="@array/sportstype"
             app:ms_multiline="true"/>
     </LinearLayout>
 
