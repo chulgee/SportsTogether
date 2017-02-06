@@ -190,7 +190,7 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
             }else
                 vh.tv_buddy_unread.setVisibility(View.GONE);
             vh.civ_thumb.setImageResource(R.drawable.default_user);
-            if(item.getImage() != null){
+            if(item.getImage() != null && !item.getImage().isEmpty()){
                 String url = Const.MAIN_URL + "/upload_profile?filename=" + item.getImage();
                 Log.v(TAG, "onBindViewHolder url:"+url);
                 Picasso.with(BuddyActivity.this).load(url).placeholder(R.drawable.default_user).resize(50,50).centerInside().into(vh.civ_thumb);

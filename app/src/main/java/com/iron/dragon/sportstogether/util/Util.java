@@ -4,6 +4,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.iron.dragon.sportstogether.R;
+import com.iron.dragon.sportstogether.SportsApplication;
+import com.iron.dragon.sportstogether.enums.SportsType;
+import com.iron.dragon.sportstogether.factory.Sports;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -12,7 +17,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -118,4 +125,5 @@ public class Util {
         editor.commit();
         Log.v(TAG, "setUnreadBuddy count to "+value);
     }
+
 }

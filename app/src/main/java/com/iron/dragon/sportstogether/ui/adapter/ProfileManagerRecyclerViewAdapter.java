@@ -6,6 +6,7 @@ import android.databinding.BindingAdapter;
 import android.databinding.DataBindingUtil;
 import android.databinding.ObservableField;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import com.iron.dragon.sportstogether.databinding.ProfileListItemBinding;
 import com.iron.dragon.sportstogether.ui.activity.ProfileActivity;
 import com.iron.dragon.sportstogether.ui.activity.ProfileManagerActivity;
 import com.iron.dragon.sportstogether.ui.adapter.item.ProfileManagerItem;
+import com.iron.dragon.sportstogether.util.StringUtil;
 import com.orhanobut.logger.Logger;
 import com.squareup.picasso.Picasso;
 
@@ -27,6 +29,7 @@ import java.util.ArrayList;
  */
 
 public class ProfileManagerRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final String TAG = "ProfileManagerRecyclerViewAdapter";
     private ArrayList<ProfileManagerItem> malProfiles;
     private Context mContext;
     public ProfileManagerRecyclerViewAdapter(ProfileManagerActivity profileManagerActivity) {
@@ -45,7 +48,9 @@ public class ProfileManagerRecyclerViewAdapter extends RecyclerView.Adapter<Recy
         final ProfileManagerRecyclerViewAdapter.ViewHolderItem viewHolderItem = (ProfileManagerRecyclerViewAdapter.ViewHolderItem) holder;
         viewHolderItem.mBinding.setProfileitem(malProfiles.get(position));
         ProfileManagerItem profileitem = malProfiles.get(position);
-        ((ViewHolderItem) holder).mBinding.getViewholderitem().profileSportsType.set(mContext.getString(R.string.profile_sports, mContext.getResources().getStringArray(R.array.sportstype)[profileitem.getProfile().getSportsid()]));
+        //((ViewHolderItem) holder).mBinding.getViewholderitem().profileSportsType.set(mContext.getString(R.string.profile_sports, mContext.getResources().getStringArray(R.array.sportstype)[profileitem.getProfile().getSportsid()]));
+        //Log.v(TAG, "");
+        ((ViewHolderItem) holder).mBinding.getViewholderitem().profileSportsType.set(StringUtil.getStringFromSports(mContext, profileitem.getProfile().getSportsid()));
         ((ViewHolderItem) holder).mBinding.getViewholderitem().profileLocation.set(mContext.getString(R.string.profile_location, mContext.getResources().getStringArray(R.array.location)[profileitem.getProfile().getLocationid()]));
         ((ViewHolderItem) holder).mBinding.getViewholderitem().profileLevel.set(mContext.getString(R.string.profile_level, mContext.getResources().getStringArray(R.array.level)[profileitem.getProfile().getLevel()]));
     }

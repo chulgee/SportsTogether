@@ -13,9 +13,15 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.iron.dragon.sportstogether.R;
+import com.iron.dragon.sportstogether.enums.SportsType;
 import com.iron.dragon.sportstogether.factory.SportsFactory;
 import com.iron.dragon.sportstogether.factory.Factory;
 import com.iron.dragon.sportstogether.ui.adapter.MainAdapter;
+import com.iron.dragon.sportstogether.util.StringUtil;
+import com.iron.dragon.sportstogether.util.Util;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static com.google.android.gms.internal.zzs.TAG;
 
@@ -41,11 +47,11 @@ public class SportsFragment extends Fragment {
         mLayoutManager = new GridLayoutManager(getActivity(),2);
         mList.setLayoutManager(mLayoutManager);
 
-        String[] sports = getResources().getStringArray(R.array.sportstype);
+        //String[] sports = getResources().getStringArray(R.array.sportstype);
+        List<SportsType> sports = Arrays.asList(SportsType.class.getEnumConstants());
         mFactory = new SportsFactory();
-        for(String type:sports) {
-            mFactory.create(type);
-
+        for(SportsType st : sports){
+            mFactory.create(StringUtil.getStringByType(getActivity(), st));
         }
         Log.v(TAG, "getList="+mFactory.getList().toString());
         mAdapter = new MainAdapter(getActivity(), mFactory.getList());

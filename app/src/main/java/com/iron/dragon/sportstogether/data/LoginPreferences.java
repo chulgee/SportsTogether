@@ -7,8 +7,13 @@ import android.preference.PreferenceManager;
 import com.google.gson.Gson;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.bean.Profile;
+import com.iron.dragon.sportstogether.enums.SportsType;
+import com.iron.dragon.sportstogether.util.StringUtil;
+import com.iron.dragon.sportstogether.util.Util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by P11872 on 2015-08-20.
@@ -65,12 +70,13 @@ public class LoginPreferences {
     }
 
     public boolean IsLogin(Context context, int id) {
-        String[] temp = context.getResources().getStringArray(R.array.sportstype);
+        //String[] temp = context.getResources().getStringArray(R.array.sportstype);
         SharedPreferences appSharedPrefs = PreferenceManager
                 .getDefaultSharedPreferences(context.getApplicationContext());
         Gson gson = new Gson();
         boolean isLogin = false;
-        String json = appSharedPrefs.getString(context.getResources().getStringArray(R.array.sportstype)[id], "");
+        //String json = appSharedPrefs.getString(context.getResources().getStringArray(R.array.sportstype)[id], "");
+        String json = appSharedPrefs.getString(StringUtil.getStringFromSports(context, id), "");
         return !json.equals("");
     }
 
@@ -155,7 +161,7 @@ public class LoginPreferences {
         SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
         Gson gson = new Gson();
         String json = gson.toJson(profile);
-        prefsEditor.putString(context.getResources().getStringArray(R.array.sportstype)[profile.getSportsid()], json);
+        prefsEditor.putString(StringUtil.getStringFromSports(context, profile.getSportsid()), json);
         prefsEditor.apply();
     }
 
@@ -167,12 +173,13 @@ public class LoginPreferences {
         SharedPreferences appSharedPrefs = PreferenceManager
                 .getDefaultSharedPreferences(context.getApplicationContext());
         Gson gson = new Gson();
-        String json = appSharedPrefs.getString(context.getResources().getStringArray(R.array.sportstype)[sportsId], "");
+        String json = appSharedPrefs.getString(StringUtil.getStringFromSports(context, sportsId), "");
         return gson.fromJson(json, Profile.class);
     }
 
     public ArrayList<Profile> loadSharedPreferencesProfileAll(Context context) {
-        String[] temp = context.getResources().getStringArray(R.array.sportstype);
+        //String[] temp = context.getResources().getStringArray(R.array.sportstype);
+        String[] temp = StringUtil.getStringArrFromSportsType(context);
         SharedPreferences appSharedPrefs = PreferenceManager
                 .getDefaultSharedPreferences(context.getApplicationContext());
         Gson gson = new Gson();
@@ -190,7 +197,8 @@ public class LoginPreferences {
 
     // temp
     public void SetLogout(Context context) {
-        String[] temp = context.getResources().getStringArray(R.array.sportstype);
+        //String[] temp = context.getResources().getStringArray(R.array.sportstype);
+        String[] temp = StringUtil.getStringArrFromSportsType(context);
         SharedPreferences appSharedPrefs = PreferenceManager
                 .getDefaultSharedPreferences(context.getApplicationContext());
         for(String key:temp) {

@@ -19,6 +19,10 @@ public class SportsApplication extends Application {
     private String regid;
     private Profile myProfile;
 
+
+
+    private static final String TAG = "SportsApplication";
+
     {
         try {
             socket = IO.socket(Const.MAIN_URL);
