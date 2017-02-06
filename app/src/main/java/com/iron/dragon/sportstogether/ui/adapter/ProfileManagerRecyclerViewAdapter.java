@@ -51,8 +51,8 @@ public class ProfileManagerRecyclerViewAdapter extends RecyclerView.Adapter<Recy
         //((ViewHolderItem) holder).mBinding.getViewholderitem().profileSportsType.set(mContext.getString(R.string.profile_sports, mContext.getResources().getStringArray(R.array.sportstype)[profileitem.getProfile().getSportsid()]));
         //Log.v(TAG, "");
         ((ViewHolderItem) holder).mBinding.getViewholderitem().profileSportsType.set(StringUtil.getStringFromSports(mContext, profileitem.getProfile().getSportsid()));
-        ((ViewHolderItem) holder).mBinding.getViewholderitem().profileLocation.set(mContext.getString(R.string.profile_location, mContext.getResources().getStringArray(R.array.location)[profileitem.getProfile().getLocationid()]));
-        ((ViewHolderItem) holder).mBinding.getViewholderitem().profileLevel.set(mContext.getString(R.string.profile_level, mContext.getResources().getStringArray(R.array.level)[profileitem.getProfile().getLevel()]));
+        ((ViewHolderItem) holder).mBinding.getViewholderitem().profileLocation.set(StringUtil.getStringFromLocation(mContext, profileitem.getProfile().getLocationid()));
+        ((ViewHolderItem) holder).mBinding.getViewholderitem().profileLevel.set(StringUtil.getStringFromLevel(mContext, profileitem.getProfile().getLevel()));
     }
 
     @Override

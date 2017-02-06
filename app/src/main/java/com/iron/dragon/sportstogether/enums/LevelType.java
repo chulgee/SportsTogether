@@ -30,4 +30,10 @@ public enum LevelType {
     public int getResid(){
         return resid;
     }
+
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }

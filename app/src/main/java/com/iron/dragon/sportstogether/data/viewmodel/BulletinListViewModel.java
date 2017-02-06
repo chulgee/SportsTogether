@@ -41,6 +41,7 @@ import com.iron.dragon.sportstogether.ui.adapter.item.BulletinHeaderItem;
 import com.iron.dragon.sportstogether.ui.adapter.item.BulletinListItem;
 import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.ImageUtil;
+import com.iron.dragon.sportstogether.util.StringUtil;
 import com.iron.dragon.sportstogether.util.Util;
 import com.orhanobut.logger.Logger;
 
@@ -210,7 +211,7 @@ public class BulletinListViewModel extends BaseObservable {
     }
 
     public String getLocation() {
-        return mActivity.getString(R.string.bulletin_location, mActivity.getResources().getStringArray(R.array.location)[mLocationId]);
+        return StringUtil.getStringFromLocation(mActivity, mLocationId);
     }
 
     private void getBulletinData(int num) {
@@ -278,10 +279,8 @@ public class BulletinListViewModel extends BaseObservable {
     }
 
     public int getSportsMainImage() {
-        TypedArray imgs = mActivity.getResources().obtainTypedArray(R.array.sportsimg_bulletin);
-        int resource = imgs.getResourceId(mSportsId, -1);
-        imgs.recycle();
-        return resource;
+        int res = ImageUtil.getImageFromSports(mActivity, mSportsId);
+        return res;
     }
 
     @BindingAdapter({"imgRes"})
@@ -302,8 +301,7 @@ public class BulletinListViewModel extends BaseObservable {
     }
 
     public String getTitle() {
-        Const.SPORTS sports = Const.SPORTS.values()[mSportsId];
-        return sports.name();
+        return StringUtil.getStringFromSports(mActivity, mSportsId);
     }
 
     public void getBuddyCount() {

@@ -32,10 +32,12 @@ import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.data.bean.ProfileItem;
 import com.iron.dragon.sportstogether.enums.LevelType;
+import com.iron.dragon.sportstogether.enums.SportsType;
 import com.iron.dragon.sportstogether.http.CallbackWithExists;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
 import com.iron.dragon.sportstogether.util.Const;
+import com.iron.dragon.sportstogether.util.StringUtil;
 import com.iron.dragon.sportstogether.util.ToastUtil;
 import com.orhanobut.logger.Logger;
 
@@ -129,18 +131,40 @@ public class LoginActivity extends AppCompatActivity {
     private void InitData() {
         GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
         gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
-        List<LevelType> sports = Arrays.asList(LevelType.class.getEnumConstants());
+        String[] arr;
+        List<String> list;
+        ArrayAdapter<String> adapter;
 
-        ArrayList<String> list = new ArrayList<String>();
-        list.add("list 1");
-        list.add("list 2");
-        list.add("list 3");
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, list);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSpAge.setAdapter(dataAdapter);
+        arr = StringUtil.getStringArrFromSportsType(this);
+        list = new ArrayList<String>(Arrays.asList(arr));
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, list);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpSportsType.setAdapter(adapter);
+
+        arr = StringUtil.getStringArrFromLocationType(this);
+        list = new ArrayList<String>(Arrays.asList(arr));
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, list);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpLocation.setAdapter(adapter);
+
+        arr = StringUtil.getStringArrFromAgeType(this);
+        list = new ArrayList<String>(Arrays.asList(arr));
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, list);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpAge.setAdapter(adapter);
+
+        arr = StringUtil.getStringArrFromLevelType(this);
+        list = new ArrayList<String>(Arrays.asList(arr));
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, list);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpLevel.setAdapter(adapter);
+
+        arr = StringUtil.getStringArrFromGenderType(this);
+        list = new ArrayList<String>(Arrays.asList(arr));
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, list);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpGender.setAdapter(adapter);
     }
-
 
     static final ButterKnife.Action<View> DISABLE = new ButterKnife.Action<View>() {
         @Override
@@ -223,11 +247,6 @@ public class LoginActivity extends AppCompatActivity {
 
                         Log.d("Test", "body = " + response.body().toString());
                         Profile p = response.body();
-
-                        Log.v(TAG, Const.SPORTS.BADMINTON.name());
-                        Log.v(TAG, "" + Const.SPORTS.values());
-
-//                        setLogged();
 
                         if(mCropImagedUri == null) {
                             saveLocalProfile(p);

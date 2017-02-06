@@ -55,8 +55,8 @@ public class BuddyPresenterImpl implements BuddyPresenter{
     }
 
     @Override
-    public void loadProfile(){
-        model.loadProfile(new BuddyModel.BuddyModelCallback() {
+    public void loadProfile(Profile buddy){
+        model.loadProfile(buddy, new BuddyModel.BuddyModelCallback() {
             @Override
             public void onLoad(List<Profile> buddies) {
                 view.updateView(buddies);

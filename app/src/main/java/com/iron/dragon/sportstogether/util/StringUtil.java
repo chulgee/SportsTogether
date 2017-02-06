@@ -1,6 +1,7 @@
 package com.iron.dragon.sportstogether.util;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.iron.dragon.sportstogether.enums.AgeType;
 import com.iron.dragon.sportstogether.enums.GenderType;
@@ -13,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static android.R.attr.type;
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by seungyong on 2016-11-16.
@@ -129,45 +131,46 @@ public class StringUtil {
     }
 
     public static String[] getStringArrFromSportsType(Context context){
-        SportsType[] st = SportsType.values();
-        String[] arr = new String[st.length];
-        for(int i=0; i<st.length; i++){
-            arr[i] = StringUtil.getStringByType(context, st);
+        SportsType[] tArr = SportsType.values();
+        String[] arr = new String[tArr.length];
+        for(int i=0; i<tArr.length; i++){
+            arr[i] = StringUtil.getStringByType(context, tArr[i]);
+            Log.v(TAG, "getStringArrFromSportsType arr[i]="+arr[i]);
         }
         return arr;
     }
 
     public static String[] getStringArrFromLocationType(Context context){
-        LocationType[] st = LocationType.values();
-        String[] arr = new String[st.length];
-        for(int i=0; i<st.length; i++){
-            arr[i] = StringUtil.getStringByType(context, st);
+        LocationType[] tArr = LocationType.values();
+        String[] arr = new String[tArr.length];
+        for(int i=0; i<tArr.length; i++){
+            arr[i] = StringUtil.getStringByType(context, tArr[i]);
         }
         return arr;
     }
 
     public static String[] getStringArrFromAgeType(Context context){
-        AgeType[] st = AgeType.values();
-        String[] arr = new String[st.length];
-        for(int i=0; i<st.length; i++){
-            arr[i] = StringUtil.getStringByType(context, st);
+        AgeType[] tArr = AgeType.values();
+        String[] arr = new String[tArr.length];
+        for(int i=0; i<tArr.length; i++){
+            arr[i] = StringUtil.getStringByType(context, tArr[i]);
         }
         return arr;
     }
     public static String[] getStringArrFromLevelType(Context context){
-        LevelType[] st = LevelType.values();
-        String[] arr = new String[st.length];
-        for(int i=0; i<st.length; i++){
-            arr[i] = StringUtil.getStringByType(context, st);
+        LevelType[] tArr = LevelType.values();
+        String[] arr = new String[tArr.length];
+        for(int i=0; i<tArr.length; i++){
+            arr[i] = StringUtil.getStringByType(context, tArr[i]);
         }
         return arr;
     }
 
     public static String[] getStringArrFromGenderType(Context context){
-        GenderType[] st = GenderType.values();
-        String[] arr = new String[st.length];
-        for(int i=0; i<st.length; i++){
-            arr[i] = StringUtil.getStringByType(context, st);
+        GenderType[] tArr = GenderType.values();
+        String[] arr = new String[tArr.length];
+        for(int i=0; i<tArr.length; i++){
+            arr[i] = StringUtil.getStringByType(context, tArr[i]);
         }
         return arr;
     }
