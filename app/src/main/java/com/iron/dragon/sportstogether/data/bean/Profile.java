@@ -12,16 +12,6 @@ public class Profile implements Serializable{
 
     }
 
-    public Profile(ProfileItem profile) {
-        this.username = profile.get_mNickName();
-        this.sportsid = profile.get_mSportsType();
-        this.locationid = profile.get_mLocation();
-        this.age = profile.get_mAge();
-        this.gender = profile.get_mGender();
-        this.phone = profile.get_mPhoneNum();
-        this.level = profile.get_mLevel();
-        this.image = profile.get_mImage();
-    }
     public Profile(String regid, String username, int sportsid, int locationid, int age, int gender, String phone, int level, String image){
         this.regid = regid;
         this.username = username;
@@ -38,6 +28,31 @@ public class Profile implements Serializable{
     protected String username;
     protected int sportsid;
     protected int locationid;
+
+    public void setSportsid(int sportsid) {
+        this.sportsid = sportsid;
+    }
+
+    public void setLocationid(int locationid) {
+        this.locationid = locationid;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public void setGender(int gender) {
+        this.gender = gender;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
     protected int age;
     protected int gender;
     protected String phone;

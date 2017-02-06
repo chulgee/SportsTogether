@@ -9,12 +9,15 @@ import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.databinding.NewsListItemBinding;
 import com.iron.dragon.sportstogether.ui.adapter.item.NewsListItem;
 import com.iron.dragon.sportstogether.ui.fragment.NewsFragment;
+import com.iron.dragon.sportstogether.util.StringUtil;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -75,6 +78,26 @@ public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         }
         ((TextView)v).setMovementMethod(LinkMovementMethod.getInstance());
     }
+
+    @BindingAdapter({"bind:imgsrc"})
+    public static void setLinkImage(View v, String url) {
+
+        /*try {
+            InputStream input = new URL(link).openStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+        if(!StringUtil.isEmpty(url)) {
+            Picasso.with(v.getContext()).load(url).resize(200, 200)
+                    .centerCrop()
+                    .into((ImageView) v);
+        } else {
+            ((ImageView) v).setImageDrawable(null);
+        }
+
+    }
+
+
 
 }
 

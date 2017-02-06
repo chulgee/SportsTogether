@@ -1,6 +1,8 @@
 package com.iron.dragon.sportstogether.data.viewmodel;
 
 import android.databinding.BaseObservable;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.iron.dragon.sportstogether.data.bean.News;
@@ -11,6 +13,12 @@ import com.iron.dragon.sportstogether.ui.adapter.item.NewsListItem;
 import com.iron.dragon.sportstogether.ui.fragment.NewsFragment;
 import com.iron.dragon.sportstogether.util.Const;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,6 +72,41 @@ public class NewsFragViewModel extends BaseObservable {
             pf.setNews(news);
             listItems.add(pf);
         }
+        new ThumbImageTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, listItems);
         mFragment.setListItem(listItems);
+    }
+
+    private class ThumbImageTask extends AsyncTask<ArrayList<NewsListItem>, Integer, Bitmap> {
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+        }
+
+        @Override
+        protected Bitmap doInBackground(ArrayList<NewsListItem>... args) {
+            Document doc = null;
+            ArrayList<NewsListItem> items = args[0];
+            int index = 0;
+            for(NewsListItem item :items) {
+                try {
+                    doc = Jsoup.connect(item.getNews().getLink()).get();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Elements titles = doc.select("head meta");
+                for(Element element:titles) {
+                    if(element.attr("property").equals("og:image")) {
+                        item.setNewsImage(element.attr("content"));
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            mFragment.InvalidateAdapter();
+        }
     }
 }
