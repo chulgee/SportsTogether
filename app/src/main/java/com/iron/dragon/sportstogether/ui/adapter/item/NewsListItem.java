@@ -18,4 +18,8 @@ public class NewsListItem {
     public String getNewsHyperLink() {
         return "<a href=" + getNews().getLink() + ">" + getNews().getLink() +  "</a>";
     }
+
+    public void setNewsImage(String newsImage) {
+        mNews.setImage(newsImage);
+    }
 }
