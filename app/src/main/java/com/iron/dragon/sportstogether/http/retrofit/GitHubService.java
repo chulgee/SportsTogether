@@ -4,6 +4,7 @@ import com.iron.dragon.sportstogether.data.bean.Bulletin;
 import com.iron.dragon.sportstogether.data.bean.News;
 import com.iron.dragon.sportstogether.data.bean.Notice;
 import com.iron.dragon.sportstogether.data.bean.Profile;
+import com.iron.dragon.sportstogether.data.bean.Settings;
 import com.iron.dragon.sportstogether.util.Const;
 
 import java.io.IOException;
@@ -121,6 +122,11 @@ public interface GitHubService {
     @GET("notice")
     Call<List<Notice>> getNotice(
             @Query("reqNum") int reqNum
+    );
+
+    @PUT("settings/regid/{regid}")
+    Call<Settings> putSettings(
+            @Path("regid") String regid, @Body Settings settings
     );
 
     public class ServiceGenerator {

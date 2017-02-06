@@ -26,7 +26,6 @@ import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.SportsApplication;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
-import com.iron.dragon.sportstogether.data.bean.ProfileItem;
 import com.iron.dragon.sportstogether.http.CallbackWithExists;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
@@ -182,22 +181,20 @@ public class LoginActivity extends AppCompatActivity {
                 app.setRegid(regid);
                 GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
                 gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
-                final ProfileItem pi = new ProfileItem();
-                pi.set_mNickName(mEtNickName.getText().toString());
-                pi.set_mAge(mSpAge.getSelectedItemPosition());
-                pi.set_mGender(mSpGender.getSelectedItemPosition());
-                pi.set_mLocation(mSpLocation.getSelectedItemPosition());
-                pi.set_mPhoneNum(mEtPhoneNum.getText().toString());
-                pi.set_mSportsType(mSportsId);
-                pi.set_mLevel(mSpLevel.getSelectedItemPosition());
-                pi.set_mImage("");
+                final Profile pi = new Profile();
+                pi.setUsername(mEtNickName.getText().toString());
+                pi.setAge(mSpAge.getSelectedItemPosition());
+                pi.setGender(mSpGender.getSelectedItemPosition());
+                pi.setLocationid(mSpLocation.getSelectedItemPosition());
+                pi.setPhone(mEtPhoneNum.getText().toString());
+                pi.setSportsid(mSportsId);
+                pi.setLevel(mSpLevel.getSelectedItemPosition());
+                pi.setImage("");
 
-
-                Profile p = new Profile(pi);
-                p.setRegid(regid);
-                Log.v(TAG, "등록 profile=" + p.toString());
+                pi.setRegid(regid);
+                Log.v(TAG, "등록 profile=" + pi.toString());
                 final Call<Profile> call =
-                        gitHubService.postProfiles(p);
+                        gitHubService.postProfiles(pi);
 
                 RetrofitHelper.enqueueWithRetryAndExist(call, new CallbackWithExists<Profile>() {
                     @Override

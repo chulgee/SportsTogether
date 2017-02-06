@@ -22,11 +22,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.iron.dragon.sportstogether.R;
-import com.iron.dragon.sportstogether.data.LoginPreferences;
-import com.iron.dragon.sportstogether.data.bean.Message;
-import com.iron.dragon.sportstogether.data.bean.Profile;
-import com.iron.dragon.sportstogether.gcm.MyFirebaseInstanceIdService;
-import com.iron.dragon.sportstogether.service.FloatingService;
 import com.iron.dragon.sportstogether.ui.fragment.BookFragment;
 import com.iron.dragon.sportstogether.ui.fragment.ChatRoomListFragment;
 import com.iron.dragon.sportstogether.ui.fragment.NewsFragment;
@@ -37,7 +32,6 @@ import com.kakao.kakaolink.KakaoTalkLinkMessageBuilder;
 import com.kakao.util.KakaoParameterException;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -221,8 +215,10 @@ public class MainActivity extends AppCompatActivity
         Intent i = new Intent();
         if (id == R.id.nav_setting) {
             // Handle the camera action
-            LoginPreferences.GetInstance().SetLogout(this);
-            Toast.makeText(this, "log out", Toast.LENGTH_SHORT).show();
+//            LoginPreferences.GetInstance().SetLogout(this);
+//            Toast.makeText(this, "log out", Toast.LENGTH_SHORT).show();
+            i.setClass(this, SettingsActivity.class);
+            startActivity(i);
         } else if (id == R.id.nav_myinfo) {
             i.setClass(this, ProfileManagerActivity.class);
             startActivity(i);

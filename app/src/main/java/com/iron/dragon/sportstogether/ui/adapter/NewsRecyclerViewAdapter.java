@@ -91,6 +91,8 @@ public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
             Picasso.with(v.getContext()).load(url).resize(200, 200)
                     .centerCrop()
                     .into((ImageView) v);
+        } else {
+            ((ImageView) v).setImageDrawable(null);
         }
 
     }
