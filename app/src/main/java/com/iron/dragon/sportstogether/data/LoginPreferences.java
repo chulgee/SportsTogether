@@ -43,6 +43,9 @@ public class LoginPreferences {
     public static final String REGID = "regid"; //value is a Boolean
     private static final String PROFILE_IMAGE = "image";
 
+    private static final String BUDDY_ALARM = "buddy_alarm";
+    private static final String CHAT_ALARM = "chat_alarm";
+
     private LoginPreferences(){
 
     }
@@ -54,6 +57,29 @@ public class LoginPreferences {
             }
         }
         return mLoginPreferences;
+    }
+
+    public void SetBuddyAlarmOn(Context context, boolean isChecked) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(BUDDY_ALARM, isChecked);
+        editor.apply();
+    }
+    public boolean GetBuddyAlarmOn(Context context) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean ischecked = sharedPreferences.getBoolean(BUDDY_ALARM, true);
+        return ischecked;
+    }
+    public void SetChatAlarmOn(Context context, boolean isChecked) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(CHAT_ALARM, isChecked);
+        editor.apply();
+    }
+    public boolean GetChatAlarmOn(Context context) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean ischecked = sharedPreferences.getBoolean(CHAT_ALARM, true);
+        return ischecked;
     }
 
     public void SetRegid(Context context, String regid){
@@ -185,7 +211,6 @@ public class LoginPreferences {
         Gson gson = new Gson();
         ArrayList<Profile> profileList = new ArrayList<>();
         for(String key:temp) {
-
             String json = appSharedPrefs.getString(key, "");
             if(!json.equals("")) {
                 profileList.add(gson.fromJson(json, Profile.class));

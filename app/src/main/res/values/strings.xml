@@ -111,4 +111,7 @@
 
     <string name="Male">남자</string>
     <string name="Female">여자</string>
+    <string name="buddy_alarm_switch">Buddy Alarm On/Off</string>
+    <string name="chat_alarm_switch">Chating Alarm On/Off</string>
+
 </resources>

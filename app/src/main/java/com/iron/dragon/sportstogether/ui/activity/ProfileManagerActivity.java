@@ -27,6 +27,7 @@ public class ProfileManagerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mViewModel = new ProfileManagerViewModel(this);
         mBinding = DataBindingUtil.setContentView(this, R.layout.profile_manager_act);
+        mBinding.setViewModel(mViewModel);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         InitLayout();
