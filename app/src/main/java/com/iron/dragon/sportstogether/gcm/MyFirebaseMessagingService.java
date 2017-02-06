@@ -19,10 +19,12 @@ import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.service.FloatingService;
+import com.iron.dragon.sportstogether.ui.activity.BuddyActivity;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.DbUtil;
 import com.iron.dragon.sportstogether.util.PushWakeLock;
+import com.iron.dragon.sportstogether.util.Util;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,29 +54,29 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         String str_profile = data.get("profile");
         String str_message = data.get("message");
-
         Profile buddy = gson.fromJson(str_profile, Profile.class);
         Message message = gson.fromJson(str_message, Message.class);
+
         Log.v(TAG, "From server, message : "+message.toString());
         Log.v(TAG, "From server,   buddy : "+buddy.toString());
-        if(message.getSender().equals("server")){
-            Log.v(TAG, "New buddy="+buddy);
-            Log.v(TAG, "New message="+message);
 
-            // post noti to go to friendListActivity
-            Intent i = new Intent(this, ChatActivity.class);
+        if(message.getSender().equals("server")){
+            Intent i = new Intent(this, BuddyActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            i.putExtra("Message", message);
             i.putExtra("Buddy", buddy);
+            Log.v(TAG, "Buddy : "+buddy.getUsername());
             PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
             Notification.Builder builder = new Notification.Builder(getApplicationContext());
             builder.setSmallIcon(R.drawable.friend_icon_normal);
-            builder.setTicker(buddy.getUsername()+"님이 들어왔어요");
+            builder.setContentText(buddy.getUsername()+"님이 들어왔어요");
             builder.setContentTitle("새로운 친구 입장");
             builder.setContentIntent(pi);
             builder.setAutoCancel(true);
             builder.setPriority(Notification.PRIORITY_HIGH);
+
+            Util.setUnreadBuddy(getApplicationContext(), buddy.getUsername(), 1);
+
             NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
             nm.notify(1, builder.build());
 
@@ -94,7 +96,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Log.v(TAG, "Chat message="+message);
 
             DbUtil.insert(getApplicationContext(), message);
-
+            Util.plusUnreadChat(getApplicationContext(), message.getRoom());
             // post noti to go to ChatActivity
             Message startMessage = new Message.Builder(Message.PARAM_FROM_OTHER).msgType(Message.PARAM_TYPE_LOG).sender(message.getSender()).receiver(message.getReceiver())
                     .message("Conversation gets started").date(new Date().getTime()).image(message.getImage()).build();
@@ -106,8 +108,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             Notification.Builder builder = new Notification.Builder(getApplicationContext());
             builder.setSmallIcon(R.drawable.friend_icon_normal);
-            builder.setTicker(message.getSender()+": "+message.getMessage());
+            //builder.setTicker(message.getSender()+": "+message.getMessage());
             builder.setContentTitle("함께 운동해요");
+            builder.setContentText(message.getSender()+": "+message.getMessage());
             builder.setContentIntent(pi);
             builder.setAutoCancel(true);
             builder.setPriority(Notification.PRIORITY_HIGH);

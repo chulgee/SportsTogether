@@ -1,5 +1,7 @@
 package com.iron.dragon.sportstogether.util;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -75,5 +77,45 @@ public class Util {
             e.printStackTrace();
         }
         return response;
+    }
+
+    public static int getUnreadChat(Context context, String room){
+        SharedPreferences pref = context.getSharedPreferences(Const.PREF_UNREAD_CHAT, Context.MODE_PRIVATE);
+        int count = pref.getInt(room, 0);
+        Log.v(TAG, "getUnreadChat count = "+count);
+        return count;
+    }
+
+    public static void plusUnreadChat(Context context, String room){
+        SharedPreferences pref = context.getSharedPreferences(Const.PREF_UNREAD_CHAT, Context.MODE_PRIVATE);
+        int count = pref.getInt(room, 0);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putInt(room, ++count);
+        editor.commit();
+        Log.v(TAG, "plusUnreadChat count = "+count);
+    }
+
+    public static void setUnreadChat(Context context, String room, int value){
+        SharedPreferences pref = context.getSharedPreferences(Const.PREF_UNREAD_CHAT, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putInt(room, value);
+        editor.commit();
+        Log.v(TAG, "setUnreadChat count to "+value);
+    }
+
+
+    public static int getUnreadBuddy(Context context, String buddy){
+        SharedPreferences pref = context.getSharedPreferences(Const.PREF_UNREAD_BUDDY, Context.MODE_PRIVATE);
+        int count = pref.getInt(buddy, 0);
+        Log.v(TAG, "getUnreadBuddy count = "+count);
+        return count;
+    }
+
+    public static void setUnreadBuddy(Context context, String buddy, int value){
+        SharedPreferences pref = context.getSharedPreferences(Const.PREF_UNREAD_BUDDY, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putInt(buddy, value);
+        editor.commit();
+        Log.v(TAG, "setUnreadBuddy count to "+value);
     }
 }

@@ -73,7 +73,7 @@ public class FloatingService extends Service implements View.OnTouchListener, Vi
         Log.v(TAG, "onStartCommand intent="+intent);
 
         if(!getFloating()) {
-            initView();
+            initView(mBuddy);
             setFloating(true);
         }
 
@@ -139,7 +139,7 @@ public class FloatingService extends Service implements View.OnTouchListener, Vi
 
     }
 
-    void initView(){
+    void initView(Profile buddy){
 
         ImageView iv_floating_image;
         TextView tv_floating_title;
@@ -152,6 +152,7 @@ public class FloatingService extends Service implements View.OnTouchListener, Vi
         tv_floating_title = (TextView)view.findViewById(R.id.tv_floating_title);
         tv_floating_title.setOnTouchListener(this);
         tv_floating_title.setOnClickListener(this);
+        tv_floating_title.setText(buddy.getUsername()+" 님 입장\n@눌러서 친구확인");
 
         iv_floating_cancel = (ImageView)view.findViewById(R.id.iv_floating_cancel);
         iv_floating_cancel.setOnTouchListener(this);

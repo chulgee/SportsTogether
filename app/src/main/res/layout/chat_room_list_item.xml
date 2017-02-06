@@ -21,17 +21,30 @@
         android:orientation="vertical"
         android:layout_gravity="center_vertical"
         android:layout_weight="1"
-        android:paddingLeft="10dp">
-        <TextView
-            android:id="@+id/tv_room_title"
+        android:paddingLeft="10dp"
+        >
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="room1"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/tv_room_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="room1"/>
+            <com.iron.dragon.sportstogether.ui.view.UnreadView
+                android:id="@+id/cv_unread"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"/>
+        </LinearLayout>
+
         <TextView
             android:id="@+id/tv_room_subtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="with"/>
+            android:visibility="gone"/>
     </LinearLayout>
 
     <ImageView

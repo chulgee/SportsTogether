@@ -3,6 +3,9 @@ package com.iron.dragon.sportstogether.ui.activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -13,29 +16,63 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.bean.Profile;
+import com.iron.dragon.sportstogether.service.FloatingService;
+import com.iron.dragon.sportstogether.ui.fragment.ChatRoomListFragment;
 import com.iron.dragon.sportstogether.ui.model.BuddyModel;
 import com.iron.dragon.sportstogether.ui.presenter.BuddyPresenter;
 import com.iron.dragon.sportstogether.ui.presenter.BuddyPresenterImpl;
+import com.iron.dragon.sportstogether.util.Const;
+import com.iron.dragon.sportstogether.util.Util;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.BuddyView {
 
+    private static final String TAG = "BuddyActivity";
     RecyclerView lv_buddy;
     MyAdapter mAdapter;
 
     BuddyPresenter mPresenter;
     Profile mBuddy;
     DividerItemDecoration mDividerItemDecoration;
+    WindowManager mWm;
+    SharedPreferences mPref;
+
+    SharedPreferences.OnSharedPreferenceChangeListener mPrefListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            boolean found = false;
+            Iterator<Profile> iter = mAdapter.mItems.iterator();
+            while(iter.hasNext()){
+                Profile item = (Profile)iter.next();
+                Log.v(TAG, "key="+key+", item.room="+item.getUsername());
+                if(item.getUsername().equals(key)){
+                    int count = sharedPreferences.getInt(key, 0);
+                    item.setUnread(count);
+                    mAdapter.notifyDataSetChanged();
+                    found = true;
+                }
+            }
+            if(!found){
+                mPresenter.loadProfile();
+            }
+        }
+    };
 
     @Override
     public void updateView(List<Profile> profiles) {
@@ -63,6 +100,8 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
         super.onCreate(savedInstanceState);
         setContentView(R.layout.buddy_act);
 
+        mWm = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
+
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -75,9 +114,32 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
             }
         });
         init();
+
+        if(FloatingService.getFloating() == true){
+            View view = View.inflate(this, R.layout.floating_buddy, null);
+            if(view.isAttachedToWindow()){
+                mWm.removeView(view);
+                FloatingService.setFloating(false);
+                stopService(new Intent(this, FloatingService.class));
+            }else{
+                Toast.makeText(this, "floating not attached", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if(mPref != null){
+            mPref.unregisterOnSharedPreferenceChangeListener(mPrefListener);
+        }
     }
 
     public void init(){
+
+        mPref = getSharedPreferences(Const.PREF_UNREAD_BUDDY, Context.MODE_PRIVATE);
+        mPref.registerOnSharedPreferenceChangeListener(mPrefListener);
 
         Intent i = getIntent();
         mBuddy = (Profile)i.getSerializableExtra("Buddy");
@@ -123,12 +185,16 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
             ViewCache vh = (ViewCache)holder;
             Profile item = mItems.get(position);
             vh.tv_title.setText(item.getUsername());
-            /*Log.v(TAG, "mItems.get(position).room="+mItems.get(position).room+", bmp="+bmp);
-            if(bmp != null){
-                vh.civ_thumb.setImageBitmap(bmp);
-            }else{
-                vh.civ_thumb.setImageResource(R.drawable.default_user);
-            }*/
+            if(item.getUnread() > 0){
+                vh.tv_buddy_unread.setVisibility(View.VISIBLE);
+            }else
+                vh.tv_buddy_unread.setVisibility(View.GONE);
+            vh.civ_thumb.setImageResource(R.drawable.default_user);
+            if(item.getImage() != null){
+                String url = Const.MAIN_URL + "/upload_profile?filename=" + item.getImage();
+                Log.v(TAG, "onBindViewHolder url:"+url);
+                Picasso.with(BuddyActivity.this).load(url).placeholder(R.drawable.default_user).resize(50,50).centerInside().into(vh.civ_thumb);
+            }
         }
 
         @Override
@@ -151,10 +217,12 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
             mItems.remove(index);
         }
 
+
         class ViewCache extends RecyclerView.ViewHolder implements View.OnClickListener{
             View v_row;
             CircleImageView civ_thumb;
             TextView tv_title;
+            TextView tv_buddy_unread;
             TextView tv_subtitle;
             ImageView iv_chat;
 
@@ -164,6 +232,7 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
                 v.setOnClickListener(this);
                 civ_thumb = (CircleImageView)v.findViewById(R.id.civ_thumb);
                 tv_title = (TextView)v.findViewById(R.id.tv_buddy_title);
+                tv_buddy_unread = (TextView)v.findViewById(R.id.tv_buddy_unread);
                 tv_subtitle = (TextView)v.findViewById(R.id.tv_buddy_subtitle);
                 iv_chat = (ImageView)v.findViewById(R.id.iv_chat);
                 iv_chat.setOnClickListener(this);
@@ -171,11 +240,14 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
 
             @Override
             public void onClick(View v) {
+                Profile buddy = mItems.get(getAdapterPosition());
+                Util.setUnreadBuddy(BuddyActivity.this, buddy.getUsername(), 0);
+
                 if(v.getId() == v_row.getId()){
-                    mPresenter.onRowClick(v, mItems.get(getAdapterPosition()));
+                    mPresenter.onRowClick(v, buddy);
                 }else if(v.getId() == iv_chat.getId()){
                     Toast.makeText(BuddyActivity.this, "go to chat", Toast.LENGTH_SHORT).show();
-                    mPresenter.onChatClick(v, mItems.get(getAdapterPosition()));
+                    mPresenter.onChatClick(v, buddy);
                 }
             }
         }
