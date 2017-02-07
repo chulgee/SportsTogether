@@ -35,8 +35,6 @@ public class ProfileActivity extends LoginActivity  {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setSupportActionBar(mToolbar);
-        InitLayout();
         processIntent(getIntent());
         Logger.d("child mSpSportsType.getSelectedItemPosition() = " + mSpSportsType.getSelectedItemPosition() + " mSportsId = " + mSportsId);
     }
@@ -89,16 +87,12 @@ public class ProfileActivity extends LoginActivity  {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Logger.d("getItemId = " + item.getItemId());
         switch (item.getItemId()) {
             case R.id.action_edit: {
                 ButterKnife.apply(nameViews, ENABLED, false);
                 ButterKnife.apply(buttonViews, VISIBLE, false);
                 mEtNickName.setEnabled(false);
-                return true;
-            }
-            case android.R.id.home: {
-//                NavUtils.navigateUpFromSameTask(this);
-                finish();
                 return true;
             }
         }
@@ -185,6 +179,8 @@ public class ProfileActivity extends LoginActivity  {
                 })
                 .show();
     }
+
+    @Override
     protected void InitLayout() {
         super.InitLayout();
         ButterKnife.apply(nameViews, DISABLE);

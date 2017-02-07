@@ -63,4 +63,6 @@
     <string name="buddy_alarm_switch">Buddy Alarm On/Off</string>
     <string name="chat_alarm_switch">Chating Alarm On/Off</string>
 
+    <string name="buddyview">View Buddy</string>
+
 </resources>

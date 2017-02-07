@@ -12,9 +12,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -40,6 +42,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -105,15 +108,25 @@ public class LoginActivity extends AppCompatActivity {
         Log.d("Test", "LoginActivity");
         setContentView(R.layout.profile_act);
         ButterKnife.bind(this);
+        setSupportActionBar(mToolbar);
         InitData();
         Intent i = getIntent();
         processIntent(i);
 
-        mSpSportsType.setSelection(mSportsId);
-        mSpSportsType.setEnabled(false);
+        InitLayout();
         Logger.d("parent mSpSportsType.getSelectedItemPosition() = " + mSpSportsType.getSelectedItemPosition() + " mSportsId = " + mSportsId);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home: {
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
     private void processIntent(Intent i) {
         mSportsId = i.getIntExtra("Extra_Sports", 0);
     }
@@ -151,8 +164,23 @@ public class LoginActivity extends AppCompatActivity {
     };
 
     protected void InitLayout() {
-        ButterKnife.apply(nameViews, ENABLED, false);
-        ButterKnife.apply(buttonViews, VISIBLE, false);
+//        ButterKnife.apply(nameViews, ENABLED, false);
+//        ButterKnife.apply(buttonViews, VISIBLE, false);
+        ArrayList<Profile> profileList =LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(this);
+        if(profileList.size() == 0) {
+
+        } else {
+            mEtNickName.setText(profileList.get(0).getUsername());
+            mSpAge.setSelection(profileList.get(0).getAge());
+            mSpGender.setSelection(profileList.get(0).getGender());
+            mEtPhoneNum.setText(profileList.get(0).getPhone());
+            mEtNickName.setEnabled(false);
+            mSpAge.setEnabled(false);
+            mSpGender.setEnabled(false);
+            mEtPhoneNum.setEnabled(false);
+        }
+        mSpSportsType.setSelection(mSportsId);
+        mSpSportsType.setEnabled(false);
     }
 
 
