@@ -2,9 +2,11 @@ package com.iron.dragon.sportstogether.ui.activity;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.viewmodel.ProfileManagerViewModel;
@@ -35,6 +37,16 @@ public class ProfileManagerActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home: {
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
     private void InitLayout() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setAutoMeasureEnabled(true);

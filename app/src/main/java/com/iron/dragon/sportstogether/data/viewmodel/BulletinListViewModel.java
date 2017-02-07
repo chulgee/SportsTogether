@@ -729,4 +729,8 @@ public class BulletinListViewModel extends BaseObservable {
             }
         };
     }
+
+    public void onClickToBuddyListView(View v) {
+        Logger.d("i'm go to see BuddyList");
+    }
 }
