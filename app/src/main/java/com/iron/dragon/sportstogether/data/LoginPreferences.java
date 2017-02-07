@@ -3,18 +3,12 @@ package com.iron.dragon.sportstogether.data;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.google.gson.Gson;
-import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.bean.Profile;
-import com.iron.dragon.sportstogether.enums.SportsType;
 import com.iron.dragon.sportstogether.util.StringUtil;
-import com.iron.dragon.sportstogether.util.Util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by P11872 on 2015-08-20.

@@ -2,7 +2,6 @@ package com.iron.dragon.sportstogether.ui.activity;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
@@ -19,11 +18,9 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -139,7 +136,16 @@ public class LoginActivity extends AppCompatActivity {
     private void processIntent(Intent i) {
         mSportsId = i.getIntExtra("Extra_Sports", 0);
     }
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home: {
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
     private void InitData() {
         GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
         gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
