@@ -46,6 +46,7 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
 
     private static final String TAG = "BuddyActivity";
     RecyclerView lv_buddy;
+    TextView tb_tv_count;
     MyAdapter mAdapter;
 
     BuddyPresenter mPresenter;
@@ -77,6 +78,7 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
 
     @Override
     public void updateView(List<Profile> profiles) {
+        tb_tv_count.setText("친구 현재 "+profiles.size()+"명");
         mAdapter.setItem(profiles);
         mAdapter.notifyDataSetChanged();
     }
@@ -147,6 +149,7 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
         Intent i = getIntent();
         mBuddy = (Profile)i.getSerializableExtra("Buddy");
         lv_buddy = (RecyclerView) findViewById(R.id.lv_buddy);
+        tb_tv_count = (TextView)findViewById(R.id.tb_tv_count);
 
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
