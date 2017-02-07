@@ -103,7 +103,13 @@ public class LoginPreferences {
             p.setAge(profile.getAge());
             p.setGender(profile.getGender());
             p.setPhone(profile.getPhone());
-            saveSharedPreferencesProfile(context, p);
+            SharedPreferences appSharedPrefs = PreferenceManager
+                    .getDefaultSharedPreferences(context.getApplicationContext());
+            SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
+            Gson gson = new Gson();
+            String json = gson.toJson(p);
+            prefsEditor.putString(StringUtil.getStringFromSports(context, p.getSportsid()), json);
+            prefsEditor.apply();
         }
     }
 
