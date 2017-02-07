@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.iron.dragon.sportstogether.R;
@@ -134,7 +135,7 @@ public class ChatRoomListFragment extends Fragment {
             public void rowOnClicked(View v, int position) {
                 Item item = mAdapter.getItem(position);
                 //Toast.makeText(getContext(), "this item="+item, Toast.LENGTH_SHORT).show();
-                Profile me = LoginPreferences.GetInstance().loadSharedPreferencesProfile(getContext(), sportsid);
+                Profile me = LoginPreferences.GetInstance().loadSharedPreferencesProfile(getContext(), item.sportsid);
                 loadBuddyProfile(item.room, me);
             }
 
@@ -176,17 +177,21 @@ public class ChatRoomListFragment extends Fragment {
                         String command = obj.getString("command");
                         String code = obj.getString("code");
                         JSONArray arr = obj.getJSONArray("message");
-                        buddy = gson.fromJson(arr.get(0).toString(), Profile.class);
-                        Log.v(TAG, "buddy: "+buddy.toString());
+                        if(arr != null && arr.length() > 0){
+                            buddy = gson.fromJson(arr.get(0).toString(), Profile.class);
+                            Log.v(TAG, "buddy: "+buddy.toString());
+                            Intent i = new Intent(getActivity(), ChatActivity.class);
+                            Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(buddy.getUsername())
+                                    .message("Conversation get started").date(new Date().getTime()).image(null).build();
+                            i.putExtra("Message", message);
+                            i.putExtra("Buddy", buddy);
+                            startActivity(i);
+                        }else{
+                            Toast.makeText(getActivity(), "친구가 서버에 존재하지 않습니다.", Toast.LENGTH_SHORT).show();
+                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    Intent i = new Intent(getActivity(), ChatActivity.class);
-                    Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(buddy.getUsername())
-                            .message("Conversation get started").date(new Date().getTime()).image(null).build();
-                    i.putExtra("Message", message);
-                    i.putExtra("Buddy", buddy);
-                    startActivity(i);
                 }
             }
 
@@ -217,8 +222,8 @@ public class ChatRoomListFragment extends Fragment {
                         Log.v(TAG, "item="+item+", unread="+count);
                         item.setUnread(count);
                         mAdapter.addItem(item);
-                        mAdapter.notifyDataSetChanged();
-                        if(item.image!=null){
+                        //mAdapter.notifyDataSetChanged();
+                        if(item.image!=null && !item.image.isEmpty()){
                             fetchAvaTar(room, item.image);
                         }
                     };
