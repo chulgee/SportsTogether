@@ -34,6 +34,8 @@ import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
+import com.iron.dragon.sportstogether.service.FloatingService;
+import com.iron.dragon.sportstogether.ui.activity.BuddyActivity;
 import com.iron.dragon.sportstogether.ui.activity.BulletinListActivity;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.ui.adapter.item.BulletinEventItem;
@@ -732,5 +734,13 @@ public class BulletinListViewModel extends BaseObservable {
 
     public void onClickToBuddyListView(View v) {
         Logger.d("i'm go to see BuddyList");
+        Intent i = new Intent(mActivity, BuddyActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Profile me = LoginPreferences.GetInstance().loadSharedPreferencesProfile(mActivity, mSportsId);
+        me.setUsername("Bulletin");
+        me.setLevel(-1);
+        i.putExtra("Buddy", me);
+        Log.v(TAG, "Buddy : "+me.toString());
+        mActivity.startActivity(i);
     }
 }
