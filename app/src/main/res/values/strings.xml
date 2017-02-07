@@ -60,6 +60,57 @@
 
     <string name="kakaolink_host">kakaolink</string>
 
+    <string name="badminton">배드민턴</string>
+    <string name="tennis">테니스</string>
+    <string name="table_tennis">탁구</string>
+    <string name="soccer">축구</string>
+    <string name="baseball">야구</string>
+    <string name="basketball">농구</string>
+
+    <string name="Gangnam_gu">강남구</string>
+    <string name="Gangdong_gu">강동구</string>
+    <string name="Gangbuk_gu">강북구</string>
+    <string name="Gangseo_gu">강서구</string>
+    <string name="Gwanak_gu">관악구</string>
+    <string name="Gwangjin_gu">광진구</string>
+    <string name="Guro_gu">구로구</string>
+    <string name="Geumcheon_gu">금천구</string>
+    <string name="Nowon_gu">노원구</string>
+    <string name="Dobong_gu">도봉구</string>
+    <string name="Dongdaemun_gu">동대문구</string>
+    <string name="Dongjag_gu">동작구</string>
+    <string name="Mapo_gu">마포구</string>
+    <string name="Seodaemun_gu">서대문구</string>
+    <string name="Seocho_gu">서초구</string>
+    <string name="Seongdong_gu">성동구</string>
+    <string name="Seongbuk_gu">성북구</string>
+    <string name="Songpa_gu">송파구</string>
+    <string name="Yangcheon_gu">양천구</string>
+    <string name="Yeongdeungpo_gu">영등포구</string>
+    <string name="Yongsan_gu">용산구</string>
+    <string name="Eunpyeong_gu">은평구</string>
+    <string name="Jongno_gu">종로구</string>
+    <string name="Jung_gu">중구</string>
+    <string name="Jungnang_gu">중랑구</string>
+
+    <string name="in10">10대</string>
+    <string name="in20">20대</string>
+    <string name="in30">30대</string>
+    <string name="in40">40대</string>
+    <string name="in50">50대</string>
+    <string name="in60">60대</string>
+    <string name="in70">70대</string>
+    <string name="in80">80대</string>
+
+    <string name="lv1">완전초보</string>
+    <string name="lv2">초보바로위</string>
+    <string name="lv3">중간</string>
+    <string name="lv4">중간바로위</string>
+    <string name="lv5">잘함</string>
+    <string name="lv6">완전잘함</string>
+
+    <string name="Male">남자</string>
+    <string name="Female">여자</string>
     <string name="buddy_alarm_switch">Buddy Alarm On/Off</string>
     <string name="chat_alarm_switch">Chating Alarm On/Off</string>
 

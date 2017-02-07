@@ -1,53 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="gender">
-        <item>Male</item>
-        <item>Female</item>
-    </string-array>
-
-    <string-array name="age">
-        <item>20 ~ 30 대</item>
-        <item>30 ~ 40 대</item>
-        <item>40 ~ 50 대</item>
-    </string-array>
-
-    <string-array name="location">
-        <item>종로구</item>
-        <item>중구</item>
-        <item>용산구</item>
-        <item>광진구</item>
-        <item>동대문구</item>
-        <item>중랑구</item>
-        <item>성북구</item>
-        <item>강북구</item>
-        <item>도봉구</item>
-        <item>노원구</item>
-        <item>은평구</item>
-
-    </string-array>
-    <string-array name="sportstype">
-        <item>배드민턴</item>
-        <item>테니스</item>
-        <item>탁구</item>
-        <item>축구</item>
-        <item>야구</item>
-        <item>농구</item>
-    </string-array>
-    <integer-array name="sportsimg_bulletin">
-        <item>@drawable/badminton_166415_640</item>
-        <item>@drawable/tennis_934841_640</item>
-        <item>@drawable/table_tennis_1208377_640</item>
-        <item>@drawable/soccer_ball_1285164_640</item>
-        <item>@drawable/hit_1407826_640</item>
-        <item>@drawable/basketball_1081882_640</item>
-    </integer-array>
-
-    <string-array name="level">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
-
     <string-array name="profile_image">
         <item>@string/profile_image_through_capture</item>
         <item>@string/profile_image_through_select</item>

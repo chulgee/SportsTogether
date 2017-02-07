@@ -1,13 +1,18 @@
 package com.iron.dragon.sportstogether.util;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 
+import com.iron.dragon.sportstogether.enums.SportsType;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by P16018 on 2017-01-09.
@@ -76,5 +81,12 @@ public class ImageUtil {
         return resizedBitmap;
     }
 
-
+    public static int getImageFromSports(Context context, int value){
+        List<SportsType> list = Arrays.asList(SportsType.values());
+        for(SportsType a : list){
+            if(a.getValue() == value)
+                return a.getResid_image();
+        }
+        return -1;
+    }
 }

@@ -29,6 +29,7 @@ import com.iron.dragon.sportstogether.ui.model.BuddyModel;
 import com.iron.dragon.sportstogether.ui.presenter.BuddyPresenter;
 import com.iron.dragon.sportstogether.ui.presenter.BuddyPresenterImpl;
 import com.iron.dragon.sportstogether.util.Const;
+import com.iron.dragon.sportstogether.util.StringUtil;
 import com.iron.dragon.sportstogether.util.Util;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -69,7 +70,7 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
                 }
             }
             if(!found){
-                mPresenter.loadProfile();
+                mPresenter.loadProfile(mBuddy);
             }
         }
     };
@@ -85,12 +86,14 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(item.getUsername()+"님의 프로필");
         StringBuffer sb = new StringBuffer();
-        sb.append("운동종목 : " + item.getSportsid()+"\n");
-        sb.append("사는곳 : " + item.getLocationid()+"\n");
-        sb.append("성별 : " + item.getGender()+"\n");
-        sb.append("나이 : " + item.getAge()+"\n");
-        sb.append("전화번호 : " + item.getPhone()+"\n");
-        sb.append("레벨 : " + item.getLevel()+"\n");
+        sb.append("운동종목 : " + StringUtil.getStringFromSports(this, item.getSportsid())+"\n");
+        sb.append("사는곳 : " + StringUtil.getStringFromLocation(this, item.getLocationid())+"\n");
+        sb.append("성별 : " + StringUtil.getStringFromGender(this, item.getGender())+"\n");
+        sb.append("나이 : " + StringUtil.getStringFromAge(this, item.getAge())+"\n");
+        sb.append("레벨 : " + StringUtil.getStringFromLevel(this, item.getLevel())+"\n");
+        String phone = item.getPhone();
+        if(phone == null || phone.isEmpty()) phone = "없음";
+        sb.append("전화번호 : " + phone+"\n");
         builder.setMessage(sb.toString());
         builder.create().show();
     }
@@ -157,7 +160,7 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
         mAdapter = new MyAdapter(this, mPresenter);
         lv_buddy.setAdapter(mAdapter);
 
-        mPresenter.loadProfile();
+        mPresenter.loadProfile(mBuddy);
     }
 
     class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
@@ -190,7 +193,7 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
             }else
                 vh.tv_buddy_unread.setVisibility(View.GONE);
             vh.civ_thumb.setImageResource(R.drawable.default_user);
-            if(item.getImage() != null){
+            if(item.getImage() != null && !item.getImage().isEmpty()){
                 String url = Const.MAIN_URL + "/upload_profile?filename=" + item.getImage();
                 Log.v(TAG, "onBindViewHolder url:"+url);
                 Picasso.with(BuddyActivity.this).load(url).placeholder(R.drawable.default_user).resize(50,50).centerInside().into(vh.civ_thumb);

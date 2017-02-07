@@ -2,6 +2,7 @@ package com.iron.dragon.sportstogether.ui.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
@@ -12,14 +13,15 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -28,10 +30,13 @@ import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.SportsApplication;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
+import com.iron.dragon.sportstogether.enums.LevelType;
+import com.iron.dragon.sportstogether.enums.SportsType;
 import com.iron.dragon.sportstogether.http.CallbackWithExists;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
 import com.iron.dragon.sportstogether.util.Const;
+import com.iron.dragon.sportstogether.util.StringUtil;
 import com.iron.dragon.sportstogether.util.ToastUtil;
 import com.orhanobut.logger.Logger;
 
@@ -43,6 +48,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -108,25 +114,15 @@ public class LoginActivity extends AppCompatActivity {
         Log.d("Test", "LoginActivity");
         setContentView(R.layout.profile_act);
         ButterKnife.bind(this);
-        setSupportActionBar(mToolbar);
         InitData();
         Intent i = getIntent();
         processIntent(i);
 
-        InitLayout();
+        mSpSportsType.setSelection(mSportsId);
+        mSpSportsType.setEnabled(false);
         Logger.d("parent mSpSportsType.getSelectedItemPosition() = " + mSpSportsType.getSelectedItemPosition() + " mSportsId = " + mSportsId);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home: {
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
-            }
-        }
-        return super.onOptionsItemSelected(item);
-    }
     private void processIntent(Intent i) {
         mSportsId = i.getIntExtra("Extra_Sports", 0);
     }
@@ -134,8 +130,40 @@ public class LoginActivity extends AppCompatActivity {
     private void InitData() {
         GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
         gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
-    }
+        String[] arr;
+        List<String> list;
+        ArrayAdapter<String> adapter;
 
+        arr = StringUtil.getStringArrFromSportsType(this);
+        list = new ArrayList<String>(Arrays.asList(arr));
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, list);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpSportsType.setAdapter(adapter);
+
+        arr = StringUtil.getStringArrFromLocationType(this);
+        list = new ArrayList<String>(Arrays.asList(arr));
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, list);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpLocation.setAdapter(adapter);
+
+        arr = StringUtil.getStringArrFromAgeType(this);
+        list = new ArrayList<String>(Arrays.asList(arr));
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, list);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpAge.setAdapter(adapter);
+
+        arr = StringUtil.getStringArrFromLevelType(this);
+        list = new ArrayList<String>(Arrays.asList(arr));
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, list);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpLevel.setAdapter(adapter);
+
+        arr = StringUtil.getStringArrFromGenderType(this);
+        list = new ArrayList<String>(Arrays.asList(arr));
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, list);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpGender.setAdapter(adapter);
+    }
 
     static final ButterKnife.Action<View> DISABLE = new ButterKnife.Action<View>() {
         @Override
@@ -164,23 +192,8 @@ public class LoginActivity extends AppCompatActivity {
     };
 
     protected void InitLayout() {
-//        ButterKnife.apply(nameViews, ENABLED, false);
-//        ButterKnife.apply(buttonViews, VISIBLE, false);
-        ArrayList<Profile> profileList =LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(this);
-        if(profileList.size() == 0) {
-
-        } else {
-            mEtNickName.setText(profileList.get(0).getUsername());
-            mSpAge.setSelection(profileList.get(0).getAge());
-            mSpGender.setSelection(profileList.get(0).getGender());
-            mEtPhoneNum.setText(profileList.get(0).getPhone());
-            mEtNickName.setEnabled(false);
-            mSpAge.setEnabled(false);
-            mSpGender.setEnabled(false);
-            mEtPhoneNum.setEnabled(false);
-        }
-        mSpSportsType.setSelection(mSportsId);
-        mSpSportsType.setEnabled(false);
+        ButterKnife.apply(nameViews, ENABLED, false);
+        ButterKnife.apply(buttonViews, VISIBLE, false);
     }
 
 
@@ -231,11 +244,6 @@ public class LoginActivity extends AppCompatActivity {
 
                         Log.d("Test", "body = " + response.body().toString());
                         Profile p = response.body();
-
-                        Log.v(TAG, Const.SPORTS.BADMINTON.name());
-                        Log.v(TAG, "" + Const.SPORTS.values());
-
-//                        setLogged();
 
                         if(mCropImagedUri == null) {
                             saveLocalProfile(p);

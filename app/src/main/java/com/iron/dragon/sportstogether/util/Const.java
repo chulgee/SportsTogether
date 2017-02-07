@@ -19,19 +19,5 @@ public class Const {
     public static final String PREF_UNREAD_CHAT = "pref_unread_chat";
     public static final String PREF_UNREAD_BUDDY = "pref_unread_buddy";
 
-    public enum SPORTS{
-        BADMINTON,
-        TENNIS,
-        TABLE_TENNIS,
-        SOCCER,
-        BASEBALL,
-        BASKETBALL
-    }
-
-    public enum GENDER{
-        MALE,
-        FEMALE
-    }
-
     public static final String CONTENT_URI_STR = "content://com.iron.dragon.provider";
 }

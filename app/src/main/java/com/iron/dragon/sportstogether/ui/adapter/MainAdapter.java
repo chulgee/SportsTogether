@@ -16,13 +16,12 @@ import android.widget.Toast;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
+import com.iron.dragon.sportstogether.enums.SportsType;
 import com.iron.dragon.sportstogether.factory.Sports;
 import com.iron.dragon.sportstogether.ui.activity.BulletinListActivity;
 import com.iron.dragon.sportstogether.ui.activity.LoginActivity;
 
 import java.util.List;
-
-import static com.iron.dragon.sportstogether.util.Const.SPORTS;
 
 
 public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
@@ -46,18 +45,18 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
     public void onBindViewHolder(ViewHolder holder, final int position) {
         //holder.iv.setImageResource(R.drawable.a);
         int res = 0;
-        SPORTS sports = SPORTS.values()[position];
-        if(sports.equals(SPORTS.BADMINTON)){
+        SportsType sports = SportsType.values()[position];
+        if(sports.equals(SportsType.Badminton)){
             res = R.drawable.badminton;
-        }else if(sports.equals(SPORTS.TENNIS)){
+        }else if(sports.equals(SportsType.Tennis)){
             res = R.drawable.tennis;
-        }else if(sports.equals(SPORTS.TABLE_TENNIS)){
+        }else if(sports.equals(SportsType.Table_tennis)){
             res = R.drawable.table_tennis;
-        }else if(sports.equals(SPORTS.SOCCER)){
+        }else if(sports.equals(SportsType.Soccer)){
             res = R.drawable.soccer;
-        }else if(sports.equals(SPORTS.BASEBALL)){
+        }else if(sports.equals(SportsType.Baseball)){
             res = R.drawable.baseball;
-        }else if(sports.equals(SPORTS.BASKETBALL)) {
+        }else if(sports.equals(SportsType.Basketball)) {
             res = R.drawable.basketball;
         }else{
             res = R.drawable.t;
