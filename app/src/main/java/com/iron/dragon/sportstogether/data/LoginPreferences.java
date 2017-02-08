@@ -2,10 +2,12 @@ package com.iron.dragon.sportstogether.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.preference.PreferenceManager;
 
 import com.google.gson.Gson;
 import com.iron.dragon.sportstogether.data.bean.Profile;
+import com.iron.dragon.sportstogether.enums.SportsType;
 import com.iron.dragon.sportstogether.util.StringUtil;
 
 import java.util.ArrayList;
@@ -122,12 +124,14 @@ public class LoginPreferences {
     }
 
     public ArrayList<Profile> loadSharedPreferencesProfileAll(Context context) {
-        String[] temp = StringUtil.getStringArrFromSportsType(context);
-        SharedPreferences appSharedPrefs = PreferenceManager
-                .getDefaultSharedPreferences(context.getApplicationContext());
-        Gson gson = new Gson();
+        Resources res = context.getResources();
+        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+        SportsType[] list = SportsType.values();
         ArrayList<Profile> profileList = new ArrayList<>();
-        for(String key:temp) {
+        Gson gson = new Gson();
+
+        for(SportsType s : list){
+            String key = res.getString(s.getResid());
             String json = appSharedPrefs.getString(key, "");
             if(!json.equals("")) {
                 profileList.add(gson.fromJson(json, Profile.class));

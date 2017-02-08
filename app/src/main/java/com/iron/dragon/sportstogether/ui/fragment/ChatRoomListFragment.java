@@ -4,7 +4,6 @@ import android.content.AsyncQueryHandler;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -12,7 +11,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -30,7 +28,6 @@ import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.provider.MyContentProvider;
-import com.iron.dragon.sportstogether.ui.activity.BuddyActivity;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.ui.view.UnreadView;
 import com.iron.dragon.sportstogether.util.Const;
@@ -58,7 +55,6 @@ import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper
 import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper.COLUMN_DATE;
 import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper.COLUMN_LOCATIONID;
 import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper.COLUMN_SPORTSID;
-
 
 /**
  * Created by user on 2016-08-12.
@@ -135,8 +131,8 @@ public class ChatRoomListFragment extends Fragment {
             @Override
             public void rowOnClicked(View v, int position) {
                 Item item = mAdapter.getItem(position);
-                //Toast.makeText(getContext(), "this item="+item, Toast.LENGTH_SHORT).show();
-                Profile me = LoginPreferences.GetInstance().loadSharedPreferencesProfile(getContext(), item.sportsid);
+                ArrayList<Profile> profiles = LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(getActivity());
+                Profile me = profiles.get(0);
                 loadBuddyProfile(item.room, me);
             }
 
