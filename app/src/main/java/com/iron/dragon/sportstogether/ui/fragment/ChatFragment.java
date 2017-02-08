@@ -42,6 +42,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -145,7 +146,9 @@ public class ChatFragment extends Fragment {
         Log.v(TAG, "onCreateView");
         View v = inflater.inflate(R.layout.chat_frag, container, false);
         ButterKnife.bind(this, v);
-        mMe = LoginPreferences.GetInstance().loadSharedPreferencesProfile(getActivity(), mSportsId);
+
+        ArrayList<Profile> profiles = LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(getActivity());
+        mMe = profiles.get(0);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         rView.setLayoutManager(llm);
