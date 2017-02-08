@@ -94,7 +94,7 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
         sb.append("나이 : " + StringUtil.getStringFromAge(this, item.getAge())+"\n");
         sb.append("레벨 : " + StringUtil.getStringFromLevel(this, item.getLevel())+"\n");
         String phone = item.getPhone();
-        if(phone == null || phone.isEmpty()) phone = "없음";
+        if(phone == null || phone.isEmpty() || phone.equals("0")) phone = "없음";
         sb.append("전화번호 : " + phone+"\n");
         builder.setMessage(sb.toString());
         builder.create().show();
@@ -252,7 +252,6 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
                 if(v.getId() == v_row.getId()){
                     mPresenter.onRowClick(v, buddy);
                 }else if(v.getId() == iv_chat.getId()){
-                    Toast.makeText(BuddyActivity.this, "go to chat", Toast.LENGTH_SHORT).show();
                     mPresenter.onChatClick(v, buddy);
                 }
             }
