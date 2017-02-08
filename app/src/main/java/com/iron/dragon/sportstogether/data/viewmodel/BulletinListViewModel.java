@@ -736,11 +736,10 @@ public class BulletinListViewModel extends BaseObservable {
         Logger.d("i'm go to see BuddyList");
         Intent i = new Intent(mActivity, BuddyActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        Profile me = LoginPreferences.GetInstance().loadSharedPreferencesProfile(mActivity, mSportsId);
-        me.setUsername("Bulletin");
-        me.setLevel(-1);
-        i.putExtra("Buddy", me);
-        Log.v(TAG, "Buddy : "+me.toString());
+        Profile buddy = LoginPreferences.GetInstance().loadSharedPreferencesProfile(mActivity, mSportsId);
+        buddy.setUsername("Bulletin");
+        i.putExtra("Buddy", buddy);
+        Log.v(TAG, "Buddy : "+buddy.toString());
         mActivity.startActivity(i);
     }
 }
