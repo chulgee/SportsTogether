@@ -13,7 +13,9 @@ import android.widget.TextView;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.ui.fragment.ChatFragment;
+import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.Util;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,13 +74,19 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 vh.tv2.setText(message.getMessage());
                 vh.tv5.setText(Util.getStringTime(message.getDate()));
                 vh.rl2.setVisibility(View.GONE);
-                Bitmap bmp = mFragment.getAvatarMap().get(message.getSender());
+                vh.civ1.setImageResource(R.drawable.default_user);
+                if(message.getImage() != null && !message.getImage().isEmpty()){
+                    String url = Const.MAIN_URL + "/upload_profile?filename=" + message.getImage();
+                    Log.v(TAG, "onBindViewHolder image url:"+url);
+                    Picasso.with(context).load(url).placeholder(R.drawable.default_user).resize(50,50).centerInside().into(vh.civ1);
+                }
+                /*Bitmap bmp = mFragment.getAvatarMap().get(message.getSender());
                 Log.v(TAG, "getSender="+message.getSender()+", bmp="+bmp);
                 if(bmp != null){
                     vh.civ1.setImageBitmap(bmp);
                 }else{
                     vh.civ1.setImageResource(R.drawable.default_user);
-                }
+                }*/
             }else{
                 vh.rl2.setVisibility(View.VISIBLE);
                 vh.tv3.setText(message.getSender());

@@ -30,6 +30,7 @@ import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.provider.MyContentProvider;
+import com.iron.dragon.sportstogether.ui.activity.BuddyActivity;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.ui.view.UnreadView;
 import com.iron.dragon.sportstogether.util.Const;
@@ -223,10 +224,11 @@ public class ChatRoomListFragment extends Fragment {
                         item.setUnread(count);
                         mAdapter.addItem(item);
                         //mAdapter.notifyDataSetChanged();
-                        if(item.image!=null && !item.image.isEmpty()){
+                        /*if(item.image!=null && !item.image.isEmpty()){
                             fetchAvaTar(room, item.image);
-                        }
+                        }*/
                     };
+                    mAdapter.notifyDataSetChanged();
                 }
             }
         };
@@ -299,6 +301,7 @@ public class ChatRoomListFragment extends Fragment {
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             ViewCache vh = (ViewCache)holder;
             Item item = mItems.get(position);
+
             vh.tv_title.setText(item.room+" 님과의 대화");
             int count = item.getUnread();
             if(count > 0){
@@ -308,13 +311,19 @@ public class ChatRoomListFragment extends Fragment {
             }else{
                 vh.cv_unread.setVisibility(View.GONE);
             }
-            Bitmap bmp = mAvatarMap.get(mItems.get(position).room);
+            vh.civ_thumb.setImageResource(R.drawable.default_user);
+            if(item.image != null && !item.image.isEmpty()){
+                String url = Const.MAIN_URL + "/upload_profile?filename=" + item.image;
+                Log.v(TAG, "onBindViewHolder image url:"+url);
+                Picasso.with(getActivity()).load(url).placeholder(R.drawable.default_user).resize(50,50).centerInside().into(vh.civ_thumb);
+            }
+            /*Bitmap bmp = mAvatarMap.get(mItems.get(position).room);
             Log.v(TAG, "mItems.get(position).room="+mItems.get(position).room+", bmp="+bmp);
             if(bmp != null){
                 vh.civ_thumb.setImageBitmap(bmp);
             }else{
                 vh.civ_thumb.setImageResource(R.drawable.default_user);
-            }
+            }*/
         }
 
         @Override

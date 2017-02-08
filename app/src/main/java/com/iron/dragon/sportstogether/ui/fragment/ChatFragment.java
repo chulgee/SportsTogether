@@ -202,11 +202,12 @@ public class ChatFragment extends Fragment {
                         String sender = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_SENDER));
                         String receiver = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_RECEIVER));
                         String msg = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_MESSAGE));
+                        String image = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_IMAGE));
                         int from = cursor.getInt(cursor.getColumnIndex(DbHelper.COLUMN_FROM));
                         long date = cursor.getLong(cursor.getColumnIndex(DbHelper.COLUMN_DATE));
                         int message_type = cursor.getInt(cursor.getColumnIndex(DbHelper.COLUMN_MESSAGE_TYPE));
                         Message message = new Message.Builder(from).msgType(message_type).sender(sender)
-                                .receiver(receiver).message(msg).date(date).room(mBuddyName).build();
+                                .receiver(receiver).message(msg).date(date).room(mBuddyName).image(image).build();
                         mAdapter.addMessage(message);
                         Log.v(TAG, "message="+message);
                     };
@@ -227,7 +228,8 @@ public class ChatFragment extends Fragment {
                 DbHelper.COLUMN_RECEIVER,
                 DbHelper.COLUMN_MESSAGE,
                 DbHelper.COLUMN_FROM,
-                DbHelper.COLUMN_MESSAGE_TYPE
+                DbHelper.COLUMN_MESSAGE_TYPE,
+                DbHelper.COLUMN_IMAGE
         };
         queryHandler.startQuery(1, null, MyContentProvider.CONTENT_URI, projection, "sender=? or receiver=?", new String[]{mBuddyName, mBuddyName}, " date asc");
     }
@@ -249,14 +251,14 @@ public class ChatFragment extends Fragment {
                 tvBuddy.setText(mBuddyName);
                 Util.setUnreadChat(getActivity(), mBuddyName, 0);
 
-                if(mBuddy.getImage() != null && !mBuddy.getImage().isEmpty()) {
+                /*if(mBuddy.getImage() != null && !mBuddy.getImage().isEmpty()) {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             fetchAvaTar(mBuddy.getImage());
                         }
                     });
-                }
+                }*/
             }
         }else{
             Toast.makeText(getActivity(), "친구정보가 없습니다.", Toast.LENGTH_SHORT).show();
