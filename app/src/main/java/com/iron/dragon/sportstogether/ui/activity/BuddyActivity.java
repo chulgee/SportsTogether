@@ -1,6 +1,7 @@
 package com.iron.dragon.sportstogether.ui.activity;
 
 import android.app.AlertDialog;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -45,6 +46,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.BuddyView {
 
     private static final String TAG = "BuddyActivity";
+    public static final int VIEW_TYPE_HEADER = 0;
+    public static final int VIEW_TYPE_ITEM = 1;
+
     RecyclerView lv_buddy;
     TextView tb_tv_count;
     MyAdapter mAdapter;
@@ -181,31 +185,49 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View v;
-            Log.v(TAG, "parent="+parent);
-            v = LayoutInflater.from(mContext).inflate(R.layout.buddy_list_item, parent, false);
-            return new ViewCache(v);
+
+            if(viewType == VIEW_TYPE_HEADER){
+                v = LayoutInflater.from(mContext).inflate(R.layout.buddy_list_header, parent, false);
+                return new HeaderViewHolder(v);
+            }else if(viewType == VIEW_TYPE_ITEM){
+                v = LayoutInflater.from(mContext).inflate(R.layout.buddy_list_item, parent, false);
+                return new ItemViewHolder(v);
+            }
+            return new ItemViewHolder(parent);
         }
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-            ViewCache vh = (ViewCache)holder;
-            Profile item = mItems.get(position);
-            vh.tv_title.setText(item.getUsername());
-            if(item.getUnread() > 0){
-                vh.tv_buddy_unread.setVisibility(View.VISIBLE);
-            }else
-                vh.tv_buddy_unread.setVisibility(View.GONE);
-            vh.civ_thumb.setImageResource(R.drawable.default_user);
-            if(item.getImage() != null && !item.getImage().isEmpty()){
-                String url = Const.MAIN_URL + "/upload_profile?filename=" + item.getImage();
-                Log.v(TAG, "onBindViewHolder url:"+url);
-                Picasso.with(BuddyActivity.this).load(url).placeholder(R.drawable.default_user).resize(50,50).centerInside().into(vh.civ_thumb);
+
+            if(holder instanceof HeaderViewHolder){
+                HeaderViewHolder hHolder = (HeaderViewHolder)holder;
+                hHolder.tv_buddy_header_title.setText("동네친구 목록");
+                hHolder.tv_buddy_header_subtitle.setText(StringUtil.getStringFromLocation(BuddyActivity.this, mBuddy.getLocationid())+" 친구들입니다.");
+            }else if(holder instanceof ItemViewHolder){
+                Profile item = mItems.get(position-1);
+                ItemViewHolder iHolder = (ItemViewHolder)holder;
+                iHolder.tv_title.setText(item.getUsername());
+                if(item.getUnread() > 0){
+                    iHolder.tv_buddy_unread.setVisibility(View.VISIBLE);
+                }else
+                    iHolder.tv_buddy_unread.setVisibility(View.GONE);
+                iHolder.civ_thumb.setImageResource(R.drawable.default_user);
+                if(item.getImage() != null && !item.getImage().isEmpty()){
+                    String url = Const.MAIN_URL + "/upload_profile?filename=" + item.getImage();
+                    Log.v(TAG, "onBindViewHolder url:"+url);
+                    Picasso.with(BuddyActivity.this).load(url).placeholder(R.drawable.default_user).resize(50,50).centerInside().into(iHolder.civ_thumb);
+                }
             }
         }
 
         @Override
         public int getItemCount() {
-            return mItems.size();
+            return mItems.size()+1;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return (position==0?VIEW_TYPE_HEADER:VIEW_TYPE_ITEM);
         }
 
         public Profile getItem(int index){
@@ -215,6 +237,7 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
         public void setItem(List<Profile> buddies){
             mItems = buddies;
         }
+
         public void addItem(Profile item){
             mItems.add(item);
         }
@@ -223,8 +246,18 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
             mItems.remove(index);
         }
 
+        class HeaderViewHolder extends RecyclerView.ViewHolder{
+            TextView tv_buddy_header_title;
+            TextView tv_buddy_header_subtitle;
 
-        class ViewCache extends RecyclerView.ViewHolder implements View.OnClickListener{
+            public HeaderViewHolder(View v) {
+                super(v);
+                tv_buddy_header_title = (TextView) v.findViewById(R.id.tv_buddy_header_title);
+                tv_buddy_header_subtitle = (TextView) v.findViewById(R.id.tv_buddy_header_subtitle);
+            }
+        }
+
+        class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
             View v_row;
             CircleImageView civ_thumb;
             TextView tv_title;
@@ -232,7 +265,7 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
             TextView tv_subtitle;
             ImageView iv_chat;
 
-            public ViewCache(View v) {
+            public ItemViewHolder(View v) {
                 super(v);
                 v_row = v;
                 v.setOnClickListener(this);
@@ -246,7 +279,7 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
 
             @Override
             public void onClick(View v) {
-                Profile buddy = mItems.get(getAdapterPosition());
+                Profile buddy = mItems.get(getAdapterPosition()-1);
                 Util.setUnreadBuddy(BuddyActivity.this, buddy.getUsername(), 0);
 
                 if(v.getId() == v_row.getId()){
@@ -257,28 +290,4 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
             }
         }
     }
-
-/*    class Item{
-        String username;
-        int sportsid;
-        int locationid;
-        String image;
-
-        public Item(String username, int sportsid, int locationid, String image){
-            this.username = username;
-            this.image = image;
-            this.sportsid = sportsid;
-            this.locationid = locationid;
-        }
-
-        @Override
-        public String toString() {
-            return "Item{" +
-                    "username='" + username + '\'' +
-                    ", sportsid=" + sportsid +
-                    ", locationid=" + locationid +
-                    ", image='" + image + '\'' +
-                    '}';
-        }
-    }*/
 }
