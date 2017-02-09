@@ -206,6 +206,7 @@ public class ChatRoomListFragment extends Fragment {
                 Log.v(TAG, "token="+token+", cursor="+cursor);
                 super.onQueryComplete(token, cookie, cursor);
                 if(cursor != null && cursor.getCount()>0){
+                    List<Item> list = new ArrayList<Item>();
                     while(cursor.moveToNext()){
                         String room = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_ROOM));
                         String sender = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_SENDER));
@@ -218,12 +219,9 @@ public class ChatRoomListFragment extends Fragment {
                         int count = Util.getUnreadChat(getActivity(), room);
                         Log.v(TAG, "item="+item+", unread="+count);
                         item.setUnread(count);
-                        mAdapter.addItem(item);
-                        //mAdapter.notifyDataSetChanged();
-                        /*if(item.image!=null && !item.image.isEmpty()){
-                            fetchAvaTar(room, item.image);
-                        }*/
+                        list.add(item);
                     };
+                    mAdapter.setItems(list);
                     mAdapter.notifyDataSetChanged();
                 }
             }
@@ -333,6 +331,10 @@ public class ChatRoomListFragment extends Fragment {
 
         public void addItem(Item item){
             mItems.add(item);
+        }
+
+        public void setItems(List<Item> list){
+            mItems = list;
         }
 
         public void removeItem(int index){
