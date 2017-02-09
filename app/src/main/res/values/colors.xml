@@ -5,4 +5,12 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="black_overlay">#66000000</color>
+    <color name="sports_bg">#ff004050</color>
+    <color name="sports_1">#ff2777EC</color>
+    <color name="sports_2">#ff5f3bba</color>
+    <color name="sports_3">#ffdb552d</color>
+    <color name="sports_4">#ff008c17</color>
+    <color name="sports_5">#ff1E7983</color>
+    <color name="sports_6">#ff2777EC</color>
+
 </resources>
