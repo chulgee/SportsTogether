@@ -81,11 +81,11 @@ public class ImageUtil {
         return resizedBitmap;
     }
 
-    public static int getImageFromSports(Context context, int value){
+    public static int getImage2FromSports(Context context, int value){
         List<SportsType> list = Arrays.asList(SportsType.values());
         for(SportsType a : list){
             if(a.getValue() == value)
-                return a.getResid_image();
+                return a.getResid_image2();
         }
         return -1;
     }
