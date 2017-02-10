@@ -4,6 +4,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
         <variable
+            name="viewholderitem"
+            type="com.iron.dragon.sportstogether.ui.adapter.BulletinRecyclerViewAdapter.ViewHolderItem"/>
+        <variable
             name="listimage"
             type="com.iron.dragon.sportstogether.data.bean.Bulletin_image"/>
     </data>
@@ -15,7 +18,8 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="@{viewholderitem::onClickBulletinImage}"
         app:bulletinimageUrl="@{listimage.bulletinImage}"/>
 
 </LinearLayout>
-    </layout>
+</layout>

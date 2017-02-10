@@ -45,9 +45,11 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     public void setIndex(int index) {
         this.index = index;
     }
+
     private ArrayList<BulletinListItem> malBulletin;
     private OnItemLongClickListener IonItemLongClickListener;
     private OnFooterItemClickListener IonFooterItemClickListener;
+    private OnImageClickListener IonImageClickListener;
     private Context mContext;
 
     public BulletinRecyclerViewAdapter(Context context) {
@@ -57,9 +59,9 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
 
     public void addItem(BulletinListItem bulletin) {
         int insertIndex = 1;
-        if(bulletin.getType() == BulletinListItem.TYPE_HEADER && malBulletin.contains(bulletin)) {
+        if (bulletin.getType() == BulletinListItem.TYPE_HEADER && malBulletin.contains(bulletin)) {
             return;
-        } else if(bulletin.getType() == BulletinListItem.TYPE_HEADER && !malBulletin.contains(bulletin)) {
+        } else if (bulletin.getType() == BulletinListItem.TYPE_HEADER && !malBulletin.contains(bulletin)) {
             insertIndex = 0;
         }
         malBulletin.add(insertIndex, bulletin);
@@ -72,7 +74,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         notifyDataSetChanged();
     }
 
-    public BulletinListItem getItem(int index){
+    public BulletinListItem getItem(int index) {
         return malBulletin.get(index);
     }
 
@@ -80,7 +82,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         malBulletin.clear();
     }
 
-    public class ViewHolderItem extends RecyclerView.ViewHolder  {
+    public class ViewHolderItem extends RecyclerView.ViewHolder {
         private final BulletinListItemBinding mBinding;
 
         public ViewHolderItem(BulletinListItemBinding binding) {
@@ -95,7 +97,7 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             if (item instanceof BulletinEventItem) {
                 Bulletin bulletin = ((BulletinEventItem) item).getBulletin();
                 Profile me = (Profile) LoginPreferences.GetInstance().loadSharedPreferencesProfile(mContext, bulletin.getSportsid());
-                if(me.getUsername().equals(bulletin.getUsername())){
+                if (me.getUsername().equals(bulletin.getUsername())) {
                     Toast.makeText(mContext, "너 잖아~", Toast.LENGTH_SHORT).show();
                     return true;
                 }
@@ -104,7 +106,14 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             onItemHolderLongClick(this);
             return true;
         }
+        public void onClickBulletinImage(View v) {
+            Logger.d("onClickBulletinImage");
+            onItemHolderImageClick(this, v);
+//            zoomImageFromThumb(thumb1View, R.drawable.image1);
+//            ImageViewPopUpHelper.enablePopUpOnClick(mContext, profile_image, ((ImageView)v).getDrawable());
+        }
     }
+
     @BindingAdapter({"bind:imageUrl"})
     public static void profileImage(View v, String url) {
         Logger.d("url = " + url);
@@ -214,6 +223,8 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
             BulletinMyCustomViewBinding binding = BulletinMyCustomViewBinding.inflate(inflater, viewGroup, true);
             binding.setListimage(image);
+            binding.setViewholderitem(outer.getViewholderitem());
+
         }
     }
 
@@ -248,6 +259,21 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     private void onItemHolderLongClick(ViewHolderItem itemHolder) {
         if (IonItemLongClickListener != null) {
             IonItemLongClickListener.onItemLongClick(null, itemHolder.itemView,
+                    itemHolder.getAdapterPosition(), itemHolder.getItemId());
+        }
+    }
+
+    public interface OnImageClickListener {
+        void onImageClick(AdapterView<?> parent, View itemView, int adapterPosition, long itemId);
+    }
+
+    public void setOnImageClickListener(OnImageClickListener listener) {
+        IonImageClickListener = listener;
+    }
+
+    private void onItemHolderImageClick(ViewHolderItem itemHolder, View v) {
+        if (IonImageClickListener != null) {
+            IonImageClickListener.onImageClick(null, v,
                     itemHolder.getAdapterPosition(), itemHolder.getItemId());
         }
     }

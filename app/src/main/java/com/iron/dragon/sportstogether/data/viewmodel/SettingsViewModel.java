@@ -1,19 +1,17 @@
 package com.iron.dragon.sportstogether.data.viewmodel;
 
 import android.databinding.BaseObservable;
-import android.util.Log;
 
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Settings;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.ui.activity.SettingsActivity;
 import com.iron.dragon.sportstogether.util.Const;
+import com.orhanobut.logger.Logger;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-import static android.content.ContentValues.TAG;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by P16018 on 2017-02-06.
@@ -36,18 +34,16 @@ public class SettingsViewModel extends BaseObservable {
         GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
         GitHubService gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
         Settings update = new Settings(buddycheck, chatcheck);
-        final Call<Settings> call =
-                gitHubService.putSettings(LoginPreferences.GetInstance().GetRegid(mActivity.getApplicationContext()), update);
-        call.enqueue(new Callback<Settings>() {
-            @Override
-            public void onResponse(Call<Settings> call, Response<Settings> response) {
-                Log.v(TAG, "onResponse response.isSuccessful()=" + response.isSuccessful());
-            }
-            @Override
-            public void onFailure(Call<Settings> call, Throwable t) {
-                Log.d("Test", "error message = " + t.getMessage());
-            }
-        });
+
+        gitHubService.putSettings(LoginPreferences.GetInstance().GetRegid(mActivity.getApplicationContext()), update)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Settings>() {
+                    @Override
+                    public void call(Settings settings) {
+                        Logger.v("onResponse response.isSuccessful()=" + settings.toString());
+                    }
+                });
 
 
     }

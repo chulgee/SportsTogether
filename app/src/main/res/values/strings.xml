@@ -116,4 +116,6 @@
 
         <string name="buddyview">동네친구 보러가기</string>
 
+    <string name="sub_location_title">%1$s 지역 모임</string>
+
 </resources>

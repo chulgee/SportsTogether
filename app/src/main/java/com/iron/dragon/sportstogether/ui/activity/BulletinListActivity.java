@@ -10,12 +10,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.iron.dragon.sportstogether.R;
@@ -140,6 +146,42 @@ public class BulletinListActivity extends AppCompatActivity  {
             }
         });
 
+        adapter.setOnImageClickListener(new BulletinRecyclerViewAdapter.OnImageClickListener() {
+            @Override
+            public void onImageClick(AdapterView<?> parent, View imageView, int adapterPosition, long itemId) {
+                LayoutInflater layoutInflater
+                        = (LayoutInflater)getBaseContext()
+                        .getSystemService(LAYOUT_INFLATER_SERVICE);
+                View popupView = layoutInflater.inflate(R.layout.bulletin_list_image_popup, null);
+                final PopupWindow popupWindow = new PopupWindow(
+                        popupView,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+
+                ImageView btnDismiss = (ImageView)popupView.findViewById(R.id.popup_image);
+                btnDismiss.setImageDrawable(((ImageView)imageView).getDrawable());
+                btnDismiss.setOnClickListener(new Button.OnClickListener(){
+                    @Override
+                    public void onClick(View v) {
+                        // TODO Auto-generated method stub
+                        popupWindow.dismiss();
+                    }});
+
+                popupWindow.setOutsideTouchable(true);
+                popupWindow.setTouchInterceptor(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        if (event.getAction() == MotionEvent.ACTION_OUTSIDE) {
+                            popupWindow.dismiss();
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+
+                popupWindow.showAtLocation(imageView, Gravity.CENTER, 0, 0);
+            }
+        });
     }
 
     public void ShowChangeImageActionDialog(MaterialDialog.Builder b) {
@@ -208,4 +250,5 @@ public class BulletinListActivity extends AppCompatActivity  {
     public void showToast(String string) {
         ToastUtil.show(getApplicationContext(), string);
     }
+
 }
