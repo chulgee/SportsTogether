@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
+import com.iron.dragon.sportstogether.data.bean.Bulletin;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
@@ -45,6 +46,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -201,7 +203,6 @@ public class ChatFragment extends Fragment {
                 super.onQueryComplete(token, cookie, cursor);
                 if(cursor != null && cursor.getCount()>0){
                     while(cursor.moveToNext()){
-                        //String room = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_ROOM));
                         String sender = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_SENDER));
                         String receiver = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_RECEIVER));
                         String msg = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_MESSAGE));
@@ -253,94 +254,16 @@ public class ChatFragment extends Fragment {
                 }
                 tvBuddy.setText(mBuddyName);
                 Util.setUnreadChat(getActivity(), mBuddyName, 0);
-
-                /*if(mBuddy.getImage() != null && !mBuddy.getImage().isEmpty()) {
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            fetchAvaTar(mBuddy.getImage());
-                        }
-                    });
-                }*/
             }
         }else{
             Toast.makeText(getActivity(), "친구정보가 없습니다.", Toast.LENGTH_SHORT).show();
         }
-
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         //loadBuddyProfile();
-    }
-
-    private void loadBuddyProfile(Message message){
-        // buddy의 profile 가져오기
-
-        Log.v(TAG, "mBuddyName="+mBuddyName+", mMe.getSportsid()="+mMe.getSportsid()+", mMe.getLocationid()="+mMe.getLocationid());
-        final Call<String> call =
-                mRetrofit.getProfiles(message.getSender(), mMe.getSportsid(), mMe.getLocationid(), 0, -1);
-        call.enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                Log.d("loadBuddyProfile", "code = " + response.code() + " is successful = " + response.isSuccessful());
-                Log.d("loadBuddyProfile", "body = " + response.body().toString());
-                Log.d("loadBuddyProfile", "message = " + response.toString());
-                if (response.isSuccessful()) {
-                    JSONObject obj = null;
-                    try {
-                        obj = new JSONObject(response.body().toString());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    Gson gson = new Gson();
-                    try {
-                        String command = obj.getString("command");
-                        String code = obj.getString("code");
-                        JSONArray arr = obj.getJSONArray("message");
-                        mBuddy = gson.fromJson(arr.get(0).toString(), Profile.class);
-                        Log.v(TAG, "buddy: "+mBuddy.toString());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    if(mBuddy.getImage() != null) {
-                        mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                fetchAvaTar(mBuddy.getImage());
-                            }
-                        });
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                Log.d("Test", "error message = " + t.getMessage());
-            }
-        });
-    }
-
-    public void fetchAvaTar(final String filename){
-        // me와 buddy 아바타 가져오기
-        String url = Const.MAIN_URL + "/upload_profile?filename=" + filename;
-        //final Bitmap bmp;
-        Log.v(TAG, "fetchAvaTar url="+url);
-        Picasso.with(getActivity()).load(url).resize(50,50).centerInside().into(new Target(){
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                Log.v(TAG, "fetchAvaTar mBuddyName="+mBuddyName+", bitmap="+bitmap);
-                mAvatarMap.put(mBuddyName, bitmap);
-                mAdapter.notifyDataSetChanged();
-            }
-            @Override
-            public void onBitmapFailed(Drawable errorDrawable) {
-            }
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-            }
-        });
     }
 
     public static Map<String, Fragment> getChatRoom(){

@@ -15,13 +15,16 @@ import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
+import com.iron.dragon.sportstogether.data.bean.Bulletin;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
+import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
 import com.iron.dragon.sportstogether.ui.fragment.ChatFragment;
 import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.DbUtil;
@@ -32,7 +35,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -322,51 +328,18 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
         }
     }
 
-    private void loadBuddyProfile(final Message message){
-        // buddy의 profile 가져오기
-        GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
-        GitHubService retrofit = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
-        final Call<String> call =
-                retrofit.getProfiles(message.getSender(), me.getSportsid(), me.getLocationid(), 0, -1);
-        call.enqueue(new Callback<String>() {
+    void createMsgNoti(final Message message){
+        //loadBuddyProfile(message);
+        ArrayList<Profile> profiles = LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(this);
+        final Profile me = profiles.get(0);
+        Log.v(TAG, "createMsgNoti message="+message.toString());
+        RetrofitHelper.loadProfile(this, me, message.getSender(), message.getSportsid(), message.getLocationid(), new RetrofitHelper.RETRO_CALLBACK() {
             @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                Log.d("loadBuddyProfile", "code = " + response.code() + " is successful = " + response.isSuccessful());
-                Log.d("loadBuddyProfile", "body = " + response.body().toString());
-                Log.d("loadBuddyProfile", "message = " + response.toString());
-                if (response.isSuccessful()) {
-                    JSONObject obj = null;
-                    try {
-                        obj = new JSONObject(response.body());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    Gson gson = new Gson();
-                    Profile buddy = null;
-                    try {
-                        String command = obj.getString("command");
-                        String code = obj.getString("code");
-                        JSONArray arr = obj.getJSONArray("message");
-                        buddy = gson.fromJson(arr.get(0).toString(), Profile.class);
-                        Log.v(TAG, "buddy: "+buddy.toString());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    postMsgNoti(message, buddy);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                Log.d("Test", "error message = " + t.getMessage());
+            public void onLoaded(Profile profile) {
+                Log.v(TAG, "onLoaded profile="+profile.toString());
+                postMsgNoti(message, profile);
             }
         });
-    }
-
-    void createMsgNoti(Message message){
-
-        loadBuddyProfile(message);
-
     }
 
     void postMsgNoti(Message message, Profile buddy){
@@ -379,7 +352,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
         Notification.Builder builder = new Notification.Builder(getApplicationContext());
         builder.setSmallIcon(R.drawable.friend_icon_normal);
         String str = message.getSender()+": "+message.getMessage();
-        Log.v(TAG, "createMsgNoti str="+str);
+        Log.v(TAG, "postMsgNoti str="+str);
         builder.setContentText(str);
         builder.setContentTitle("함께 운동해요");
         builder.setContentIntent(pi);
