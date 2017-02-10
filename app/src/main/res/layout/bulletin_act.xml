@@ -15,6 +15,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+
     tools:context="com.iron.dragon.sportstogether.ui.activity.BulletinListActivity"
     >
     <android.support.v4.widget.SwipeRefreshLayout
@@ -65,6 +66,14 @@
                     app:title="@string/bulletin"
                     app:navigationIcon="?attr/homeAsUpIndicator"
                     app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:paddingStart="10dip"
+                    android:textColor="@android:color/white"
+                    android:text="@{@string/sub_location_title(viewModel.Location)}"
+                    android:textSize="40dp"/>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="100dip"
@@ -151,5 +160,15 @@
     </android.support.design.widget.CoordinatorLayout>
     </android.support.v4.widget.SwipeRefreshLayout>
 
+    <ImageView
+        android:id="@+id/expanded_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"
+         />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/container"></FrameLayout>
 </LinearLayout>
 </layout>
