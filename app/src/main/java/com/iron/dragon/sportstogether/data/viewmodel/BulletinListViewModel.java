@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.net.Uri;
+import android.net.http.HttpResponseCache;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
@@ -22,6 +23,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.android.databinding.library.baseAdapters.BR;
@@ -55,6 +57,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -69,6 +72,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.http.HTTP;
 
 import static android.content.ContentValues.TAG;
 
@@ -225,10 +229,17 @@ public class BulletinListViewModel extends BaseObservable {
             @Override
             public void onResponse(Call<List<Bulletin>> call, Response<List<Bulletin>> response) {
                 Log.d("Test", "code = " + response.code() + " issuccessful = " + response.isSuccessful());
-                Log.d("Test", "body = " + response.body().toString());
-                Log.d("Test", "message = " + response.message());
-                List<Bulletin> list = response.body();
-                initListView(list);
+                if(response.isSuccessful()){
+                    if(response.body() != null){
+                        Log.d("Test", "body = " + (response.body()!=null?response.body().toString():null));
+                        Log.d("Test", "message = " + response.message());
+                        List<Bulletin> list = response.body();
+                        initListView(list);
+                    }else
+                        Toast.makeText(mActivity, "데이터가 없습니다", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(mActivity, response.errorBody().toString(), Toast.LENGTH_SHORT).show();
+                }
                 setLoading(false);
                 mActivity.stopLoadingProgress();
                 swipeRefreshViewRefreshing.set(false);
