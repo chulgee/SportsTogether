@@ -281,7 +281,7 @@ public class BulletinListViewModel extends BaseObservable {
     }
 
     public int getSportsMainImage() {
-        int res = ImageUtil.getImage2FromSports(mActivity, mSportsId);
+        int res = ImageUtil.getImageFromSports(mActivity, mSportsId);
         return res;
     }
 
