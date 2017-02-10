@@ -106,7 +106,7 @@ public class RetrofitHelper {
         GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
         GitHubService retrofit = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
 
-        final Call<Profile> call = retrofit.getProfiles(username, sportsid, locationid);
+        final Call<Profile> call = retrofit.getProfile(username, sportsid, locationid);
         call.enqueue(new Callback<Profile>() {
             @Override
             public void onResponse(Call<Profile> call, Response<Profile> response) {
