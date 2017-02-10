@@ -75,7 +75,7 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
                 }
             }
             if(!found){
-                mPresenter.loadProfile(mBuddy);
+                mPresenter.loadProfiles(mBuddy);
             }
         }
     };
@@ -167,7 +167,7 @@ public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.B
         mAdapter = new MyAdapter(this, mPresenter);
         lv_buddy.setAdapter(mAdapter);
 
-        mPresenter.loadProfile(mBuddy);
+        mPresenter.loadProfiles(mBuddy);
     }
 
     class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{

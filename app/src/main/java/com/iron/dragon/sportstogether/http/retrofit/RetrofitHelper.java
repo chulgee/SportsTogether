@@ -1,8 +1,24 @@
 package com.iron.dragon.sportstogether.http.retrofit;
 
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
+import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.iron.dragon.sportstogether.data.bean.Message;
+import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.CallbackWithExists;
 import com.iron.dragon.sportstogether.http.RetryableCallback;
+import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
+import com.iron.dragon.sportstogether.util.Const;
 import com.orhanobut.logger.Logger;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Date;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -19,6 +35,7 @@ public class RetrofitHelper {
     public static final int SUCCESS = 1;
     public static final int EXISTS = 2;
     public static final int FAILURE = 3;
+    private static final String TAG = "RetrofitHelper";
 
 
     public static <T> void enqueueWithRetry(Call<T> call,  final int retryCount,final Callback<T> callback) {
@@ -79,5 +96,37 @@ public class RetrofitHelper {
         } else {
             return FAILURE;
         }
+    }
+
+    public interface RETRO_CALLBACK{
+        public void onLoaded(Profile profile);
+    }
+
+    public static void loadProfile(final Context context, final Profile me, String username, int sportsid, int locationid, final RETRO_CALLBACK cb) {
+        GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+        GitHubService retrofit = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
+
+        final Call<Profile> call = retrofit.getProfiles(username, sportsid, locationid);
+        call.enqueue(new Callback<Profile>() {
+            @Override
+            public void onResponse(Call<Profile> call, Response<Profile> response) {
+                if(response.isSuccessful()){
+                    if(response.body() != null){
+                        Log.d(TAG, "response.body() = " + (response.body()!=null?response.body().toString():null));
+                        Log.d(TAG, "response.message() = " + response.message());
+                        Profile profile = response.body();
+                        cb.onLoaded(profile);
+                    }else
+                        Toast.makeText(context, "데이터가 없습니다", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(context, response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Profile> call, Throwable t) {
+                Log.d("Test", "error message = " + t.getMessage());
+            }
+        });
     }
 }
