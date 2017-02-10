@@ -3,6 +3,9 @@ package com.iron.dragon.sportstogether.ui.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.LevelListDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Display;
@@ -61,17 +64,14 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
             height = 400;
         else
             height = 800;
-        holder.tv.setText(StringUtil.getStringFromSports(mContext, item.getResid()));
+        holder.tv.setText(StringUtil.getStringFromSports(mContext, item.getValue()));
         Animation animation = AnimationUtils.loadAnimation(mContext, android.R.anim.slide_in_left);
         holder.iv.setAnimation(animation);
-        //holder.iv.getLayoutParams().width = mScreenWidth/2;
-        //holder.iv.getLayoutParams().height = height;
-        Log.v(TAG, "item.getResid_image1()="+item.getResid_image1());
-        //holder.iv.setBackgroundResource(item.getResid_image1());
         holder.flayout_sports.getLayoutParams().height = height;
         holder.flayout_sports.getLayoutParams().width = mScreenWidth/2;
-        holder.flayout_sports.setBackgroundResource(item.getResid_image1());
-        //Picasso.with(mContext).load(item.getResid_image1()).resize(mScreenWidth/2, height).centerCrop().into(holder.iv);
+        holder.flayout_sports.setBackgroundResource(item.getResid_color());
+        holder.flayout_sports.setForeground(new MyStateListDrawable(mContext));
+        holder.iv.setImageResource(item.getResid_icon());
     }
 
     @Override
@@ -107,7 +107,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
                         Profile profile = LoginPreferences.GetInstance().loadSharedPreferencesProfile(v.getContext(), item.getValue());
                         i.putExtra("MyProfile", profile);
                         i.putExtra("Extra_Sports", item.getValue());
-                        i.putExtra("Extra_SportsImg", item.getResid_image2());
+                        i.putExtra("Extra_SportsImg", item.getResid_image());
                         i.setClass(mContext, BulletinListActivity.class);
                     }else{
                         i.putExtra("Extra_Sports", item.getValue());
@@ -116,6 +116,22 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
                     mContext.startActivity(i);
                 }
             });
+        }
+    }
+
+    public class MyStateListDrawable extends StateListDrawable {
+
+        public MyStateListDrawable(Context context) {
+
+            //int stateChecked = android.R.attr.state_checked;
+            int stateFocused = android.R.attr.state_focused;
+            int statePressed = android.R.attr.state_pressed;
+            int stateSelected = android.R.attr.state_selected;
+
+            addState(new int[]{ stateSelected      }, context.getResources().getDrawable(R.color.black_overlay));
+            addState(new int[]{ statePressed      }, context.getResources().getDrawable(R.color.black_overlay));
+            addState(new int[]{ stateFocused      }, context.getResources().getDrawable(R.color.black_overlay));
+            //addState(new int[]{-stateFocused, -statePressed, -stateSelected}, context.getResources().getDrawable(R.drawable.nav_btn_default));
         }
     }
 }

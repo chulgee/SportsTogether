@@ -56,24 +56,30 @@ public class SportsFragment extends Fragment {
         }
         Log.v(TAG, "getList="+mFactory.getList().toString());*/
         mAdapter = new MainAdapter(getActivity());//, mFactory.getList());
-        Lv_list.addItemDecoration((new SpacesItemDecoration(16)));
+        Lv_list.addItemDecoration((new SpacesItemDecoration(SpacesItemDecoration.MARGIN_BETWEEN_ITEM)));
         Lv_list.setAdapter(mAdapter);
 
         return rootView;
     }
 
     public class SpacesItemDecoration extends RecyclerView.ItemDecoration {
+        public static final int MARGIN_BETWEEN_ITEM = 16;
         private final int mSpace;
+
         public SpacesItemDecoration(int space) {
             this.mSpace = space;
         }
+
         @Override
         public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-            outRect.left = mSpace;
+            int position = parent.getChildAdapterPosition(view);
+
+            if(position == 0 || (position%2 == 1 && position != 1))
+                outRect.left = mSpace;
             outRect.right = mSpace;
             outRect.bottom = mSpace;
             // Add top margin only for the first item to avoid double space between items
-            if (parent.getChildAdapterPosition(view) == 0)
+            if (parent.getChildAdapterPosition(view) == 0 || parent.getChildAdapterPosition(view) == 1)
                 outRect.top = mSpace;
         }
     }
