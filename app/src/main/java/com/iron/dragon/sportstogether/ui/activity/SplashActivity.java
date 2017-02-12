@@ -63,7 +63,7 @@ public class SplashActivity extends AppCompatActivity {
                             sb.append(mPermissionsStr[i]+" ");
                         }
                     }
-                    Toast.makeText(this, sb.toString()+"퍼미션을 허락해주세요", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, sb.toString()+"권한을 허락해주세요", Toast.LENGTH_LONG).show();
                     finish();
                 }
                 break;
