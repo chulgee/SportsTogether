@@ -58,6 +58,7 @@ public class SplashActivity extends AppCompatActivity {
                     checkOverlayPermission(this);
 
                 } else {
+                    Toast.makeText(this, "퍼미션을 허락해주세요", Toast.LENGTH_SHORT).show();
                     finish();
                 }
                 break;
