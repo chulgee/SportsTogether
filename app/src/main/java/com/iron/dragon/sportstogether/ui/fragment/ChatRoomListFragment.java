@@ -24,9 +24,11 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
+import com.iron.dragon.sportstogether.data.bean.Bulletin;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
+import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
 import com.iron.dragon.sportstogether.provider.MyContentProvider;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.ui.view.UnreadView;
@@ -132,8 +134,20 @@ public class ChatRoomListFragment extends Fragment {
             public void rowOnClicked(View v, int position) {
                 Item item = mAdapter.getItem(position);
                 ArrayList<Profile> profiles = LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(getActivity());
-                Profile me = profiles.get(0);
-                loadBuddyProfile(item.room, me);
+                final Profile me = profiles.get(0);
+                Log.v(TAG, "rowOnClicked item="+item.toString());
+                RetrofitHelper.loadProfile(getActivity(), me, item.room, item.sportsid, item.locationid, new RetrofitHelper.RETRO_CALLBACK() {
+                    @Override
+                    public void onLoaded(Profile profile) {
+                        Log.v(TAG, "onLoaded profile="+profile.toString());
+                        Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(profile.getUsername())
+                                .message("Conversation get started").date(new Date().getTime()).image(null).build();
+                        Intent i = new Intent(getActivity(), ChatActivity.class);
+                        i.putExtra("Message", message);
+                        i.putExtra("Buddy", profile);
+                        getActivity().startActivity(i);
+                    }
+                });
             }
 
             @Override
@@ -146,57 +160,6 @@ public class ChatRoomListFragment extends Fragment {
 
         mPref = getActivity().getSharedPreferences(Const.PREF_UNREAD_CHAT, Context.MODE_PRIVATE);
         mPref.registerOnSharedPreferenceChangeListener(mPrefListener);
-    }
-
-    private void loadBuddyProfile(String buddy, final Profile me){
-        // buddy의 profile 가져오기
-        Log.v(TAG, "buddy="+buddy+", sportsid="+me.getSportsid()+", locationid="+me.getLocationid());
-        GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
-        GitHubService retrofit = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
-        final Call<String> call =
-                retrofit.getProfiles(buddy, me.getSportsid(), me.getLocationid(), 0, -1);
-        call.enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                Log.d("loadBuddyProfile", "code = " + response.code() + " is successful = " + response.isSuccessful());
-                Log.d("loadBuddyProfile", "body = " + response.body().toString());
-                Log.d("loadBuddyProfile", "message = " + response.toString());
-                if (response.isSuccessful()) {
-                    JSONObject obj = null;
-                    try {
-                        obj = new JSONObject(response.body().toString());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    Gson gson = new Gson();
-                    Profile buddy = null;
-                    try {
-                        String command = obj.getString("command");
-                        String code = obj.getString("code");
-                        JSONArray arr = obj.getJSONArray("message");
-                        if(arr != null && arr.length() > 0){
-                            buddy = gson.fromJson(arr.get(0).toString(), Profile.class);
-                            Log.v(TAG, "buddy: "+buddy.toString());
-                            Intent i = new Intent(getActivity(), ChatActivity.class);
-                            Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(buddy.getUsername())
-                                    .message("Conversation get started").date(new Date().getTime()).image(null).build();
-                            i.putExtra("Message", message);
-                            i.putExtra("Buddy", buddy);
-                            startActivity(i);
-                        }else{
-                            Toast.makeText(getActivity(), "친구가 서버에 존재하지 않습니다.", Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                Log.d("Test", "error message = " + t.getMessage());
-            }
-        });
     }
 
     private void loadChatRoom(){
@@ -311,13 +274,6 @@ public class ChatRoomListFragment extends Fragment {
                 Log.v(TAG, "onBindViewHolder image url:"+url);
                 Picasso.with(getActivity()).load(url).placeholder(R.drawable.default_user).resize(50,50).centerInside().into(vh.civ_thumb);
             }
-            /*Bitmap bmp = mAvatarMap.get(mItems.get(position).room);
-            Log.v(TAG, "mItems.get(position).room="+mItems.get(position).room+", bmp="+bmp);
-            if(bmp != null){
-                vh.civ_thumb.setImageBitmap(bmp);
-            }else{
-                vh.civ_thumb.setImageResource(R.drawable.default_user);
-            }*/
         }
 
         @Override
@@ -411,14 +367,6 @@ public class ChatRoomListFragment extends Fragment {
                     ", sportsid=" + sportsid +
                     ", locationid=" + locationid +
                     '}';
-        }
-    }
-
-    class LocalBroadcastReceiver extends BroadcastReceiver{
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            mAdapter.notifyDataSetChanged();
         }
     }
 }

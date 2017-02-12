@@ -36,6 +36,7 @@ import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.StringUtil;
 import com.iron.dragon.sportstogether.util.ToastUtil;
 import com.orhanobut.logger.Logger;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -206,6 +207,11 @@ public class LoginActivity extends AppCompatActivity {
             mSpAge.setSelection(profileList.get(0).getAge());
             mSpGender.setSelection(profileList.get(0).getGender());
             mEtPhoneNum.setText(profileList.get(0).getPhone());
+            String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_profile?filename=" + profileList.get(0).getImage();
+            Picasso.with(this).load(url).resize(50, 50)
+                    .centerCrop()
+                    .into(mIvProfileImage);
+            mIvProfileImage.setEnabled(false);
             mEtNickName.setEnabled(false);
             mSpAge.setEnabled(false);
             mSpGender.setEnabled(false);

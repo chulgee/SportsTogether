@@ -20,6 +20,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 import retrofit2.http.Body;
@@ -32,6 +33,7 @@ import retrofit2.http.Part;
 import retrofit2.http.PartMap;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import rx.Observable;
 
 /**
  * Created by seungyong on 2016-11-09.
@@ -47,6 +49,11 @@ public interface GitHubService {
     @GET("profiles")
     Call<String> getProfiles(
             @Query("username") String username, @Query("sportsid") int sportsid, @Query("locationid") int locationid, @Query("reqFriends") int reqFriends, @Query("level") int level
+    );
+
+    @GET("profile")
+    Call<Profile> getProfile(
+            @Query("username") String username, @Query("sportsid") int sportsid, @Query("locationid") int locationid
     );
 
     @GET("profiles/{id}")
@@ -125,7 +132,7 @@ public interface GitHubService {
     );
 
     @PUT("settings/regid/{regid}")
-    Call<Settings> putSettings(
+    Observable<Settings> putSettings(
             @Path("regid") String regid, @Body Settings settings
     );
 
@@ -153,6 +160,7 @@ public interface GitHubService {
                 .client(httpClient.build())
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
 
 
@@ -164,6 +172,7 @@ public interface GitHubService {
                     .client(httpNewsClient.build())
                     .addConverterFactory(ScalarsConverterFactory.create())
                     .addConverterFactory(GsonConverterFactory.create())
+                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                     .build();
         }
 

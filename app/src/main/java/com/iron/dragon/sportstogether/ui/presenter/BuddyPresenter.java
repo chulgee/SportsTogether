@@ -19,5 +19,5 @@ public interface BuddyPresenter {
         void updateView(List<Profile> profiles);
         void showDialog(Profile item);
     }
-    void loadProfile(Profile buddy);
+    void loadProfiles(Profile buddy);
 }

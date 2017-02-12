@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.net.Uri;
+import android.net.http.HttpResponseCache;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
@@ -22,6 +23,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.android.databinding.library.baseAdapters.BR;
@@ -55,6 +57,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -69,6 +72,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.http.HTTP;
 
 import static android.content.ContentValues.TAG;
 
@@ -108,55 +112,22 @@ public class BulletinListViewModel extends BaseObservable {
         if (bulletinListItem instanceof BulletinEventItem) {
             Bulletin bulletin = ((BulletinEventItem) bulletinListItem).getBulletin();
             Log.v(TAG, "bulletin: " + bulletin.toString());
-            executeHttp(bulletin);
-        }
-    }
-    private void executeHttp(Bulletin bulletin) {
-
-        String username = bulletin.getUsername();
-        final int sportsid = bulletin.getSportsid();
-        int locationid = bulletin.getLocationid();
-        int reqFriends = 0;
-        final Call<String> call =
-                gitHubService.getProfiles(username, sportsid, locationid, reqFriends, -1);
-        RetrofitHelper.enqueueWithRetry(call, new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                Log.d("executeHttp Test", "code = " + response.code() + " is successful = " + response.isSuccessful());
-                Log.d("executeHttp Test", "body = " + response.body().toString());
-                Log.d("executeHttp Test", "message = " + response.toString());
-                JSONObject obj = null;
-                try {
-                    obj = new JSONObject(response.body());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                Gson gson = new Gson();
-                try {
-                    String command = obj.getString("command");
-                    String code = obj.getString("code");
-                    JSONArray arr = obj.getJSONArray("message");
-                    Profile buddy = gson.fromJson(arr.get(0).toString(), Profile.class);
-//                    Profile me = LoginPreferences.GetInstance().getLocalProfile(mActivity.getApplicationContext());
-                    Profile me = LoginPreferences.GetInstance().loadSharedPreferencesProfile(mActivity.getApplicationContext(), sportsid);
-                    Log.v(TAG, "buddy: " + buddy.toString());
-                    Log.v(TAG, "me: " + me.toString());
+            //loadBuddyProfile(bulletin);
+            ArrayList<Profile> profiles = LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(mActivity);
+            final Profile me = profiles.get(0);
+            RetrofitHelper.loadProfile(mActivity, me, bulletin.getUsername(), bulletin.getSportsid(), bulletin.getLocationid(), new RetrofitHelper.RETRO_CALLBACK() {
+                @Override
+                public void onLoaded(Profile profile) {
+                    Log.v(TAG, "onLoaded profile="+profile.toString());
+                    Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(profile.getUsername())
+                            .message("Conversation get started").date(new Date().getTime()).image(null).build();
                     Intent i = new Intent(mActivity, ChatActivity.class);
-                    Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(buddy.getUsername())
-                            .message("Conversation gets started").date(new Date().getTime()).image(buddy.getImage()).build();
                     i.putExtra("Message", message);
-                    i.putExtra("Buddy", buddy);
+                    i.putExtra("Buddy", profile);
                     mActivity.startActivity(i);
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
-            }
-
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                Log.d("Test", "error message = " + t.getMessage());
-            }
-        });
+            });
+        }
     }
 
     public void RefreshData() {
@@ -164,7 +135,6 @@ public class BulletinListViewModel extends BaseObservable {
         setLoading(true);
         getBulletinData(REQ_THRESHOLD * (++mPageNum));
     }
-
 
     private enum State {
         EXPANDED,
@@ -195,7 +165,6 @@ public class BulletinListViewModel extends BaseObservable {
 
     }
 
-
     public void setLoading(boolean loading) {
         this.loading = loading;
         notifyPropertyChanged(BR.loading);
@@ -224,11 +193,17 @@ public class BulletinListViewModel extends BaseObservable {
         RetrofitHelper.enqueueWithRetry(call, new Callback<List<Bulletin>>() {
             @Override
             public void onResponse(Call<List<Bulletin>> call, Response<List<Bulletin>> response) {
-                Log.d("Test", "code = " + response.code() + " issuccessful = " + response.isSuccessful());
-                Log.d("Test", "body = " + response.body().toString());
-                Log.d("Test", "message = " + response.message());
-                List<Bulletin> list = response.body();
-                initListView(list);
+                if(response.isSuccessful()){
+                    if(response.body() != null){
+                        Log.d("Test", "body = " + (response.body()!=null?response.body().toString():null));
+                        Log.d("Test", "message = " + response.message());
+                        List<Bulletin> list = response.body();
+                        initListView(list);
+                    }else
+                        Toast.makeText(mActivity, "데이터가 없습니다", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(mActivity, response.message(), Toast.LENGTH_SHORT).show();
+                }
                 setLoading(false);
                 mActivity.stopLoadingProgress();
                 swipeRefreshViewRefreshing.set(false);
