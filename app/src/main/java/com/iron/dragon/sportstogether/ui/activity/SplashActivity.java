@@ -96,7 +96,8 @@ public class SplashActivity extends AppCompatActivity {
                     }
                 }
             }
-            Toast.makeText(context, sb.toString()+" 권한은 앱 사용에 반드시 필요합니다.", Toast.LENGTH_LONG).show();
+            if(!sb.toString().isEmpty())
+                Toast.makeText(context, sb.toString()+" 권한은 앱 사용에 반드시 필요합니다.", Toast.LENGTH_LONG).show();
             ActivityCompat.requestPermissions(this, mPermissions, REQ_CODE_DANGER_PERMISSION);
         } else {
             getDeviceId();
