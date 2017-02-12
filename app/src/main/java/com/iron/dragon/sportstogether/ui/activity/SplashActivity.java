@@ -73,10 +73,10 @@ public class SplashActivity extends AppCompatActivity {
         if(requestCode == REQ_CODE_OVERLAY_WINDOW){
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Settings.canDrawOverlays(this)) {
                 handleGoToMain();
-                Toast.makeText(this, "Overlay available", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Overlay available", Toast.LENGTH_SHORT).show();
             } else {
                 finish();
-                Toast.makeText(this, "Overlay not available", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "오버레이 권한을 허락해 주세요", Toast.LENGTH_SHORT).show();
             }
         }
     }
