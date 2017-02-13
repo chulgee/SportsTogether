@@ -24,10 +24,19 @@ public class Profile implements Serializable{
         this.image = image;
     }
 
+    protected String deviceid;
     protected String regid;
     protected String username;
     protected int sportsid;
     protected int locationid;
+
+    public String getDeviceid() {
+        return deviceid;
+    }
+
+    public void setDeviceid(String deviceid) {
+        this.deviceid = deviceid;
+    }
 
     public void setSportsid(int sportsid) {
         this.sportsid = sportsid;

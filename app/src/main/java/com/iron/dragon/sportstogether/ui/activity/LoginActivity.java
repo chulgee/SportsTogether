@@ -253,6 +253,7 @@ public class LoginActivity extends AppCompatActivity {
                 GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
                 gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
                 final Profile pi = new Profile();
+                pi.setDeviceid(SportsApplication.getDeviceID());
                 pi.setUsername(mEtNickName.getText().toString());
                 pi.setAge(mSpAge.getSelectedItemPosition());
                 pi.setGender(mSpGender.getSelectedItemPosition());
