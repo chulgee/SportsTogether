@@ -9,6 +9,7 @@ import android.graphics.drawable.StateListDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,7 +66,14 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
             height = 400;
         else
             height = 800;
+        /*if(item.getValue() == SportsType.Badminton.getValue()) {
+            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP|Gravity.LEFT);
+            holder.tv.setLayoutParams(lp);
+            holder.tv.setRotation(-90);
+        }*/
+        holder.tv.setTextSize(StringUtil.getStringSizeFromSports(mContext, item.getValue()));
         holder.tv.setText(StringUtil.getStringFromSports(mContext, item.getValue()));
+
         Animation animation = AnimationUtils.loadAnimation(mContext, android.R.anim.slide_in_left);
         holder.iv.setAnimation(animation);
         holder.flayout_sports.getLayoutParams().height = height;

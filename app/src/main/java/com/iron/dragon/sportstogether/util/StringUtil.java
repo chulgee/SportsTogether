@@ -51,6 +51,15 @@ public class StringUtil {
         return "";
     }
 
+    public static float getStringSizeFromSports(Context context, int value){
+        List<SportsType> list = Arrays.asList(SportsType.values());
+        for(SportsType a : list){
+            if(a.getValue() == value)
+                return context.getResources().getDimension(a.getResid_str_size());
+        }
+        return 0f;
+    }
+
     public static String getStringFromLocation(Context context, int value){
         List<LocationType> list = Arrays.asList(LocationType.values());
         for(LocationType a : list){
