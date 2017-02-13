@@ -229,7 +229,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_cs) {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("message/rfc822");
-            intent.putExtra(Intent.EXTRA_EMAIL  , new String[]{"chulchoicezee@gmail.com"});
+            intent.putExtra(Intent.EXTRA_EMAIL  , new String[]{"chulchoicezee@gmail.com", "lsy4630@naver.com"});
             intent.putExtra(Intent.EXTRA_SUBJECT, "개발자에게 문의합니다.");
             intent.putExtra(Intent.EXTRA_TEXT   , "");
             startActivity(Intent.createChooser(intent, "개발자에게 이메일 보내기"));
