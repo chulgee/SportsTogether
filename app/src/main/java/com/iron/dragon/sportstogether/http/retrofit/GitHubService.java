@@ -76,9 +76,9 @@ public interface GitHubService {
             @Path("id") String id, @Body Profile profile
     );
 
-    @DELETE("profiles/{id}")
-    Call<Profile> deleteProfiles(
-            @Path("id") String id
+    @DELETE("profiles")
+    Observable<Profile> deleteProfiles(
+            @Query("username") String username, @Query("sportsid") int sportsid
     );
 
     @GET("bulletin")

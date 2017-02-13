@@ -18,7 +18,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:background="@android:drawable/list_selector_background"
-          android:onClick="@{(view) -> viewholderitem.onClickItem(view, profileitem)}"
+          android:onClick="@{(view) -> viewholderitem.onClickItem(view)}"
         >
 
         <de.hdodenhof.circleimageview.CircleImageView
@@ -31,6 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
+            android:layout_weight="1"
             android:orientation="vertical">
             <TextView
                 android:layout_width="wrap_content"
@@ -45,6 +46,17 @@
                 android:layout_height="wrap_content"
                 android:text="@{viewholderitem.profileLevel}"/>
         </LinearLayout>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:background="@drawable/btn_selector_for_buddylist"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:text="@string/delete"
+            android:onClick="@{(view) -> viewholderitem.onClickDeleteProfile(view, profileitem)}"/>
 
     </LinearLayout>
 </layout>

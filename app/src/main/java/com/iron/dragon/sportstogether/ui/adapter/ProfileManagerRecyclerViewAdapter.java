@@ -1,12 +1,10 @@
 package com.iron.dragon.sportstogether.ui.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.databinding.BindingAdapter;
 import android.databinding.DataBindingUtil;
 import android.databinding.ObservableField;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,15 +12,21 @@ import android.widget.ImageView;
 
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
+import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.databinding.ProfileListItemBinding;
-import com.iron.dragon.sportstogether.ui.activity.ProfileActivity;
+import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.ui.activity.ProfileManagerActivity;
 import com.iron.dragon.sportstogether.ui.adapter.item.ProfileManagerItem;
+import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.StringUtil;
 import com.orhanobut.logger.Logger;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by P16018 on 2017-01-13.
@@ -32,6 +36,7 @@ public class ProfileManagerRecyclerViewAdapter extends RecyclerView.Adapter<Recy
     private static final String TAG = "ProfileManagerRecyclerViewAdapter";
     private ArrayList<ProfileManagerItem> malProfiles;
     private Context mContext;
+    OnItemClickListener IonItemClickListener;
     public ProfileManagerRecyclerViewAdapter(ProfileManagerActivity profileManagerActivity) {
         mContext = profileManagerActivity;
     }
@@ -64,6 +69,10 @@ public class ProfileManagerRecyclerViewAdapter extends RecyclerView.Adapter<Recy
         malProfiles = list;
     }
 
+    public ProfileManagerItem getItem(int position) {
+        return malProfiles.get(position);
+    }
+
 
     public class ViewHolderItem extends RecyclerView.ViewHolder {
         private final ProfileListItemBinding mBinding;
@@ -78,11 +87,26 @@ public class ProfileManagerRecyclerViewAdapter extends RecyclerView.Adapter<Recy
              profileLevel = new ObservableField<>();
             mBinding.setViewholderitem(this);
         }
-        public void onClickItem(View view, ProfileManagerItem profile) {
-            Intent i = new Intent();
-            i.putExtra("MyProfile", LoginPreferences.GetInstance().loadSharedPreferencesProfile(mContext, profile.getProfile().getSportsid()));
-            i.setClass(mContext, ProfileActivity.class);
-            mContext.startActivity(i);
+        public void onClickItem(View view) {
+            onItemHolderClick(this, view);
+        }
+        public void onClickDeleteProfile(View view, ProfileManagerItem profile) {
+            GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+            GitHubService gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
+            gitHubService.deleteProfiles(profile.getProfile().getUsername(), profile.getProfile().getSportsid())
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Action1<Profile>() {
+                        @Override
+                        public void call(Profile profile) {
+                            Logger.v("onResponse response.isSuccessful()=" + profile.toString());
+                            LoginPreferences.GetInstance().SetLogout(mContext, profile.getSportsid());
+                            malProfiles.remove(getAdapterPosition());
+                            notifyItemRemoved(getAdapterPosition());
+
+                        }
+                    });
+
         }
     }
     @BindingAdapter({"imgRes"})
@@ -93,5 +117,18 @@ public class ProfileManagerRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                 .into((ImageView) imageView);
     }
 
+    public interface OnItemClickListener {
+        void onItemClick(ViewHolderItem viewHolderItem, View view, int adapterPosition, long itemId);
+    }
+
+    public void setOnItemClickListener(ProfileManagerRecyclerViewAdapter.OnItemClickListener listener) {
+        IonItemClickListener = listener;
+    }
+
+    private void onItemHolderClick(ViewHolderItem itemHolder, View view) {
+        if (IonItemClickListener != null) {
+            IonItemClickListener.onItemClick(null, view, itemHolder.getAdapterPosition(), itemHolder.getItemId());
+        }
+    }
 
 }

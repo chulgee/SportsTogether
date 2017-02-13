@@ -178,7 +178,6 @@ public class BulletinListActivity extends AppCompatActivity  {
                         return false;
                     }
                 });
-
                 popupWindow.showAtLocation(imageView, Gravity.CENTER, 0, 0);
             }
         });
