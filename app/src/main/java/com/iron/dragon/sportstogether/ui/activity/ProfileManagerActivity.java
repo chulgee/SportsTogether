@@ -1,5 +1,6 @@
 package com.iron.dragon.sportstogether.ui.activity;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -7,8 +8,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.iron.dragon.sportstogether.R;
+import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.viewmodel.ProfileManagerViewModel;
 import com.iron.dragon.sportstogether.databinding.ProfileManagerActBinding;
 import com.iron.dragon.sportstogether.ui.adapter.ProfileManagerRecyclerViewAdapter;
@@ -54,9 +57,28 @@ public class ProfileManagerActivity extends AppCompatActivity {
 
         final ProfileManagerRecyclerViewAdapter adapter = new ProfileManagerRecyclerViewAdapter(this);
         mBinding.profileManagerContent.profilesRecyclerviewer.setAdapter(adapter);
+        adapter.setOnItemClickListener(new ProfileManagerRecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(ProfileManagerRecyclerViewAdapter.ViewHolderItem viewHolderItem, View view, int position, long itemId) {
+                Intent i = new Intent();
+                i.putExtra("MyProfile", LoginPreferences.GetInstance().loadSharedPreferencesProfile(getApplicationContext(), adapter.getItem(position).getProfile().getSportsid()));
+                i.setClass(ProfileManagerActivity.this, ProfileActivity.class);
+                startActivityForResult(i, 0);
+            }
+        });
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL_LIST);
         mBinding.profileManagerContent.profilesRecyclerviewer.addItemDecoration(dividerItemDecoration);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == 0 ) {
+            if(resultCode == RESULT_OK) {
+               mBinding.profileManagerContent.profilesRecyclerviewer.getAdapter().notifyDataSetChanged();
+            }
+        }
     }
 
     public void showToast(String string) {

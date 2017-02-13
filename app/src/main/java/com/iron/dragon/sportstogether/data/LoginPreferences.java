@@ -105,6 +105,7 @@ public class LoginPreferences {
             p.setAge(profile.getAge());
             p.setGender(profile.getGender());
             p.setPhone(profile.getPhone());
+            p.setImage(profile.getImage());
             SharedPreferences appSharedPrefs = PreferenceManager
                     .getDefaultSharedPreferences(context.getApplicationContext());
             SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
@@ -142,15 +143,11 @@ public class LoginPreferences {
 
 
     // temp
-    public void SetLogout(Context context) {
-        String[] temp = StringUtil.getStringArrFromSportsType(context);
+    public void SetLogout(Context context, int sportsId) {
         SharedPreferences appSharedPrefs = PreferenceManager
                 .getDefaultSharedPreferences(context.getApplicationContext());
-        for(String key:temp) {
-            SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
-            Gson gson = new Gson();
-            prefsEditor.putString(key, null);
-            prefsEditor.apply();
-        }
+                SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
+                prefsEditor.remove(StringUtil.getStringFromSports(context, sportsId));
+                prefsEditor.apply();
     }
 }
