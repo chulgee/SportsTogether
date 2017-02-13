@@ -6,5 +6,10 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
-
+    <dimen name="sportstype0_text">12dp</dimen>
+    <dimen name="sportstype1_text">8dp</dimen>
+    <dimen name="sportstype2_text">23dp</dimen>
+    <dimen name="sportstype3_text">15dp</dimen>
+    <dimen name="sportstype4_text">20dp</dimen>
+    <dimen name="sportstype5_text">8dp</dimen>
 </resources>
