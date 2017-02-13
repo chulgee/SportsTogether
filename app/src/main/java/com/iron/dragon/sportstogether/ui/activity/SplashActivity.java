@@ -193,7 +193,9 @@ public class SplashActivity extends AppCompatActivity {
         if(!isLogged){
             String deviceid = getDeviceId();
             fetchServerProfiles(deviceid);
-        }
+            Log.v(TAG, "start fetching profiles from server");
+        }else
+            Log.v(TAG, "no need to fetch profiles from server");
 
         handler.postDelayed(new Runnable() {
             @Override
