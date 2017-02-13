@@ -56,6 +56,11 @@ public interface GitHubService {
             @Query("username") String username, @Query("sportsid") int sportsid, @Query("locationid") int locationid
     );
 
+    @GET("profiles/device/{id}")
+    Call<List<Profile>> getProfilesForDeviceId(
+            @Path("id") String id
+    );
+
     @GET("profiles/{id}")
     Call<List<Profile>> getProfiles(
             @Path("id") int id
