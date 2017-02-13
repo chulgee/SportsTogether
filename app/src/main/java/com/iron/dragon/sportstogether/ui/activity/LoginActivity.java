@@ -222,7 +222,12 @@ public class LoginActivity extends AppCompatActivity {
             mSpAge.setSelection(profileList.get(0).getAge());
             mSpGender.setSelection(profileList.get(0).getGender());
             mEtPhoneNum.setText(profileList.get(0).getPhone());
-            String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_profile?filename=" + profileList.get(0).getImage();
+            String url = null;
+            if(StringUtil.isEmpty(profileList.get(0).getImage())) {
+                url = "android.resource://com.iron.dragon.sportstogether/drawable/default_user";
+            } else {
+                url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_profile?filename=" + profileList.get(0).getImage();
+            }
             Picasso.with(this).load(url).resize(50, 50)
                     .centerCrop()
                     .into(mIvProfileImage);

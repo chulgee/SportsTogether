@@ -67,16 +67,15 @@ public class ProfileActivity extends LoginActivity  {
         mSpGender.setSelection(profile.getGender());
         mEtPhoneNum.setText(profile.getPhone());
         mSpLevel.setSelection(profile.getLevel());
+        String url = null;
         if(StringUtil.isEmpty(profile.getImage())) {
-            Picasso.with(this).load(R.drawable.default_user).resize(50, 50)
-                    .centerCrop()
-                    .into(mIvProfileImage);
+            url = "android.resource://com.iron.dragon.sportstogether/drawable/default_user";
         } else {
-            String url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_profile?filename=" + profile.getImage();
-            Picasso.with(this).load(url).resize(50, 50)
-                    .centerCrop()
-                    .into(mIvProfileImage);
+            url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_profile?filename=" + profile.getImage();
         }
+        Picasso.with(this).load(url).resize(50, 50)
+                .centerCrop()
+                .into(mIvProfileImage);
     }
 
     @Override
@@ -128,7 +127,6 @@ public class ProfileActivity extends LoginActivity  {
                     @Override
                     public void onExists(Call<Profile> call, Response<Profile> response) {
                         Toast.makeText(getApplicationContext(), "" + response.code(), Toast.LENGTH_SHORT).show();
-                        finish();
                     }
 
                     @Override
@@ -157,8 +155,16 @@ public class ProfileActivity extends LoginActivity  {
 
     @Override
     protected void toBulletinListActivity() {
+//        if(isEditMode()) {
+            setResult(RESULT_OK);
+//        }
         finish();
     }
+
+    /*private boolean isEditMode() {
+        return mBtCommit.getVisibility() == View.VISIBLE && mBtCancel.getVisibility() == View.VISIBLE;
+    }*/
+
 
     private void ShowExitEditorDialog() {
         new MaterialDialog.Builder(this)
