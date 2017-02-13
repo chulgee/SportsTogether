@@ -39,8 +39,8 @@ public class ProfileActivity extends LoginActivity  {
         Logger.d("child mSpSportsType.getSelectedItemPosition() = " + mSpSportsType.getSelectedItemPosition() + " mSportsId = " + mSportsId);
     }
     private void processIntent(Intent i) {
-        mSportsId = i.getIntExtra("Extra_Sports", 0);
         final Profile myprofile = (Profile) i.getSerializableExtra("MyProfile");
+        mSportsId = myprofile.getSportsid();
         Logger.d("child myprofile = " + myprofile);
         if (myprofile != null) {
             handler.post(new Runnable() {
@@ -134,6 +134,8 @@ public class ProfileActivity extends LoginActivity  {
                         Log.v(TAG, "onResponse response.isSuccessful()=" + response.isSuccessful());
 
                         if(mCropImagedUri == null) {
+                            Logger.d("onClick, image sportsid = " + mSportsId);
+                            Logger.d("onClick, image = " + LoginPreferences.GetInstance().loadSharedPreferencesProfile(getApplicationContext(), mSportsId));
                             pi.setImage(LoginPreferences.GetInstance().loadSharedPreferencesProfile(getApplicationContext(), mSportsId).getImage());
                             saveLocalProfile(pi);
                             toBulletinListActivity();
@@ -155,6 +157,7 @@ public class ProfileActivity extends LoginActivity  {
 
     @Override
     protected void toBulletinListActivity() {
+        Logger.d("setResult =" + RESULT_OK);
 //        if(isEditMode()) {
             setResult(RESULT_OK);
 //        }

@@ -73,6 +73,10 @@ public class ProfileManagerRecyclerViewAdapter extends RecyclerView.Adapter<Recy
         return malProfiles.get(position);
     }
 
+    public void clearItem() {
+        malProfiles.clear();
+    }
+
 
     public class ViewHolderItem extends RecyclerView.ViewHolder {
         private final ProfileListItemBinding mBinding;
@@ -111,6 +115,7 @@ public class ProfileManagerRecyclerViewAdapter extends RecyclerView.Adapter<Recy
     }
     @BindingAdapter({"imgRes"})
     public static void imgload(ImageView imageView, String url) {
+        Logger.d("updateImage url = " + url);
         Logger.d("profileManagerimageLoad");
         Picasso.with(imageView.getContext()).load(url).resize(200, 200)
                 .centerCrop()
