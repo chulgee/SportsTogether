@@ -229,10 +229,13 @@ public class BulletinListActivity extends AppCompatActivity  {
     }
 
     public void stopLoadingProgress() {
+        Logger.d("stopLoadingProgress");
         mBinding.progressView.stopAnimation();
+//        mBinding.swipeLayout.setRefreshing(false);
     }
 
     public void startLoadingProgress() {
+        Logger.d("startLoadingProgress");
         mBinding.progressView.startAnimation();
     }
 

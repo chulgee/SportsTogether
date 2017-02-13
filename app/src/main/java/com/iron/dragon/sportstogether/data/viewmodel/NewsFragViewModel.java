@@ -44,7 +44,7 @@ public class NewsFragViewModel extends BaseObservable {
     public void LoadNewsData() {
 
         final Call<News> call =
-                gitHubService.getNews("스포츠");
+                gitHubService.getNews("운동");
 
         RetrofitHelper.enqueueWithRetry(call, new Callback<News>() {
             @Override
