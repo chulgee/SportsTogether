@@ -74,11 +74,20 @@ public class ProfileManagerActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Logger.d("onActivityResult");
         if(requestCode == 0 ) {
+            Logger.d("resultCode = "  + resultCode);
             if(resultCode == RESULT_OK) {
-               mBinding.profileManagerContent.profilesRecyclerviewer.getAdapter().notifyDataSetChanged();
+                refreshData();
             }
         }
+    }
+
+    private void refreshData() {
+        ProfileManagerRecyclerViewAdapter adapter = (ProfileManagerRecyclerViewAdapter) mBinding.profileManagerContent.profilesRecyclerviewer.getAdapter();
+        adapter.clearItem();
+        mViewModel.LoadProfilesData();
+        mBinding.profileManagerContent.profilesRecyclerviewer.getAdapter().notifyDataSetChanged();
     }
 
     public void showToast(String string) {
