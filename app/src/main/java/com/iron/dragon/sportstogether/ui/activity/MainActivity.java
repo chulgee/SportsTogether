@@ -19,19 +19,26 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.iron.dragon.sportstogether.R;
+import com.iron.dragon.sportstogether.data.LoginPreferences;
+import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.ui.fragment.BookFragment;
 import com.iron.dragon.sportstogether.ui.fragment.ChatRoomListFragment;
 import com.iron.dragon.sportstogether.ui.fragment.NewsFragment;
 import com.iron.dragon.sportstogether.ui.fragment.SportsFragment;
+import com.iron.dragon.sportstogether.util.StringUtil;
 import com.kakao.kakaolink.AppActionBuilder;
 import com.kakao.kakaolink.KakaoLink;
 import com.kakao.kakaolink.KakaoTalkLinkMessageBuilder;
 import com.kakao.util.KakaoParameterException;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -113,6 +120,33 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        InitNavLayout(navigationView);
+    }
+
+    private void InitNavLayout(NavigationView navigationView) {
+        CircleImageView ivNavHeader =  ((CircleImageView)navigationView.getHeaderView(0).findViewById(R.id.iv_nav_header));
+        ArrayList<Profile> profile_list = LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(this);
+        if(profile_list.size() > 0) {
+            String url;
+            if(StringUtil.isEmpty(profile_list.get(0).getImage())) {
+                url = "android.resource://com.iron.dragon.sportstogether/drawable/default_user";
+            } else {
+                url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_profile?filename=" + profile_list.get(0).getImage();
+            }
+            Picasso.with(this).load(url).resize(250, 250)
+                    .centerCrop()
+                    .into(ivNavHeader);
+            ((TextView)navigationView.getHeaderView(0).findViewById(R.id.tv_nav_header_tilte)).setText(profile_list.get(0).getUsername());
+        } else {
+            String url = "android.resource://com.iron.dragon.sportstogether/drawable/default_user";
+            Picasso.with(this).load(url).resize(250, 250)
+                    .centerCrop()
+                    .into(ivNavHeader);
+            ((TextView)navigationView.getHeaderView(0).findViewById(R.id.tv_nav_header_tilte)).setText("UnRegister");
+        }
+
+
     }
 
     public MainViewPagerAdapter getAdapter(){

@@ -2,7 +2,6 @@ package com.iron.dragon.sportstogether.data.viewmodel;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.TypedArray;
 import android.databinding.BaseObservable;
 import android.databinding.Bindable;
 import android.databinding.BindingAdapter;
@@ -12,7 +11,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.net.Uri;
-import android.net.http.HttpResponseCache;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
@@ -27,7 +25,6 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.android.databinding.library.baseAdapters.BR;
-import com.google.gson.Gson;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Bulletin;
@@ -36,7 +33,6 @@ import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
-import com.iron.dragon.sportstogether.service.FloatingService;
 import com.iron.dragon.sportstogether.ui.activity.BuddyActivity;
 import com.iron.dragon.sportstogether.ui.activity.BulletinListActivity;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
@@ -57,7 +53,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -72,7 +67,6 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.http.HTTP;
 
 import static android.content.ContentValues.TAG;
 
@@ -81,10 +75,8 @@ import static android.content.ContentValues.TAG;
  */
 
 public class BulletinListViewModel extends BaseObservable {
-    public final ObservableBoolean swipeRefreshViewRefreshing = new ObservableBoolean(false);
     public final ObservableBoolean topSheetEnabled = new ObservableBoolean(false);
     public final ObservableField bottomSheetState= new ObservableField<>();
-    public final ObservableField topSheetState= new ObservableField<>();
 
     private final static int REQ_CODE_PICK_PICTURE = 1;
     private final static int REQ_CODE_TAKE_PHOTO = 2;
@@ -104,6 +96,20 @@ public class BulletinListViewModel extends BaseObservable {
     private int mPageNum = 1;
     private boolean loading;
     private String Content;
+
+    @Bindable
+    public boolean getSwipeRefreshViewRefreshing() {
+        return swipeRefreshViewRefreshing;
+    }
+
+    public void setSwipeRefreshViewRefreshing(boolean swipeRefreshViewRefreshing) {
+        this.swipeRefreshViewRefreshing = swipeRefreshViewRefreshing;
+        notifyPropertyChanged(BR.swipeRefreshViewRefreshing);
+    }
+
+    private boolean swipeRefreshViewRefreshing;
+
+
 
     private TreeMap<String, ArrayList<Bulletin>> mTMBulletinMap = new TreeMap<>(Collections.reverseOrder());
 
@@ -131,6 +137,7 @@ public class BulletinListViewModel extends BaseObservable {
     }
 
     public void RefreshData() {
+//        swipeRefreshViewRefreshing.set(true);
         mTMBulletinMap.clear();
         setLoading(true);
         getBulletinData(REQ_THRESHOLD * (++mPageNum));
@@ -204,9 +211,10 @@ public class BulletinListViewModel extends BaseObservable {
                 }else{
                     Toast.makeText(mActivity, response.message(), Toast.LENGTH_SHORT).show();
                 }
+                Logger.d("onRefresh success");
                 setLoading(false);
                 mActivity.stopLoadingProgress();
-                swipeRefreshViewRefreshing.set(false);
+                setSwipeRefreshViewRefreshing(false);
             }
 
             @Override
