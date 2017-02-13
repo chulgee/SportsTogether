@@ -18,11 +18,20 @@ import android.widget.Toast;
 
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.SportsApplication;
+import com.iron.dragon.sportstogether.data.LoginPreferences;
+import com.iron.dragon.sportstogether.data.bean.Profile;
+import com.iron.dragon.sportstogether.enums.SportsType;
+import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
+import com.iron.dragon.sportstogether.util.Const;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -54,7 +63,6 @@ public class SplashActivity extends AppCompatActivity {
         switch (requestCode) {
             case REQ_CODE_DANGER_PERMISSION:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                    getDeviceId();
                     checkOverlayPermission(this);
                 } else {
                     Toast.makeText(this, "퍼미션을 허락해주세요", Toast.LENGTH_SHORT).show();
@@ -100,15 +108,51 @@ public class SplashActivity extends AppCompatActivity {
                 Toast.makeText(context, sb.toString()+" 권한은 앱 사용에 반드시 필요합니다.", Toast.LENGTH_LONG).show();
             ActivityCompat.requestPermissions(this, mPermissions, REQ_CODE_DANGER_PERMISSION);
         } else {
-            getDeviceId();
             checkOverlayPermission(context);
         }
     }
 
-    void getDeviceId(){
+    public void fetchServerProfiles(String deviceid){
+        if(deviceid != null && !deviceid.isEmpty()){
+            GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+            GitHubService retrofit = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
+
+            final Call<List<Profile>> call = retrofit.getProfilesForDeviceId(deviceid);
+            call.enqueue(new Callback<List<Profile>>() {
+                @Override
+                public void onResponse(Call<List<Profile>> call, Response<List<Profile>> response) {
+                    if(response.isSuccessful()){
+                        if(response.body() != null){
+                            Log.d(TAG, "response.body() = " + (response.body()!=null?response.body().toString():null));
+                            Log.d(TAG, "response.message() = " + response.message());
+                            List<Profile> profiles = response.body();
+                            if(profiles!=null && profiles.size()>0){
+                                for(Profile p : profiles) {
+                                    LoginPreferences.GetInstance().saveSharedPreferencesProfile(SplashActivity.this, p);
+                                }
+                            }else{
+                                Log.v(TAG, "no profiles from server");
+                            }
+                        }else
+                            Toast.makeText(SplashActivity.this, "데이터가 없습니다", Toast.LENGTH_SHORT).show();
+                    }else{
+                        Toast.makeText(SplashActivity.this, response.message(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<List<Profile>> call, Throwable t) {
+                    Log.d(TAG, "error message = " + t.getMessage());
+                }
+            });
+        }
+    }
+
+    String getDeviceId(){
         TelephonyManager tm = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
         String uid = tm.getDeviceId();
         SportsApplication.setDeviceID(uid);
+        return uid;
     }
 
     List<String> getReqPermissions(Context context, String[] permissions){
@@ -128,13 +172,29 @@ public class SplashActivity extends AppCompatActivity {
 
         boolean canOverlay = canOverlayWindow(ctx);
 
-        if(canOverlay)
+        if(canOverlay){
             handleGoToMain();
+        }
         else
             Log.v(TAG, "wait result on onActivityResult");
     }
 
     void handleGoToMain(){
+        SportsType[] types = SportsType.values();
+        boolean isLogged = false;
+
+        for(SportsType t : types){
+            if(LoginPreferences.GetInstance().IsLogin(this, t.getValue())){
+                isLogged = true;
+                break;
+            };
+        }
+
+        if(!isLogged){
+            String deviceid = getDeviceId();
+            fetchServerProfiles(deviceid);
+        }
+
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
