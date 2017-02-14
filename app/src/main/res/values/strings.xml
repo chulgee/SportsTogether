@@ -52,7 +52,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <string name="more_view">more and more</string>
-    <string name="title_activity_profile_manager">ProfileManagerActivity</string>
+    <string name="title_activity_profile_manager">My Profile List</string>
 
     <string name="profile_sports">SPORTS : %1$s</string>
     <string name="profile_location">LOCATION : %1$s</string>
