@@ -121,7 +121,7 @@ public class BulletinListViewModel extends BaseObservable {
             //loadBuddyProfile(bulletin);
             ArrayList<Profile> profiles = LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(mActivity);
             final Profile me = profiles.get(0);
-            RetrofitHelper.loadProfile(mActivity, me, bulletin.getUsername(), bulletin.getSportsid(), bulletin.getLocationid(), new RetrofitHelper.RETRO_CALLBACK() {
+            RetrofitHelper.loadProfile(mActivity, me, bulletin.getUsername(), bulletin.getSportsid(), bulletin.getLocationid(), new RetrofitHelper.PROFILE_CALLBACK() {
                 @Override
                 public void onLoaded(Profile profile) {
                     Log.v(TAG, "onLoaded profile="+profile.toString());

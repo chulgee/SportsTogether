@@ -136,7 +136,7 @@ public class ChatRoomListFragment extends Fragment {
                 ArrayList<Profile> profiles = LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(getActivity());
                 final Profile me = profiles.get(0);
                 Log.v(TAG, "rowOnClicked item="+item.toString());
-                RetrofitHelper.loadProfile(getActivity(), me, item.room, item.sportsid, item.locationid, new RetrofitHelper.RETRO_CALLBACK() {
+                RetrofitHelper.loadProfile(getActivity(), me, item.room, item.sportsid, item.locationid, new RetrofitHelper.PROFILE_CALLBACK() {
                     @Override
                     public void onLoaded(Profile profile) {
                         Log.v(TAG, "onLoaded profile="+profile.toString());

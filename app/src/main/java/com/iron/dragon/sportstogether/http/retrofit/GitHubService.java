@@ -41,6 +41,10 @@ import rx.Observable;
 
 public interface GitHubService {
 
+    @GET("version")
+    Call<Integer> getVersion(
+    );
+
     @GET("profiles")
     Call<List<Profile>> getProfiles(
     );
