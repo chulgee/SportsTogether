@@ -13,4 +13,10 @@
     <color name="sports_5">#ff1E7983</color>
     <color name="sports_6">#ff2777EC</color>
 
+    <color name="white_op100">#ffffff</color>
+    <color name="mustard_spot_op20">#33c7b254</color>
+    <color name="colorMain">#0277bd</color>
+    <color name="colorMainDark">#01579b</color>
+    <color name="colorMainAccent">#e8eaf6</color>
+    <color name="colorMainBg">#FAFAFA</color>
 </resources>
