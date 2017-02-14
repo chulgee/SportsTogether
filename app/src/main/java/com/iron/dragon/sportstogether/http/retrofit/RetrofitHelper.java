@@ -37,6 +37,13 @@ public class RetrofitHelper {
     public static final int FAILURE = 3;
     private static final String TAG = "RetrofitHelper";
 
+    public interface PROFILE_CALLBACK{
+        public void onLoaded(Profile profile);
+    }
+
+    public interface VERSION_CALLBACK{
+        public void onLoaded(int versioncode);
+    }
 
     public static <T> void enqueueWithRetry(Call<T> call,  final int retryCount,final Callback<T> callback) {
         call.enqueue(new RetryableCallback<T>(call, retryCount) {
@@ -98,11 +105,7 @@ public class RetrofitHelper {
         }
     }
 
-    public interface RETRO_CALLBACK{
-        public void onLoaded(Profile profile);
-    }
-
-    public static void loadProfile(final Context context, final Profile me, String username, int sportsid, int locationid, final RETRO_CALLBACK cb) {
+    public static void loadProfile(final Context context, final Profile me, String username, int sportsid, int locationid, final PROFILE_CALLBACK cb) {
         GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
         GitHubService retrofit = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
 
@@ -125,6 +128,34 @@ public class RetrofitHelper {
 
             @Override
             public void onFailure(Call<Profile> call, Throwable t) {
+                Log.d("Test", "error message = " + t.getMessage());
+            }
+        });
+    }
+
+    public static void getServerVersion(final Context context, final VERSION_CALLBACK cb){
+        GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+        GitHubService retrofit = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
+
+        final Call<Integer> call = retrofit.getVersion();
+        call.enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if(response.isSuccessful()){
+                    if(response.body() != null){
+                        Log.d(TAG, "response.body() = " + (response.body()!=null?response.body().toString():null));
+                        Log.d(TAG, "response.message() = " + response.message());
+                        int versioncode = response.body();
+                        cb.onLoaded(versioncode);
+                    }else
+                        Toast.makeText(context, "데이터가 없습니다", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(context, response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable t) {
                 Log.d("Test", "error message = " + t.getMessage());
             }
         });
