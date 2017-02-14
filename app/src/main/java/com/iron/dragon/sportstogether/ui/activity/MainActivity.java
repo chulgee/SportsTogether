@@ -145,6 +145,8 @@ public class MainActivity extends AppCompatActivity
                     .into(ivNavHeader);
             ((TextView)navigationView.getHeaderView(0).findViewById(R.id.tv_nav_header_tilte)).setText("UnRegister");
         }
+        ((TextView)navigationView.getHeaderView(0).findViewById(R.id.tv_nav_header_age)).setText(StringUtil.getStringFromAge(this, profile_list.get(0).getAge()));
+        ((TextView)navigationView.getHeaderView(0).findViewById(R.id.tv_nav_header_gender)).setText(StringUtil.getStringFromGender(this, profile_list.get(0).getGender()));
 
 
     }
