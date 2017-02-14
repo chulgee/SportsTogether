@@ -23,6 +23,7 @@
         android:layout_height="match_parent"
         app:onRefreshListener="@{viewModel.onRefreshListener}"
         app:refreshing="@{viewModel.swipeRefreshViewRefreshing}"
+        app:enabled='@{viewModel.topSheetEnabled &amp;&amp; !viewModel.bottomSheetState.equals("expanded")}'
         android:id="@+id/swipe_layout">
     <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
