@@ -67,6 +67,7 @@
                     app:navigationIcon="?attr/homeAsUpIndicator"
                     app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
                 <TextView
+                    style="@style/text_drop_shadow_grey_dt2_sz2"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
@@ -89,12 +90,6 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
 
-                        <TextView
-                            android:id="@+id/tvSportsName"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textStyle="bold"
-                            android:textColor="@android:color/black"/>
                         <TextView
                             android:id="@+id/tvLocation"
                             android:text="@{viewModel.Location}"

@@ -3,11 +3,10 @@ package com.iron.dragon.sportstogether.ui.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
-import android.graphics.drawable.LayerDrawable;
-import android.graphics.drawable.LevelListDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,19 +17,16 @@ import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.enums.SportsType;
-import com.iron.dragon.sportstogether.factory.Sports;
 import com.iron.dragon.sportstogether.ui.activity.BulletinListActivity;
 import com.iron.dragon.sportstogether.ui.activity.LoginActivity;
 import com.iron.dragon.sportstogether.util.StringUtil;
-import com.squareup.picasso.Picasso;
 
-import java.util.List;
+import java.util.Random;
 
 
 public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
@@ -38,6 +34,8 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
     SportsType[] mItems;
     private Context mContext;
     private int mScreenWidth;
+
+    private final Random mRandom;
 
     public MainAdapter(Context context) {
         mContext = context;
@@ -48,6 +46,8 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
         Point p = new Point();
         display.getSize(p);
         mScreenWidth = p.x;
+        mRandom = new Random();
+
     }
 
     @Override
@@ -59,20 +59,46 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         SportsType item = mItems[position];
+
+        double positionHeight = getPositionRatio(position);
+
         int height=0;
-        if(position==1 || position==(mItems.length-1))
+        /*if(position==1 || position==(mItems.length-1))
             height = 400;
         else
-            height = 800;
+            height = 800;*/
         holder.tv.setText(StringUtil.getStringFromSports(mContext, item.getValue()));
         Animation animation = AnimationUtils.loadAnimation(mContext, android.R.anim.slide_in_left);
         holder.iv.setAnimation(animation);
+
+        height = (int) (positionHeight * 400);
         holder.flayout_sports.getLayoutParams().height = height;
-        holder.flayout_sports.getLayoutParams().width = mScreenWidth/2;
+        holder.flayout_sports.getLayoutParams().width = mScreenWidth / 2;
+//        Logger.d("position = " + position + " height =" + height + "mScreenWidth = " + mScreenWidth);
+
         holder.flayout_sports.setBackgroundResource(item.getResid_color());
         holder.flayout_sports.setForeground(new MyStateListDrawable(mContext));
         holder.iv.setImageResource(item.getResid_icon());
+
     }
+
+    private double getPositionRatio(final int position) {
+        double ratio = sPositionHeightRatios.get(position, 0.0);
+        // if not yet done generate and stash the columns height
+        // in our real world scenario this will be determined by
+        // some match based on the known height and width of the image
+        // and maybe a helpful way to get the column height!
+        if (ratio == 0) {
+            ratio = getRandomHeightRatio();
+            sPositionHeightRatios.append(position, ratio);
+            Log.d(TAG, "getPositionRatio:" + position + " ratio:" + ratio);
+        }
+        return ratio;
+    }
+    private double getRandomHeightRatio() {
+        return (mRandom.nextDouble() ) + 1.0; // height will be 1.0 - 1.5 the width
+    }
+    private static final SparseArray<Double> sPositionHeightRatios = new SparseArray<Double>();
 
     @Override
     public int getItemCount() {
