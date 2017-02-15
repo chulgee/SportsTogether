@@ -59,7 +59,7 @@ public class SplashActivity extends AppCompatActivity {
 
         setContentView(R.layout.splash_act);
 
-        RetrofitHelper.getServerVersion(this, new RetrofitHelper.VERSION_CALLBACK() {
+        RetrofitHelper.getServerVersion(this, new RetrofitHelper.VersionListener() {
             @Override
             public void onLoaded(int versioncode) {
                 if(BuildConfig.VERSION_CODE == versioncode){
@@ -69,11 +69,14 @@ public class SplashActivity extends AppCompatActivity {
                     showScreenToUpdate();
                 }
             }
+
+            @Override
+            public void onFailed() {
+                SplashActivity.this.finish();
+            }
         });
 
     }
-
-
 
     public void showScreenToUpdate() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

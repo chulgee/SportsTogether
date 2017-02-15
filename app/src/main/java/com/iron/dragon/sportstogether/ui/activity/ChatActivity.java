@@ -333,7 +333,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
         ArrayList<Profile> profiles = LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(this);
         final Profile me = profiles.get(0);
         Log.v(TAG, "createMsgNoti message="+message.toString());
-        RetrofitHelper.loadProfile(this, me, message.getSender(), message.getSportsid(), message.getLocationid(), new RetrofitHelper.PROFILE_CALLBACK() {
+        RetrofitHelper.loadProfile(this, me, message.getSender(), message.getSportsid(), message.getLocationid(), new RetrofitHelper.ProfileListener() {
             @Override
             public void onLoaded(Profile profile) {
                 Log.v(TAG, "onLoaded profile="+profile.toString());
