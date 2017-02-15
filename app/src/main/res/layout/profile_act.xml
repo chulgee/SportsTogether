@@ -121,15 +121,18 @@
         <TextView android:layout_width="74dp"
                   android:layout_height="wrap_content"
                   android:text="@string/level"/>
-        <fr.ganfra.materialspinner.MaterialSpinner
-            android:id="@+id/spLevel"
-            android:layout_width="200dip"
+        <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+            android:id="@+id/sbLevel"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
-            app:ms_arrowColor="#0000FF"
-            app:ms_arrowSize="16dp"
-            app:ms_floatingLabelColor="#00FF00"
-            app:ms_multiline="true"/>
+            app:dsb_indicatorPopupEnabled="true"
+            app:dsb_indicatorFormatter="초보바로위"
+            app:dsb_indicatorTextAppearance="@style/Base.TextAppearance.AppCompat.Body1"
+            app:dsb_min="0"
+            app:dsb_max="5"
+            />
     </LinearLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"

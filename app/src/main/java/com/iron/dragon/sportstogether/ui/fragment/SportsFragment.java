@@ -1,32 +1,22 @@
 package com.iron.dragon.sportstogether.ui.fragment;
 
+import android.content.Context;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.DimenRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.iron.dragon.sportstogether.R;
-import com.iron.dragon.sportstogether.enums.SportsType;
-import com.iron.dragon.sportstogether.factory.SportsFactory;
 import com.iron.dragon.sportstogether.factory.Factory;
 import com.iron.dragon.sportstogether.ui.adapter.MainAdapter;
-import com.iron.dragon.sportstogether.util.StringUtil;
-import com.iron.dragon.sportstogether.util.Util;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static com.google.android.gms.internal.zzs.TAG;
 
 /**
  * Created by user on 2016-08-12.
@@ -56,31 +46,29 @@ public class SportsFragment extends Fragment {
         }
         Log.v(TAG, "getList="+mFactory.getList().toString());*/
         mAdapter = new MainAdapter(getActivity());//, mFactory.getList());
-        Lv_list.addItemDecoration((new SpacesItemDecoration(SpacesItemDecoration.MARGIN_BETWEEN_ITEM)));
+        Lv_list.addItemDecoration(new SpacesItemDecoration(getContext(), R.dimen.item_offset));
         Lv_list.setAdapter(mAdapter);
 
         return rootView;
     }
 
     public class SpacesItemDecoration extends RecyclerView.ItemDecoration {
-        public static final int MARGIN_BETWEEN_ITEM = 16;
-        private final int mSpace;
+        private int mItemOffset;
 
-        public SpacesItemDecoration(int space) {
-            this.mSpace = space;
+        public SpacesItemDecoration(int itemOffset) {
+            mItemOffset = itemOffset;
+        }
+
+        public SpacesItemDecoration(Context context,@DimenRes int itemOffsetId) {
+            this(context.getResources().getDimensionPixelSize(itemOffsetId));
         }
 
         @Override
-        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-            int position = parent.getChildAdapterPosition(view);
-
-            if(position == 0 || (position%2 == 1 && position != 1))
-                outRect.left = mSpace;
-            outRect.right = mSpace;
-            outRect.bottom = mSpace;
-            // Add top margin only for the first item to avoid double space between items
-            if (parent.getChildAdapterPosition(view) == 0 || parent.getChildAdapterPosition(view) == 1)
-                outRect.top = mSpace;
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                                   RecyclerView.State state) {
+            super.getItemOffsets(outRect, view, parent, state);
+            outRect.set(mItemOffset, mItemOffset, mItemOffset, mItemOffset);
         }
+
     }
 }
