@@ -29,6 +29,7 @@ import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.SportsApplication;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
+import com.iron.dragon.sportstogether.enums.LevelType;
 import com.iron.dragon.sportstogether.http.CallbackWithExists;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
@@ -38,6 +39,7 @@ import com.iron.dragon.sportstogether.util.ToastUtil;
 import com.orhanobut.logger.Logger;
 import com.squareup.picasso.Picasso;
 
+import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -85,8 +87,6 @@ public class LoginActivity extends AppCompatActivity {
     protected EditText mEtPhoneNum;
     @BindView(R.id.spSportsType)
     protected MaterialSpinner mSpSportsType;
-    @BindView(R.id.spLevel)
-    protected MaterialSpinner mSpLevel;
     @BindView(R.id.bt_commit)
     protected Button mBtCommit;
     @BindView(R.id.bt_cancel)
@@ -95,7 +95,9 @@ public class LoginActivity extends AppCompatActivity {
     protected Toolbar mToolbar;
     @BindView(R.id.ivProfile_image)
     protected CircleImageView mIvProfileImage;
-    @BindViews({R.id.etNickName, R.id.etPhoneNum, R.id.spAge, R.id.spGender, R.id.spLocation, R.id.spSportsType, R.id.spLevel, R.id.ivProfile_image})
+
+
+    @BindViews({R.id.etNickName, R.id.etPhoneNum, R.id.spAge, R.id.spGender, R.id.spLocation, R.id.spSportsType, R.id.sbLevel, R.id.ivProfile_image})
     protected List<View> nameViews;
 
     @BindViews({R.id.bt_commit, R.id.bt_cancel})
@@ -106,6 +108,9 @@ public class LoginActivity extends AppCompatActivity {
     Handler handler = new Handler();
 
     GitHubService gitHubService;
+    @BindView(R.id.sbLevel)
+    DiscreteSeekBar mSbLevel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -124,6 +129,7 @@ public class LoginActivity extends AppCompatActivity {
     private void processIntent(Intent i) {
         mSportsId = i.getIntExtra("Extra_Sports", 0);
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -134,6 +140,7 @@ public class LoginActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
     private void InitData() {
         GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
         gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
@@ -159,11 +166,12 @@ public class LoginActivity extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpAge.setAdapter(adapter);
 
+        /*
         arr = StringUtil.getStringArrFromLevelType(this);
         list = new ArrayList<String>(Arrays.asList(arr));
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, list);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSpLevel.setAdapter(adapter);
+        mSpLevel.setAdapter(adapter);*/
 
         arr = StringUtil.getStringArrFromGenderType(this);
         list = new ArrayList<String>(Arrays.asList(arr));
@@ -199,8 +207,8 @@ public class LoginActivity extends AppCompatActivity {
     };
 
     protected void InitLayout() {
-        ArrayList<Profile> profileList =LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(this);
-        if(profileList.size() == 0) {
+        ArrayList<Profile> profileList = LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(this);
+        if (profileList.size() == 0) {
 
         } else {
             mEtNickName.setText(profileList.get(0).getUsername());
@@ -208,7 +216,7 @@ public class LoginActivity extends AppCompatActivity {
             mSpGender.setSelection(profileList.get(0).getGender());
             mEtPhoneNum.setText(profileList.get(0).getPhone());
             String url = null;
-            if(StringUtil.isEmpty(profileList.get(0).getImage())) {
+            if (StringUtil.isEmpty(profileList.get(0).getImage())) {
                 url = "android.resource://com.iron.dragon.sportstogether/drawable/default_user";
             } else {
                 url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_profile?filename=" + profileList.get(0).getImage();
@@ -224,6 +232,21 @@ public class LoginActivity extends AppCompatActivity {
         }
         mSpSportsType.setSelection(mSportsId);
         mSpSportsType.setEnabled(false);
+
+        mSbLevel.setMax(LevelType.values().length - 1);
+        mSbLevel.setOnProgressChangeListener(new DiscreteSeekBar.OnProgressChangeListener() {
+            @Override
+            public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser) {
+                seekBar.setIndicatorFormatter(StringUtil.getStringFromLevel(LoginActivity.this, value));
+            }
+            @Override
+            public void onStartTrackingTouch(DiscreteSeekBar seekBar) {
+            }
+            @Override
+            public void onStopTrackingTouch(DiscreteSeekBar seekBar) {
+            }
+        });
+
     }
 
 
@@ -260,7 +283,7 @@ public class LoginActivity extends AppCompatActivity {
                 pi.setLocationid(mSpLocation.getSelectedItemPosition());
                 pi.setPhone(mEtPhoneNum.getText().toString());
                 pi.setSportsid(mSportsId);
-                pi.setLevel(mSpLevel.getSelectedItemPosition());
+                pi.setLevel(mSbLevel.getProgress());
                 pi.setImage("");
 
                 pi.setRegid(regid);
@@ -276,7 +299,7 @@ public class LoginActivity extends AppCompatActivity {
                         Log.d("Test", "body = " + response.body().toString());
                         Profile p = response.body();
 
-                        if(mCropImagedUri == null) {
+                        if (mCropImagedUri == null) {
                             saveLocalProfile(p);
                             toBulletinListActivity();
 
@@ -285,10 +308,12 @@ public class LoginActivity extends AppCompatActivity {
                             uploadFile(p, mCropImagedUri);
                         }
                     }
+
                     @Override
                     public void onExists(Call<Profile> call, Response<Profile> response) {
                         ToastUtil.show(getApplicationContext(), "NickName is Already Exist");
                     }
+
                     @Override
                     public void onFailure(Call<Profile> call, Throwable t) {
                         Log.d("Test", "error message = " + t.getMessage());
@@ -387,6 +412,7 @@ public class LoginActivity extends AppCompatActivity {
 
     class ResizeBitmapTask extends AsyncTask<File, Void, File> {
         Profile profile;
+
         public ResizeBitmapTask(Profile p) {
             profile = p;
         }
@@ -537,8 +563,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
     }
-
-
 
 
     protected void dispatchCropIntent(Uri imageCaptureUri) {
