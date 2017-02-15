@@ -98,24 +98,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
 
     }
 
-    private double getPositionRatio(final int position) {
-        double ratio = sPositionHeightRatios.get(position, 0.0);
-        // if not yet done generate and stash the columns height
-        // in our real world scenario this will be determined by
-        // some match based on the known height and width of the image
-        // and maybe a helpful way to get the column height!
-        if (ratio == 0) {
-            ratio = getRandomHeightRatio();
-            sPositionHeightRatios.append(position, ratio);
-            Log.d(TAG, "getPositionRatio:" + position + " ratio:" + ratio);
-        }
-        return ratio;
-    }
-    private double getRandomHeightRatio() {
-        return (mRandom.nextDouble() ) + 1.0; // height will be 1.0 - 1.5 the width
-    }
-    private static final SparseArray<Double> sPositionHeightRatios = new SparseArray<Double>();
-
     @Override
     public int getItemCount() {
         return mItems.length;
