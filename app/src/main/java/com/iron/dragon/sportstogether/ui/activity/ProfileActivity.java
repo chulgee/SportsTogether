@@ -66,7 +66,7 @@ public class ProfileActivity extends LoginActivity  {
         mSpAge.setSelection(profile.getAge());
         mSpGender.setSelection(profile.getGender());
         mEtPhoneNum.setText(profile.getPhone());
-        mSpLevel.setSelection(profile.getLevel());
+        mSbLevel.setProgress(profile.getLevel());
         String url = null;
         if(StringUtil.isEmpty(profile.getImage())) {
             url = "android.resource://com.iron.dragon.sportstogether/drawable/default_user";
@@ -116,7 +116,7 @@ public class ProfileActivity extends LoginActivity  {
                 pi.setLocationid(mSpLocation.getSelectedItemPosition());
                 pi.setPhone(mEtPhoneNum.getText().toString());
                 pi.setSportsid(mSportsId);
-                pi.setLevel(mSpLevel.getSelectedItemPosition());
+                pi.setLevel(mSbLevel.getProgress());
 
                 pi.setRegid(regid);
                 Log.v(TAG, "등록 profile=" + pi.toString());
