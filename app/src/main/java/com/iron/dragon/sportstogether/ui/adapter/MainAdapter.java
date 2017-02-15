@@ -67,8 +67,22 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
             height = 400;
         else
             height = 800;*/
+        if(item.getValue() == SportsType.Badminton.getValue()) {
+            holder.tv.setWidth(Util.getDpToPixel(mContext, 35));
+        }else if(item.getValue() == SportsType.Table_tennis.getValue()){
+            holder.tv.setWidth(Util.getDpToPixel(mContext, 50));
+        }else if(item.getValue() == SportsType.Basketball.getValue()){
+            holder.tv.setWidth(Util.getDpToPixel(mContext, 30));
+        }
+
+        /*if(item.getValue() == SportsType.Badminton.getValue()) {
+            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP|Gravity.LEFT);
+            holder.tv.setLayoutParams(lp);
+            holder.tv.setRotation(-90);
+        }*/
         holder.tv.setTextSize(StringUtil.getStringSizeFromSports(mContext, item.getValue()));
         holder.tv.setText(StringUtil.getStringFromSports(mContext, item.getValue()));
+
         Animation animation = AnimationUtils.loadAnimation(mContext, android.R.anim.slide_in_left);
         holder.iv.setAnimation(animation);
 
@@ -80,7 +94,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
         holder.flayout_sports.setBackgroundResource(item.getResid_color());
         holder.flayout_sports.setForeground(new MyStateListDrawable(mContext));
         holder.iv.setImageResource(item.getResid_icon());
-
     }
 
     private double getPositionRatio(final int position) {

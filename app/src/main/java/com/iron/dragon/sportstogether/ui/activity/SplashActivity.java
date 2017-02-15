@@ -1,7 +1,9 @@
 package com.iron.dragon.sportstogether.ui.activity;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -16,13 +18,16 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.iron.dragon.sportstogether.BuildConfig;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.SportsApplication;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.enums.SportsType;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
+import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
 import com.iron.dragon.sportstogether.util.Const;
+import com.iron.dragon.sportstogether.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,7 +59,46 @@ public class SplashActivity extends AppCompatActivity {
 
         setContentView(R.layout.splash_act);
 
-        requestPermission(this);
+        RetrofitHelper.getServerVersion(this, new RetrofitHelper.VersionListener() {
+            @Override
+            public void onLoaded(int versioncode) {
+                if(BuildConfig.VERSION_CODE == versioncode){
+                    requestPermission(SplashActivity.this);
+                }else{
+                    //take him to market
+                    showScreenToUpdate();
+                }
+            }
+
+            @Override
+            public void onFailed() {
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        SplashActivity.this.finish();
+                    }
+                }, 1500);
+            }
+        });
+
+    }
+
+    public void showScreenToUpdate() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("업데이트 필요");
+        StringBuffer sb = new StringBuffer();
+        sb.append("새로운 버전이 마켓에 등록되었습니다. \n" +
+                "아래 버튼을 눌러 업데이트해주세요");
+        builder.setMessage(sb.toString());
+        builder.setCancelable(false);
+        builder.setPositiveButton("마켓으로 이동", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(SplashActivity.this, "마켓으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        });
+        builder.create().show();
     }
 
     @Override
