@@ -11,6 +11,7 @@ import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.CallbackWithExists;
 import com.iron.dragon.sportstogether.http.RetryableCallback;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
+import com.iron.dragon.sportstogether.util.ConnectivityUtil;
 import com.iron.dragon.sportstogether.util.Const;
 import com.orhanobut.logger.Logger;
 
@@ -37,12 +38,13 @@ public class RetrofitHelper {
     public static final int FAILURE = 3;
     private static final String TAG = "RetrofitHelper";
 
-    public interface PROFILE_CALLBACK{
+    public interface ProfileListener{
         public void onLoaded(Profile profile);
     }
 
-    public interface VERSION_CALLBACK{
+    public interface VersionListener{
         public void onLoaded(int versioncode);
+        public void onFailed();
     }
 
     public static <T> void enqueueWithRetry(Call<T> call,  final int retryCount,final Callback<T> callback) {
@@ -105,7 +107,11 @@ public class RetrofitHelper {
         }
     }
 
-    public static void loadProfile(final Context context, final Profile me, String username, int sportsid, int locationid, final PROFILE_CALLBACK cb) {
+    public static void loadProfile(final Context context, final Profile me, String username, int sportsid, int locationid, final ProfileListener cb) {
+
+        if(!ConnectivityUtil.isConnected(context))
+            return;
+
         GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
         GitHubService retrofit = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
 
@@ -129,11 +135,16 @@ public class RetrofitHelper {
             @Override
             public void onFailure(Call<Profile> call, Throwable t) {
                 Log.d("Test", "error message = " + t.getMessage());
+                Toast.makeText(context, "서버에 접속할 수 없습니다.\n 인터넷 연결을 확인해주세요", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    public static void getServerVersion(final Context context, final VERSION_CALLBACK cb){
+    public static void getServerVersion(final Context context, final VersionListener cb){
+
+        if(!ConnectivityUtil.isConnected(context))
+            return;
+
         GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
         GitHubService retrofit = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
 
@@ -158,6 +169,7 @@ public class RetrofitHelper {
             public void onFailure(Call<Integer> call, Throwable t) {
                 Log.d("Test", "error message = " + t.getMessage());
                 Toast.makeText(context, "서버에 접속할 수 없습니다.\n 인터넷 연결을 확인해주세요", Toast.LENGTH_SHORT).show();
+                cb.onFailed();
             }
         });
     }

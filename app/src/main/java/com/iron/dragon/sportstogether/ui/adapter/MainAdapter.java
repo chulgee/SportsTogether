@@ -30,6 +30,7 @@ import com.iron.dragon.sportstogether.factory.Sports;
 import com.iron.dragon.sportstogether.ui.activity.BulletinListActivity;
 import com.iron.dragon.sportstogether.ui.activity.LoginActivity;
 import com.iron.dragon.sportstogether.util.StringUtil;
+import com.iron.dragon.sportstogether.util.Util;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -66,6 +67,14 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
             height = 400;
         else
             height = 800;
+        if(item.getValue() == SportsType.Badminton.getValue()) {
+            holder.tv.setWidth(Util.getDpToPixel(mContext, 35));
+        }else if(item.getValue() == SportsType.Table_tennis.getValue()){
+            holder.tv.setWidth(Util.getDpToPixel(mContext, 50));
+        }else if(item.getValue() == SportsType.Basketball.getValue()){
+            holder.tv.setWidth(Util.getDpToPixel(mContext, 30));
+        }
+			
         /*if(item.getValue() == SportsType.Badminton.getValue()) {
             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP|Gravity.LEFT);
             holder.tv.setLayoutParams(lp);
