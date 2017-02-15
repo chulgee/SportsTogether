@@ -157,6 +157,7 @@ public class RetrofitHelper {
             @Override
             public void onFailure(Call<Integer> call, Throwable t) {
                 Log.d("Test", "error message = " + t.getMessage());
+                Toast.makeText(context, "서버에 접속할 수 없습니다.\n 인터넷 연결을 확인해주세요", Toast.LENGTH_SHORT).show();
             }
         });
     }
