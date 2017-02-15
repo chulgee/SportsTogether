@@ -3,10 +3,11 @@ package com.iron.dragon.sportstogether.ui.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.LevelListDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,16 +18,19 @@ import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.enums.SportsType;
+import com.iron.dragon.sportstogether.factory.Sports;
 import com.iron.dragon.sportstogether.ui.activity.BulletinListActivity;
 import com.iron.dragon.sportstogether.ui.activity.LoginActivity;
 import com.iron.dragon.sportstogether.util.StringUtil;
+import com.squareup.picasso.Picasso;
 
-import java.util.Random;
+import java.util.List;
 
 
 public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
@@ -34,8 +38,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
     SportsType[] mItems;
     private Context mContext;
     private int mScreenWidth;
-
-    private final Random mRandom;
 
     public MainAdapter(Context context) {
         mContext = context;
@@ -46,8 +48,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
         Point p = new Point();
         display.getSize(p);
         mScreenWidth = p.x;
-        mRandom = new Random();
-
     }
 
     @Override
@@ -59,27 +59,34 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         SportsType item = mItems[position];
-
-        double positionHeight = getPositionRatio(position);
-
         int height=0;
-        /*if(position==1 || position==(mItems.length-1))
+        if(position==1 || position==(mItems.length-1))
             height = 400;
         else
             height = 800;*/
+        if(item.getValue() == SportsType.Badminton.getValue()) {
+            holder.tv.setWidth(Util.getDpToPixel(mContext, 35));
+        }else if(item.getValue() == SportsType.Table_tennis.getValue()){
+            holder.tv.setWidth(Util.getDpToPixel(mContext, 50));
+        }else if(item.getValue() == SportsType.Basketball.getValue()){
+            holder.tv.setWidth(Util.getDpToPixel(mContext, 30));
+        }
+
+        /*if(item.getValue() == SportsType.Badminton.getValue()) {
+            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP|Gravity.LEFT);
+            holder.tv.setLayoutParams(lp);
+            holder.tv.setRotation(-90);
+        }*/
+        holder.tv.setTextSize(StringUtil.getStringSizeFromSports(mContext, item.getValue()));
         holder.tv.setText(StringUtil.getStringFromSports(mContext, item.getValue()));
+
         Animation animation = AnimationUtils.loadAnimation(mContext, android.R.anim.slide_in_left);
         holder.iv.setAnimation(animation);
-
-        height = (int) (positionHeight * 400);
         holder.flayout_sports.getLayoutParams().height = height;
-        holder.flayout_sports.getLayoutParams().width = mScreenWidth / 2;
-//        Logger.d("position = " + position + " height =" + height + "mScreenWidth = " + mScreenWidth);
-
+        holder.flayout_sports.getLayoutParams().width = mScreenWidth/2;
         holder.flayout_sports.setBackgroundResource(item.getResid_color());
         holder.flayout_sports.setForeground(new MyStateListDrawable(mContext));
         holder.iv.setImageResource(item.getResid_icon());
-
     }
 
     private double getPositionRatio(final int position) {

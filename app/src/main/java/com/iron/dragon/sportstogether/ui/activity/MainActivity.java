@@ -142,6 +142,8 @@ public class MainActivity extends AppCompatActivity
                     .centerCrop()
                     .into(ivNavHeader);
             ((TextView)navigationView.getHeaderView(0).findViewById(R.id.tv_nav_header_tilte)).setText(profile_list.get(0).getUsername());
+            ((TextView)navigationView.getHeaderView(0).findViewById(R.id.tv_nav_header_age)).setText(StringUtil.getStringFromAge(this, profile_list.get(0).getAge()));
+            ((TextView)navigationView.getHeaderView(0).findViewById(R.id.tv_nav_header_gender)).setText(StringUtil.getStringFromGender(this, profile_list.get(0).getGender()));
         } else {
             String url = "android.resource://com.iron.dragon.sportstogether/drawable/default_user";
             Picasso.with(this).load(url).resize(250, 250)
@@ -149,10 +151,6 @@ public class MainActivity extends AppCompatActivity
                     .into(ivNavHeader);
             ((TextView)navigationView.getHeaderView(0).findViewById(R.id.tv_nav_header_tilte)).setText("UnRegister");
         }
-        ((TextView)navigationView.getHeaderView(0).findViewById(R.id.tv_nav_header_age)).setText(StringUtil.getStringFromAge(this, profile_list.get(0).getAge()));
-        ((TextView)navigationView.getHeaderView(0).findViewById(R.id.tv_nav_header_gender)).setText(StringUtil.getStringFromGender(this, profile_list.get(0).getGender()));
-
-
     }
 
     public MainViewPagerAdapter getAdapter(){
@@ -269,7 +267,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_cs) {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("message/rfc822");
-            intent.putExtra(Intent.EXTRA_EMAIL  , new String[]{"chulchoicezee@gmail.com"});
+            intent.putExtra(Intent.EXTRA_EMAIL  , new String[]{"chulchoicezee@gmail.com", "lsy4630@naver.com"});
             intent.putExtra(Intent.EXTRA_SUBJECT, "개발자에게 문의합니다.");
             intent.putExtra(Intent.EXTRA_TEXT   , "");
             startActivity(Intent.createChooser(intent, "개발자에게 이메일 보내기"));

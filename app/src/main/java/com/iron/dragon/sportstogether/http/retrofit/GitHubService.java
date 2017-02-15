@@ -41,6 +41,10 @@ import rx.Observable;
 
 public interface GitHubService {
 
+    @GET("version")
+    Call<Integer> getVersion(
+    );
+
     @GET("profiles")
     Call<List<Profile>> getProfiles(
     );
@@ -54,6 +58,11 @@ public interface GitHubService {
     @GET("profile")
     Call<Profile> getProfile(
             @Query("username") String username, @Query("sportsid") int sportsid, @Query("locationid") int locationid
+    );
+
+    @GET("profiles/device/{id}")
+    Call<List<Profile>> getProfilesForDeviceId(
+            @Path("id") String id
     );
 
     @GET("profiles/{id}")

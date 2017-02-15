@@ -15,12 +15,20 @@ android {
         resValue("string", "KAKAO_CLIENT_APIKEY", KAKAO_CLIENT_APIKEY)
         resValue("string", "KAKAO_CLIENT_SCHEME", KAKAO_CLIENT_SCHEME)
         resValue("string", "GOOGLE_ADMOB_ID", GOOGLE_ADMOB_ID)
+        // Enabling multidex support.
+        multiDexEnabled true
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+
+    //dexOptions 추가
+    dexOptions {
+        jumboMode true
+        javaMaxHeapSize "4g"
     }
 
     dataBinding {
