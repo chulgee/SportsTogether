@@ -72,7 +72,12 @@ public class SplashActivity extends AppCompatActivity {
 
             @Override
             public void onFailed() {
-                SplashActivity.this.finish();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        SplashActivity.this.finish();
+                    }
+                }, 1500);
             }
         });
 
