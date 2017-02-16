@@ -21,6 +21,7 @@ import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.enums.SportsType;
+import com.iron.dragon.sportstogether.factory.Sports;
 import com.iron.dragon.sportstogether.ui.activity.BulletinListActivity;
 import com.iron.dragon.sportstogether.ui.activity.LoginActivity;
 import com.iron.dragon.sportstogether.util.StringUtil;
@@ -32,6 +33,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
     SportsType[] mItems;
     private Context mContext;
     private int mScreenWidth;
+    private int mScreenHeight;
 
     public MainAdapter(Context context) {
         mContext = context;
@@ -42,6 +44,8 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
         Point p = new Point();
         display.getSize(p);
         mScreenWidth = p.x;
+        mScreenHeight = p.y;
+
     }
 
     @Override
@@ -54,16 +58,21 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
     public void onBindViewHolder(ViewHolder holder, final int position) {
         SportsType item = mItems[position];
         int height=0;
+        WindowManager wm = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
+
+        Log.v(TAG, "30="+Util.getDpToPixel(mContext, 35)+", 50="+Util.getDpToPixel(mContext, 50));
+        //Log.v(TAG, "w="+Util.getPixelToDp(mContext, wm.getDefaultDisplay().getWidth())+", h="+Util.getPixelToDp(mContext, wm.getDefaultDisplay().getHeight()));
+
         if(position==1 || position==(mItems.length-1))
-            height = 400;
+            height = mScreenHeight/4;
         else
-            height = 800;
+            height = mScreenHeight/2;
         if(item.getValue() == SportsType.Badminton.getValue()) {
-            holder.tv.setWidth(Util.getDpToPixel(mContext, 35));
+            holder.tv.setWidth(Util.getDpToPixel(mContext, SportsType.Badminton.getResid_str_size()));
         }else if(item.getValue() == SportsType.Table_tennis.getValue()){
-            holder.tv.setWidth(Util.getDpToPixel(mContext, 50));
+            holder.tv.setWidth(Util.getDpToPixel(mContext, SportsType.Table_tennis.getResid_str_size()));
         }else if(item.getValue() == SportsType.Basketball.getValue()){
-            holder.tv.setWidth(Util.getDpToPixel(mContext, 30));
+            holder.tv.setWidth(Util.getDpToPixel(mContext, SportsType.Basketball.getResid_str_size()));
         }
 
         /*if(item.getValue() == SportsType.Badminton.getValue()) {
