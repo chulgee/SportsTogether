@@ -15,4 +15,6 @@
     <dimen name="sportstype4_text">20dp</dimen>
     <dimen name="sportstype5_text">8dp</dimen>
 
+    <dimen name="nav_header_image_width">80dp</dimen>
+    <dimen name="nav_header_image_height">80dp</dimen>
 </resources>

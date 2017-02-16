@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity
             } else {
                 url = "http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_profile?filename=" + profile_list.get(0).getImage();
             }
-            Picasso.with(this).load(url).resize(250, 250)
+            Picasso.with(this).load(url).resize((int) getResources().getDimension(R.dimen.nav_header_image_width), (int) getResources().getDimension(R.dimen.nav_header_image_height))
                     .centerCrop()
                     .into(ivNavHeader);
             ((TextView)navigationView.getHeaderView(0).findViewById(R.id.tv_nav_header_tilte)).setText(profile_list.get(0).getUsername());
@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity
             ((TextView)navigationView.getHeaderView(0).findViewById(R.id.tv_nav_header_gender)).setText(StringUtil.getStringFromGender(this, profile_list.get(0).getGender()));
         } else {
             String url = "android.resource://com.iron.dragon.sportstogether/drawable/default_user";
-            Picasso.with(this).load(url).resize(250, 250)
+            Picasso.with(this).load(url).resize((int) getResources().getDimension(R.dimen.nav_header_image_width), (int) getResources().getDimension(R.dimen.nav_header_image_height))
                     .centerCrop()
                     .into(ivNavHeader);
             ((TextView)navigationView.getHeaderView(0).findViewById(R.id.tv_nav_header_tilte)).setText("UnRegister");
