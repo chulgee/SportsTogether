@@ -174,15 +174,17 @@ public interface GitHubService {
 
 
         public static void changeApiBaseUrl(String newApiBaseUrl) {
-            apiBaseUrl = newApiBaseUrl;
+            if(!apiBaseUrl .equals(newApiBaseUrl)){
+                apiBaseUrl = newApiBaseUrl;
 
-            retrofit = new Retrofit.Builder()
-                    .baseUrl(apiBaseUrl)
-                    .client(httpNewsClient.build())
-                    .addConverterFactory(ScalarsConverterFactory.create())
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                    .build();
+                retrofit = new Retrofit.Builder()
+                        .baseUrl(apiBaseUrl)
+                        .client(httpNewsClient.build())
+                        .addConverterFactory(ScalarsConverterFactory.create())
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                        .build();
+            }
         }
 
     }
