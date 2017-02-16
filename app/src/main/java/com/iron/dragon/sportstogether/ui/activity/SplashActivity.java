@@ -27,11 +27,8 @@ import com.iron.dragon.sportstogether.enums.SportsType;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
 import com.iron.dragon.sportstogether.util.Const;
-import com.iron.dragon.sportstogether.util.StringUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import retrofit2.Call;
@@ -62,9 +59,9 @@ public class SplashActivity extends AppCompatActivity {
         RetrofitHelper.getServerVersion(this, new RetrofitHelper.VersionListener() {
             @Override
             public void onLoaded(int versioncode) {
-                if(BuildConfig.VERSION_CODE == versioncode){
+                if (BuildConfig.DEBUG || BuildConfig.VERSION_CODE == versioncode) {
                     requestPermission(SplashActivity.this);
-                }else{
+                } else {
                     //take him to market
                     showScreenToUpdate();
                 }
@@ -80,7 +77,6 @@ public class SplashActivity extends AppCompatActivity {
                 }, 1500);
             }
         });
-
     }
 
     public void showScreenToUpdate() {

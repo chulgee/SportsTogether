@@ -288,7 +288,9 @@ public class MainActivity extends AppCompatActivity
             try {
                 final KakaoLink kakaoLink = KakaoLink.getKakaoLink(getApplicationContext());
                 final KakaoTalkLinkMessageBuilder kakaoTalkLinkMessageBuilder = kakaoLink.createKakaoTalkLinkMessageBuilder();
-                kakaoTalkLinkMessageBuilder.addAppLink("자세히 보기", new AppActionBuilder().setUrl("market://details?id=com.iron.dragon.sportstogether").build()); // PC 카카오톡 에서 사용하게 될 웹사이트 주소
+                kakaoTalkLinkMessageBuilder.addImage("http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/upload_profile?filename=ic_sports.jpg", 300, 200);
+                kakaoTalkLinkMessageBuilder.addText("함께 운동해요");
+                kakaoTalkLinkMessageBuilder.addAppButton("운동하러 가기", new AppActionBuilder().setUrl("http://market.android.com/details?id=com.iron.dragon.sportstogether").build()); // PC 카카오톡 에서 사용하게 될 웹사이트 주소
                 kakaoLink.sendMessage(kakaoTalkLinkMessageBuilder, this);
             } catch (KakaoParameterException e) {
                 e.printStackTrace();
