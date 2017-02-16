@@ -45,6 +45,9 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
         display.getSize(p);
         mScreenWidth = p.x;
         mScreenHeight = p.y;
+        Log.v(TAG, "mScreenWidth="+mScreenWidth+", mScreenHeight="+mScreenHeight);
+        final float density = context.getResources().getDisplayMetrics().density;
+        Log.v(TAG, "density="+density);
 
     }
 
@@ -60,19 +63,19 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
         int height=0;
         WindowManager wm = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
 
-        Log.v(TAG, "30="+Util.getDpToPixel(mContext, 35)+", 50="+Util.getDpToPixel(mContext, 50));
-        //Log.v(TAG, "w="+Util.getPixelToDp(mContext, wm.getDefaultDisplay().getWidth())+", h="+Util.getPixelToDp(mContext, wm.getDefaultDisplay().getHeight()));
-
         if(position==1 || position==(mItems.length-1))
-            height = mScreenHeight/4;
+            height = (mScreenHeight/3)/2;
         else
-            height = mScreenHeight/2;
-        if(item.getValue() == SportsType.Badminton.getValue()) {
-            holder.tv.setWidth(Util.getDpToPixel(mContext, SportsType.Badminton.getResid_str_size()));
-        }else if(item.getValue() == SportsType.Table_tennis.getValue()){
-            holder.tv.setWidth(Util.getDpToPixel(mContext, SportsType.Table_tennis.getResid_str_size()));
-        }else if(item.getValue() == SportsType.Basketball.getValue()){
-            holder.tv.setWidth(Util.getDpToPixel(mContext, SportsType.Basketball.getResid_str_size()));
+            height = mScreenHeight/3;
+
+        if(item.getValue() == SportsType.Badminton.getValue()
+                || item.getValue() == SportsType.Table_tennis.getValue()
+                || item.getValue() == SportsType.Basketball.getValue()) {
+            int size = mContext.getResources().getDimensionPixelSize(item.getResid_str_size());
+            int char_width_margin_dp = 4;
+            int size_px = Util.getDpToPixel(mContext, size + char_width_margin_dp);
+            Log.v(TAG, "font size_px="+size_px);
+            holder.tv.setWidth(size_px);
         }
 
         /*if(item.getValue() == SportsType.Badminton.getValue()) {

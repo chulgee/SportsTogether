@@ -134,14 +134,14 @@ public class Util {
     }
 
     public static int getDpToPixel(Context context, int dp){
-        final float dpi = context.getResources().getDisplayMetrics().density;
-        float px = dp*(dpi);
+        final float density = context.getResources().getDisplayMetrics().density;
+        float px = dp * density;
         return (int)px;
     }
 
     public static int getPixelToDp(Context context, int px){
-        final float dpi = context.getResources().getDisplayMetrics().density;
-        float dp = px/(dpi);
+        final float density = context.getResources().getDisplayMetrics().density;
+        float dp = px / density;
         return(int)dp;
     }
 
