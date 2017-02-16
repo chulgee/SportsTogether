@@ -50,19 +50,23 @@ public interface GitHubService {
     );
 
     @GET("bulletin")
-    Call<List<BulletinInfo>> getBulletin(
+    Call<List<Bulletin>> getBulletin(
     );
 
     @GET("bulletin")
-    Call<List<BulletinInfo>> getBulletin(
-            @Query("sportsid") int sportsid, @Query("locationid") int locationid, @Query("numOfComment") int numOfComment
+    Call<List<Bulletin>> getBulletin(
+            @Query("sportsid") int sportsid, @Query("locationid") int locationid, @Query("reqNum") int reqNum
     );
 
+    @DELETE("bulletin/{id}")
+    Call<Bulletin> deleteBulletin(
+            @Path("id") int id
+    );
 
 
     static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
     public static final Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl("http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com/")
+            .baseUrl("http://ec2-52-78-226-5.ap-northeast-2.compute.amazonaws.com:9000/")
             .client(httpClient.build())
             .addConverterFactory(GsonConverterFactory.create())
             .build();

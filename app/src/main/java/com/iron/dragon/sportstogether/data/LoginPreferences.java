@@ -2,21 +2,30 @@ package com.iron.dragon.sportstogether.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.preference.PreferenceManager;
+
+import com.google.gson.Gson;
+import com.iron.dragon.sportstogether.data.bean.Profile;
+import com.iron.dragon.sportstogether.enums.SportsType;
+import com.iron.dragon.sportstogether.util.StringUtil;
+
+import java.util.ArrayList;
 
 /**
  * Created by P11872 on 2015-08-20.
  */
 public class LoginPreferences {
-    static private SharedPreferences.Editor mEditor;
-    static private SharedPreferences mPref;
 
-    public static final String USER_AUTHENTICATED = "user_authenticated"; //value is a Boolean
+    private static final String TAG = "LoginPreferences";
     private static volatile LoginPreferences mLoginPreferences;
 
     private static final String PROFILE_NICKNAME = "_nickname";
-    private static final String PROFILE_SPORTSTYPE = "_sprotstype";
-    private static final String PROFILE_LOCATION = "_location";
+    public static final String REGID = "regid"; //value is a Boolean
+    private static final String PROFILE_IMAGE = "image";
+
+    private static final String BUDDY_ALARM = "buddy_alarm";
+    private static final String CHAT_ALARM = "chat_alarm";
 
     private LoginPreferences(){
 
@@ -31,37 +40,114 @@ public class LoginPreferences {
         return mLoginPreferences;
     }
 
-    public boolean CheckLogin(Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getBoolean(LoginPreferences.USER_AUTHENTICATED, false);
-    }
-
-    public void SetLogin(Context context) {
+    public void SetBuddyAlarmOn(Context context, boolean isChecked) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(USER_AUTHENTICATED, false);
+        editor.putBoolean(BUDDY_ALARM, isChecked);
+        editor.apply();
     }
-
-    public void SetLocalProfile(Context context, ProfileItem profile) {
+    public boolean GetBuddyAlarmOn(Context context) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean ischecked = sharedPreferences.getBoolean(BUDDY_ALARM, true);
+        return ischecked;
+    }
+    public void SetChatAlarmOn(Context context, boolean isChecked) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(CHAT_ALARM, isChecked);
+        editor.apply();
+    }
+    public boolean GetChatAlarmOn(Context context) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean ischecked = sharedPreferences.getBoolean(CHAT_ALARM, true);
+        return ischecked;
+    }
 
-        editor.putString(PROFILE_NICKNAME, profile.get_mNickName());
-        editor.putInt(PROFILE_SPORTSTYPE, profile.get_mSportsType());
-        editor.putInt(PROFILE_LOCATION,  profile.get_mLocation());
+    public void SetRegid(Context context, String regid){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(REGID, regid);
         editor.apply();
     }
 
-    public void CheckLogOut(Context context) {
+    public String GetRegid(Context context){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(USER_AUTHENTICATED, false);
-    }
-    public void clear(Context context){
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        sharedPreferences.edit()
-                .clear()
-                .apply();
+        String regid = sharedPreferences.getString(REGID, "");
+        return regid;
     }
 
+    public boolean IsLogin(Context context, int id) {
+        //String[] temp = context.getResources().getStringArray(R.array.sportstype);
+        SharedPreferences appSharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(context.getApplicationContext());
+        Gson gson = new Gson();
+        boolean isLogin = false;
+        String json = appSharedPrefs.getString(StringUtil.getStringFromSports(context, id), "");
+        return !json.equals("");
+    }
+
+    // 아 먼가 이상해졌음....
+    public void saveSharedPreferencesProfile(Context context, Profile profile) {
+        setCommonPreference(context, profile);
+        SharedPreferences appSharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(context.getApplicationContext());
+        SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(profile);
+        prefsEditor.putString(StringUtil.getStringFromSports(context, profile.getSportsid()), json);
+        prefsEditor.apply();
+    }
+
+    private void setCommonPreference(Context context, Profile profile) {
+        ArrayList<Profile> profileList = loadSharedPreferencesProfileAll(context);
+        for(Profile p : profileList) {
+            p.setUsername(profile.getUsername());
+            p.setAge(profile.getAge());
+            p.setGender(profile.getGender());
+            p.setPhone(profile.getPhone());
+            p.setImage(profile.getImage());
+            SharedPreferences appSharedPrefs = PreferenceManager
+                    .getDefaultSharedPreferences(context.getApplicationContext());
+            SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
+            Gson gson = new Gson();
+            String json = gson.toJson(p);
+            prefsEditor.putString(StringUtil.getStringFromSports(context, p.getSportsid()), json);
+            prefsEditor.apply();
+        }
+    }
+
+    public Profile loadSharedPreferencesProfile(Context context, int sportsId) {
+        SharedPreferences appSharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(context.getApplicationContext());
+        Gson gson = new Gson();
+        String json = appSharedPrefs.getString(StringUtil.getStringFromSports(context, sportsId), "");
+        return gson.fromJson(json, Profile.class);
+    }
+
+    public ArrayList<Profile> loadSharedPreferencesProfileAll(Context context) {
+        Resources res = context.getResources();
+        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+        SportsType[] list = SportsType.values();
+        ArrayList<Profile> profileList = new ArrayList<>();
+        Gson gson = new Gson();
+
+        for(SportsType s : list){
+            String key = res.getString(s.getResid());
+            String json = appSharedPrefs.getString(key, "");
+            if(!json.equals("")) {
+                profileList.add(gson.fromJson(json, Profile.class));
+            }
+        }
+        return profileList;
+    }
+
+
+    // temp
+    public void SetLogout(Context context, int sportsId) {
+        SharedPreferences appSharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(context.getApplicationContext());
+                SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
+                prefsEditor.remove(StringUtil.getStringFromSports(context, sportsId));
+                prefsEditor.apply();
+    }
 }

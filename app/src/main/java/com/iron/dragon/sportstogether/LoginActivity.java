@@ -9,15 +9,12 @@ import android.widget.EditText;
 
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.ProfileItem;
-import com.iron.dragon.sportstogether.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.retrofit.Error;
+import com.iron.dragon.sportstogether.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.retrofit.Profile;
-import com.iron.dragon.sportstogether.retrofit.ProfileWithId;
 import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.ErrorUtil;
 import com.iron.dragon.sportstogether.util.ToastUtil;
-
-import java.util.List;
 
 import fr.ganfra.materialspinner.MaterialSpinner;
 import retrofit2.Call;
@@ -26,20 +23,28 @@ import retrofit2.Response;
 
 public class LoginActivity extends ProfileActivity {
     private final String TAG = getClass().getName();
+    private int mSportsId;
+    private int mSportsImg;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("Test", "LoginActivity");
         setContentView(R.layout.activity_profile);
+        LoadData();
         InitLayout();
 
     }
-
+    private void LoadData() {
+        Intent intent = getIntent();
+        mSportsId = intent.getIntExtra("Extra_Sports", 0);
+        mSportsImg = intent.getIntExtra("Extra_SportsImg", 0);
+    }
     @Override
     protected void InitLayout() {
         super.InitLayout();
         final EditText etNickName = (EditText) findViewById(R.id.etNickName);
-        final EditText etAge = (EditText) findViewById(R.id.etAge);
+        final MaterialSpinner spAge = (MaterialSpinner) findViewById(R.id.spAge);
         final MaterialSpinner spGender = (MaterialSpinner) findViewById(R.id.spGender);
 
         final MaterialSpinner spLocation = (MaterialSpinner) findViewById(R.id.spLocation);
@@ -54,7 +59,7 @@ public class LoginActivity extends ProfileActivity {
                 GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
                 final ProfileItem pi = new ProfileItem();
                 pi.set_mNickName(etNickName.getText().toString());
-                pi.set_mAge(etAge.getText().length() == 0 ? 0 : Integer.parseInt(etAge.getText().toString()));
+                pi.set_mAge(spAge.getSelectedItemPosition());
                 pi.set_mGender(spGender.getSelectedItemPosition());
                 pi.set_mLocation(spLocation.getSelectedItemPosition());
                 pi.set_mPhoneNum(etPhoneNum.getText().toString());
@@ -94,7 +99,8 @@ public class LoginActivity extends ProfileActivity {
         findViewById(R.id.bt_cancel).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
+                finish();
+                /*GitHubService gitHubService = GitHubService.retrofit.create(GitHubService.class);
                 final Call<List<ProfileWithId>> call =
                         gitHubService.getProfiles("김한용1", 0, 0);
                 call.enqueue(new Callback<List<ProfileWithId>>() {
@@ -109,7 +115,8 @@ public class LoginActivity extends ProfileActivity {
                     public void onFailure(Call<List<ProfileWithId>> call, Throwable t) {
                         android.util.Log.d("Test", "error message = " + t.getMessage());
                     }
-                });
+                });*/
+
             }
         });
 
@@ -122,8 +129,12 @@ public class LoginActivity extends ProfileActivity {
 
     private void ToBoardListView() {
         Intent i = new Intent();
-        i.setClass(this, MainActivity.class);
+        i.setClass(this, BulletinListView.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.putExtra("Extra_Sports", mSportsId);
+        i.putExtra("Extra_SportsImg", mSportsImg);
         startActivity(i);
+        finish();
     }
 
 

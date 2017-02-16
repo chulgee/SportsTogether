@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <data>
+        <import type="android.text.Html" />
+        <variable
+            name="newsitem"
+            type="com.iron.dragon.sportstogether.ui.adapter.item.NewsListItem"/>
+        <variable
+            name="viewholderitem"
+            type="com.iron.dragon.sportstogether.ui.adapter.NewsRecyclerViewAdapter.ViewHolderItem"/>
+    </data>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            app:imgsrc="@{newsitem.news.image}"/>
+        <LinearLayout
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:padding="10dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
+                android:text="@{Html.fromHtml(newsitem.news.title)}"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:hyperlink="@{newsitem.newsHyperLink}"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:textColor="@android:color/black"
+                android:text="@{Html.fromHtml(newsitem.news.description)}"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{newsitem.news.pubDate}"/>
+        </LinearLayout>
+    </LinearLayout>
+</layout>

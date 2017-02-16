@@ -1,25 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="gender">
-        <item>Male</item>
-        <item>Female</item>
-    </string-array>
-
-    <string-array name="location">
-        <item>Pusan</item>
-        <item>Seoul</item>
-    </string-array>
-    <string-array name="sportstype">
-        <item>배트민턴</item>
-        <item>테니스</item>
-        <item>탁구</item>
-        <item>축구</item>
-        <item>야구</item>
-        <item>농구</item>
-    </string-array>
-    <string-array name="level">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
+    <string-array name="profile_image">
+        <item>@string/profile_image_through_capture</item>
+        <item>@string/profile_image_through_select</item>
     </string-array>
 </resources>
