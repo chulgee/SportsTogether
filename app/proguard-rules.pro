@@ -15,6 +15,80 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+# Retrofit 2.X
+## https://square.github.io/retrofit/ ##
+
+-optimizationpasses 5
+-dontusemixedcaseclassnames
+-dontskipnonpubliclibraryclasses
+-dontpreverify
+-verbose
+-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
+
+-keep public class * extends android.app.Activity
+-keep public class * extends android.app.Application
+-keep public class * extends android.app.Service
+-keep public class * extends android.content.BroadcastReceiver
+-keep public class * extends android.content.ContentProvider
+-keep public class * extends android.app.backup.BackupAgentHelper
+-keep public class * extends android.preference.Preference
+-keep public class com.android.vending.licensing.ILicensingService
+-keep public class * implements java.io.Serializable
+-keep public class * extends android.support.v4.app.Fragment
+-keep public class * extends android.support.v4.app.ListFragment
+
+
+
+-keep public class org.spongycastle.** {
+  <fields>;
+  <methods>;
+}
+
+-keep public class org.apache.** {
+  <fields>;
+  <methods>;
+}
+
+-ignorewarnings
+
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+}
+
+#-keepclassmembers class * extends android.app.Activity {
+#   public void *(android.view.View);
+#}
+
+
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+-keep class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator *;
+}
+
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
+}
+
+
+
 # Retrofit
 -keep class com.google.gson.** { *; }
 -keep public class com.google.gson.** {public private protected *;}
@@ -23,7 +97,7 @@
 -keep class org.apache.james.mime4j.** { *; }
 -keep class javax.inject.** { *; }
 -keep class javax.xml.stream.** { *; }
--keep class retrofit.** { *; }
+-keep class retrofit2.** { *; }
 -keep class com.google.appengine.** { *; }
 -keepattributes *Annotation*
 -keepattributes Signature
@@ -63,46 +137,13 @@
 # Retain declared checked exceptions for use by a Proxy instance.
 -keepattributes Exceptions
 
+-keep class com.iron.dragon.sportstogether.data.** { *; }
+-keepclassmembers class com.iron.dragon.sportstogether.data.** { *; }
+-keep class com.iron.dragon.sportstogether.http.** { *; }
+-keepclassmembers class com.iron.dragon.sportstogether.http.** { *; }
+-keep class com.iron.dragon.sportstogether.ui.adapter.** { *; }
+-keepclassmembers class com.iron.dragon.sportstogether.ui.adapter.** { *; }
+-keep class com.iron.dragon.sportstogether.ui.adapter.item.NewsListItem.** { *; }
 
-
-# Add any classes the interact with gson
-# the following line is for illustration purposes
--keep class com.example.asheq.zanis_postmans.ListAddressesActivity
--keep class com.example.asheq.zanis_postmans.ListOrderActivity
--keep class com.example.asheq.zanis_postmans.LoginActivity
--keep class com.example.asheq.zanis_postmans.SendReportsActivity
--keep class com.example.asheq.track.TrackLocationService
--keep class com.example.asheq.track.TrackLocationApplication
--keep class com.example.asheq.models.** { *; }
-
-
-
-# Hide warnings about references to newer platforms in the library
--dontwarn android.support.v7.**
-# don't process support library
--keep class android.support.v7.** { *; }
--keep interface android.support.v7.** { *; }
-
--keep public class * extends android.app.Activity
--keep public class * extends android.app.Application
--keep public class * extends android.app.MapActivity
--keep public class * extends android.app.Service
--keep public class * extends android.content.BroadcastReceiver
--keep public class * extends android.content.ContentProvider
-# To support Enum type of class members
--keepclassmembers enum * { *; }
-
--keep class com.activeandroid.** { *; }
--keep class com.activeandroid.**.** { *; }
--keep class * extends com.activeandroid.Model
--keep class * extends com.activeandroid.serializer.TypeSerializer
-
--keepclassmembers class ** {
-    @org.greenrobot.eventbus.Subscribe <methods>;
-}
--keep enum org.greenrobot.eventbus.ThreadMode { *; }
-
-# Only required if you use AsyncExecutor
--keepclassmembers class * extends org.greenrobot.eventbus.util.ThrowableFailureEvent {
-    <init>(java.lang.Throwable);
-}
+-keepattributes *Annotation*,EnclosingMethod
+-keep class reflection.using.package.name.** { *; }

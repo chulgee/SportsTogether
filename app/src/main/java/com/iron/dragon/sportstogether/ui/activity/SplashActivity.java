@@ -95,6 +95,9 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Toast.makeText(SplashActivity.this, "마켓으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("market://details?id=com.iron.dragon.sportstogether"));
+                startActivity(intent);
                 finish();
             }
         });
