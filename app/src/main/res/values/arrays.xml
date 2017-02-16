@@ -4,4 +4,9 @@
         <item>@string/profile_image_through_capture</item>
         <item>@string/profile_image_through_select</item>
     </string-array>
+
+    <string-array name="profile_image">
+        <item>@string/profile_image_through_capture</item>
+        <item>@string/profile_image_through_select</item>
+    </string-array>
 </resources>
