@@ -1,6 +1,0 @@
-<resources>
-
-    <style name="NavTextStyle" parent="android:TextAppearance.Material.Body1">
-        <item name="android:textSize">20dip</item>
-    </style>
-</resources>

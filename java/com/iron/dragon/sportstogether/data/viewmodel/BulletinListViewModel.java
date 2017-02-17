@@ -1,0 +1,728 @@
+package com.iron.dragon.sportstogether.data.viewmodel;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.databinding.BaseObservable;
+import android.databinding.Bindable;
+import android.databinding.BindingAdapter;
+import android.databinding.ObservableBoolean;
+import android.databinding.ObservableField;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Point;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Environment;
+import android.os.Handler;
+import android.provider.MediaStore;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.BottomSheetBehavior;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.android.databinding.library.baseAdapters.BR;
+import com.iron.dragon.sportstogether.R;
+import com.iron.dragon.sportstogether.data.LoginPreferences;
+import com.iron.dragon.sportstogether.data.bean.Bulletin;
+import com.iron.dragon.sportstogether.data.bean.Bulletin_image;
+import com.iron.dragon.sportstogether.data.bean.Message;
+import com.iron.dragon.sportstogether.data.bean.Profile;
+import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
+import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
+import com.iron.dragon.sportstogether.ui.activity.BuddyActivity;
+import com.iron.dragon.sportstogether.ui.activity.BulletinListActivity;
+import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
+import com.iron.dragon.sportstogether.ui.adapter.item.BulletinEventItem;
+import com.iron.dragon.sportstogether.ui.adapter.item.BulletinHeaderItem;
+import com.iron.dragon.sportstogether.ui.adapter.item.BulletinListItem;
+import com.iron.dragon.sportstogether.util.Const;
+import com.iron.dragon.sportstogether.util.ImageUtil;
+import com.iron.dragon.sportstogether.util.StringUtil;
+import com.iron.dragon.sportstogether.util.Util;
+import com.orhanobut.logger.Logger;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.TreeMap;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import static android.content.ContentValues.TAG;
+
+/**
+ * Created by P16018 on 2017-01-05..
+ */
+
+public class BulletinListViewModel extends BaseObservable {
+    public final ObservableBoolean topSheetEnabled = new ObservableBoolean(false);
+    public final ObservableField bottomSheetState= new ObservableField<>();
+
+    private final static int REQ_CODE_PICK_PICTURE = 1;
+    private final static int REQ_CODE_TAKE_PHOTO = 2;
+    private final static int REQ_CODE_CROP = 3;
+    private final static int PROFILE_IMAGE_ASPECT_X = 4;
+    private final static int PROFILE_IMAGE_ASPECT_Y = 5;
+    private static final int REQ_THRESHOLD = 20;
+
+    private Uri mCropImagedUri;
+    private final int mLocationId;
+    private BulletinListActivity mActivity;
+    private int mSportsId;
+    private String numberOfUsersLoggedIn;
+    private GitHubService gitHubService;
+    private ArrayList<Uri> mAlCropImageUri = new ArrayList<>();
+    private int tempfix;
+    private int mPageNum = 1;
+    private boolean loading;
+    private String Content;
+
+    @Bindable
+    public boolean getSwipeRefreshViewRefreshing() {
+        return swipeRefreshViewRefreshing;
+    }
+
+    public void setSwipeRefreshViewRefreshing(boolean swipeRefreshViewRefreshing) {
+        this.swipeRefreshViewRefreshing = swipeRefreshViewRefreshing;
+        notifyPropertyChanged(BR.swipeRefreshViewRefreshing);
+    }
+
+    private boolean swipeRefreshViewRefreshing;
+
+
+
+    private TreeMap<String, ArrayList<Bulletin>> mTMBulletinMap = new TreeMap<>(Collections.reverseOrder());
+
+    public void excuteChatting(BulletinListItem bulletinListItem) {
+        Log.v(TAG, "bulletinListItem: " + bulletinListItem);
+        if (bulletinListItem instanceof BulletinEventItem) {
+            Bulletin bulletin = ((BulletinEventItem) bulletinListItem).getBulletin();
+            Log.v(TAG, "bulletin: " + bulletin.toString());
+            //loadBuddyProfile(bulletin);
+            ArrayList<Profile> profiles = LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(mActivity);
+            final Profile me = profiles.get(0);
+            RetrofitHelper.loadProfile(mActivity, me, bulletin.getUsername(), bulletin.getSportsid(), bulletin.getLocationid(), new RetrofitHelper.ProfileListener() {
+                @Override
+                public void onLoaded(Profile profile) {
+                    Log.v(TAG, "onLoaded profile="+profile.toString());
+                    Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(profile.getUsername())
+                            .message("Conversation get started").date(new Date().getTime()).image(null).build();
+                    Intent i = new Intent(mActivity, ChatActivity.class);
+                    i.putExtra("Message", message);
+                    i.putExtra("Buddy", profile);
+                    mActivity.startActivity(i);
+                }
+            });
+        }
+    }
+
+    public void RefreshData() {
+//        swipeRefreshViewRefreshing.set(true);
+        mTMBulletinMap.clear();
+        setLoading(true);
+        getBulletinData(REQ_THRESHOLD * (++mPageNum));
+    }
+
+    private enum State {
+        EXPANDED,
+        COLLAPSED,
+        IDLE;
+    }
+
+    public void setContent(String content) {
+        this.Content = content;
+        notifyPropertyChanged(BR.content);
+
+    }
+
+    @Bindable
+    public String getContent() {
+        return Content;
+    }
+
+    public BulletinListViewModel(BulletinListActivity bulletinListActivity, int extra_sports) {
+        mActivity = bulletinListActivity;
+        mSportsId = extra_sports;
+//        mLocationId = LoginPreferences.GetInstance().GetLocalProfileLocation(mActivity);
+        mLocationId = LoginPreferences.GetInstance().loadSharedPreferencesProfile(mActivity.getApplicationContext(), mSportsId).getLocationid();
+        GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+        gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
+
+        getBuddyCount();
+
+    }
+
+    public void setLoading(boolean loading) {
+        this.loading = loading;
+        notifyPropertyChanged(BR.loading);
+    }
+
+    @Bindable
+    public boolean getLoading() {
+        return loading;
+    }
+
+    public void LoadBulletinData() {
+        setLoading(true);
+        mActivity.startLoadingProgress();
+        getBulletinData(mPageNum * REQ_THRESHOLD);
+    }
+
+    public String getLocation() {
+        return StringUtil.getStringFromLocation(mActivity, mLocationId);
+    }
+
+    private void getBulletinData(int num) {
+
+        final Call<List<Bulletin>> call =
+                gitHubService.getBulletin(mSportsId, mLocationId, num);
+
+        RetrofitHelper.enqueueWithRetry(call, new Callback<List<Bulletin>>() {
+            @Override
+            public void onResponse(Call<List<Bulletin>> call, Response<List<Bulletin>> response) {
+                if(response.isSuccessful()){
+                    if(response.body() != null){
+                        Log.d("Test", "body = " + (response.body()!=null?response.body().toString():null));
+                        Log.d("Test", "message = " + response.message());
+                        List<Bulletin> list = response.body();
+                        initListView(list);
+                    }else
+                        Toast.makeText(mActivity, "데이터가 없습니다", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(mActivity, response.message(), Toast.LENGTH_SHORT).show();
+                }
+                Logger.d("onRefresh success");
+                setLoading(false);
+                mActivity.stopLoadingProgress();
+                setSwipeRefreshViewRefreshing(false);
+            }
+
+            @Override
+            public void onFailure(Call<List<Bulletin>> call, Throwable t) {
+                Log.d("Test", "error message = " + t.getMessage());
+            }
+        });
+    }
+
+    private void initListView(List<Bulletin> listOfStrings) {
+        if (listOfStrings.size() != 0) {
+            for (Bulletin bulletin : listOfStrings) {
+                String sDate = Util.getStringDate(bulletin.getDate());
+                if (mTMBulletinMap.get(sDate) == null) {
+                    ArrayList<Bulletin> items = new ArrayList<>();
+                    items.add(bulletin);
+                    mTMBulletinMap.put(sDate, items);
+                } else {
+                    mTMBulletinMap.get(sDate).add(bulletin);
+                }
+            }
+            ArrayList<BulletinListItem> bulletinListItems = new ArrayList<>();
+
+            for (String date : mTMBulletinMap.keySet()) {
+                Logger.d("convert data = " + date);
+                BulletinHeaderItem header = new BulletinHeaderItem();
+                header.setDate(date);
+                bulletinListItems.add(header);
+                ArrayList<Bulletin> ar = mTMBulletinMap.get(date);
+                Collections.sort(ar, new Comparator<Bulletin>() {
+                    @Override
+                    public int compare(Bulletin bulletin, Bulletin t1) {
+                        return bulletin.getDate() > t1.getDate() ? -1 : bulletin.getDate() == t1.getDate() ? 0 : 1;
+                    }
+                });
+
+                for (Bulletin event : ar) {
+                    BulletinEventItem item = new BulletinEventItem();
+                    item.setBulletin(event);
+                    bulletinListItems.add(item);
+                }
+
+            }
+            mActivity.setListItem(bulletinListItems);
+
+        }
+    }
+
+    public int getSportsMainImage() {
+        int res = ImageUtil.getImageFromSports(mActivity, mSportsId);
+        return res;
+    }
+
+    @BindingAdapter({"imgRes"})
+    public static void imgload(ImageView imageView, int resid) {
+        imageView.setImageResource(resid);
+    }
+
+    @Bindable
+    public String getNumberOfUsersLoggedIn() {
+        return this.numberOfUsersLoggedIn;
+    }
+
+
+    public void setNumberOfUsersLoggedIn(String isLoaded) {
+        Logger.d("setNumberBuddy = " + isLoaded);
+        this.numberOfUsersLoggedIn = isLoaded;
+        notifyPropertyChanged(BR.numberOfUsersLoggedIn);
+    }
+
+    public String getTitle() {
+        return StringUtil.getStringFromSports(mActivity, mSportsId);
+    }
+
+    public void getBuddyCount() {
+        final Call<String> call =
+                gitHubService.getBuddyCount(mSportsId, mLocationId);
+
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                String num = "" + 0;
+                try {
+                    JSONArray jsonArray = new JSONArray(response.body());
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jObject = jsonArray.getJSONObject(i);
+                        num = jObject.get("COUNT(*)").toString();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                setNumberOfUsersLoggedIn(mActivity.getString(R.string.bulletin_num, num));
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                Log.d("Test", "error message = " + t.getMessage());
+            }
+        });
+    }
+
+    public void onClickAttachImage(View v) {
+        MaterialDialog.Builder b = new MaterialDialog.Builder(mActivity)
+                .title(R.string.title_change_profile_image)
+                .items(R.array.profile_image)
+                .itemsCallback(new MaterialDialog.ListCallback() {
+                    @Override
+                    public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                        if (which == 0) {
+                            dispatchTakePictureIntent();
+                        } else if (which == 1) {
+                            Intent intent = new Intent(Intent.ACTION_PICK);
+                            intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
+                            intent.setData(MediaStore.Images.Media.EXTERNAL_CONTENT_URI); // images on the SD card.
+                            //retrieve data on return
+                            intent.putExtra("return-data", true);
+
+                            mActivity.startActivityForResult(intent, REQ_CODE_PICK_PICTURE);
+                        }
+                    }
+                });
+        mActivity.ShowChangeImageActionDialog(b);
+    }
+
+    protected void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(mActivity.getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File f = createNewFile("CROP_");
+            try {
+                f.createNewFile();
+            } catch (IOException ex) {
+                Log.e("io", ex.getMessage());
+            }
+
+            if (f != null) {
+                mCropImagedUri = Uri.fromFile(f);
+                // Continue only if the File was successfully created
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+                        mCropImagedUri);
+
+                mActivity.startActivityForResult(takePictureIntent, REQ_CODE_TAKE_PHOTO);
+            }
+
+        }
+    }
+
+    protected File createNewFile(String prefix) {
+        if (prefix == null || "".equalsIgnoreCase(prefix)) {
+            prefix = "IMG_";
+        }
+        File newDirectory = new File(Environment.getExternalStorageDirectory() + "/st/");
+        if (!newDirectory.exists()) {
+            if (newDirectory.mkdir()) {
+                Log.d(mActivity.getApplicationContext().getClass().getName(), newDirectory.getAbsolutePath() + " directory created");
+            }
+        }
+        File file = new File(newDirectory, (prefix + "crop_profile_temp" + tempfix + ".jpg"));
+        if (file.exists()) {
+            //this wont be executed
+            file.delete();
+            try {
+                file.createNewFile();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return file;
+    }
+    public void onClickFab(View v) {
+        mActivity.setBottomSheetState(BottomSheetBehavior.STATE_EXPANDED);
+    }
+    public void onClickSend(View v) {
+        Logger.d("clickclick");
+        Profile p = LoginPreferences.GetInstance().loadSharedPreferencesProfile(mActivity.getApplicationContext(), mSportsId);
+
+        final Bulletin bulletin = new Bulletin.Builder()
+                .setRegid(LoginPreferences.GetInstance().GetRegid(mActivity))
+                .setSportsid(mSportsId)
+                .setLocationid(mLocationId)
+                .setUsername(p.getUsername())
+                .setComment(Content)
+                .setDate(System.currentTimeMillis())
+                .setImage(p.getImage())
+                .setType(1).build();
+        final Call<Bulletin> call =
+                gitHubService.postBulletin(bulletin);
+        call.enqueue(new Callback<Bulletin>() {
+            @Override
+            public void onResponse(Call<Bulletin> call, Response<Bulletin> response) {
+                if (response.isSuccessful()) {
+                    Bulletin res_bulletin = response.body();
+                    Logger.d("response Data = " + res_bulletin.getComment());
+                    if (mAlCropImageUri.size() == 0) {
+                        updatePosting(bulletin);
+                    } else {
+                        uploadFile(res_bulletin.getid(), bulletin);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Bulletin> call, Throwable t) {
+                Log.d("Test", "error message = " + t.getMessage());
+            }
+        });
+
+    }
+
+    private void updatePosting(Bulletin res_bulletin) {
+        BulletinHeaderItem header = new BulletinHeaderItem();
+        header.setDate(Util.getStringDate(res_bulletin.getDate()));
+        BulletinEventItem item = new BulletinEventItem();
+        item.setBulletin(res_bulletin);
+        mActivity.showPosting(header, item);
+        postDone();
+
+
+    }
+
+    private void postDone() {
+        tempfix = 0;
+        mAlCropImageUri.clear();
+        setContent("");
+    }
+
+    private void uploadFile(int getid, Bulletin bulletin) {
+        int count = mAlCropImageUri.size();
+        new ResizeBitmapTask(getid, bulletin).execute(mAlCropImageUri);//Util.getFileFromUri(getContentResolver(), fileUri);
+//            mCropImagedUri = null;
+    }
+
+    public void setOnActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQ_CODE_PICK_PICTURE) {
+            if (resultCode == Activity.RESULT_OK) {
+                Uri selectedImageUri = data.getData();
+
+                File f = createNewFile("CROP_");
+                try {
+                    f.createNewFile();
+                } catch (IOException ex) {
+                    Log.e("io", ex.getMessage());
+                }
+
+                mCropImagedUri = Uri.fromFile(f);
+                dispatchCropIntent(selectedImageUri);
+            }
+        } else if (requestCode == REQ_CODE_TAKE_PHOTO) {
+            Logger.d("resultCode = " + resultCode + "mCropImagedUri = " + mCropImagedUri);
+            if (resultCode == Activity.RESULT_OK) {
+                if (mCropImagedUri == null) {
+                    mActivity.showToast(mActivity.getString(R.string.capture_error));
+                    return;
+                }
+
+                dispatchCropIntent(mCropImagedUri);
+            } else {
+                mActivity.showToast(mActivity.getString(R.string.capture_error));
+            }
+
+        } else if (requestCode == REQ_CODE_CROP) {
+            if (resultCode == Activity.RESULT_OK) {
+                mCropImagedUri = data.getData();
+                Logger.d("cropresult " + mCropImagedUri);
+                mAlCropImageUri.add(mCropImagedUri);
+                ImageView iv = new ImageView(mActivity);
+                mActivity.addImageView(ImageUtil.getDownsampledBitmap(mActivity.getContentResolver(), mCropImagedUri, 150, 150));
+                tempfix++;
+            } else {
+                mActivity.showToast(mActivity.getString(R.string.crop_error));
+            }
+        }
+    }
+
+    public AppBarLayout.OnOffsetChangedListener getOffsetCahngedListener() {
+        return new AppBarLayout.OnOffsetChangedListener() {
+            private BulletinListViewModel.State state;
+
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                if (verticalOffset == 0) {
+                    if (state != BulletinListViewModel.State.EXPANDED) {
+                        topSheetEnabled.set(true);
+                        Logger.d("onOffsetChanged State = EXPANDED");
+                    }
+                    state = BulletinListViewModel.State.EXPANDED;
+                } else if (Math.abs(verticalOffset) >= appBarLayout.getTotalScrollRange()) {
+                    if (state != BulletinListViewModel.State.COLLAPSED) {
+                        topSheetEnabled.set(false);
+                        Logger.d("onOffsetChanged State = COLLAPSED");
+
+                    }
+                    state = BulletinListViewModel.State.COLLAPSED;
+                } else {
+                    if (state != BulletinListViewModel.State.IDLE) {
+                        topSheetEnabled.set(false);
+                        Logger.d("onOffsetChanged State = IDLE");
+
+                    }
+                    state = BulletinListViewModel.State.IDLE;
+                }
+            }
+        };
+    }
+
+    private class ResizeBitmapTask extends AsyncTask<ArrayList<Uri>, File, Void> {
+
+        private final int mPostId;
+        private final Bulletin mBulletin;
+        List<Bulletin_image> list_image = new ArrayList<>();
+
+        public ResizeBitmapTask(int getid, Bulletin bulletin) {
+            mPostId = getid;
+            mBulletin = bulletin;
+        }
+
+        @SafeVarargs
+        @Override
+        protected final Void doInBackground(ArrayList<Uri>... params) {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            ArrayList<Uri> uri_list = params[0];
+            Logger.d("url_list size = " + uri_list.size());
+            for (Uri uri : uri_list) {
+                File file = new File(uri.getPath());
+                Logger.d("File Upload Name = " + file.getAbsolutePath());
+                long fileSize = file.length();
+                if (fileSize > 2 * 1024 * 1024) {
+                    options.inSampleSize = 4;
+                } else if (fileSize < 700 * 1024) {
+                    publishProgress(file);
+                    continue;
+                } else {
+                    options.inSampleSize = 2;
+                }
+
+                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+
+
+                OutputStream out = null;
+                try {
+                    out = new FileOutputStream(file);
+
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                publishProgress(file);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(File... values) {
+            super.onProgressUpdate(values);
+            Logger.d("onProgressUpdate values = " + values[0]);
+            requestThumbImage(values[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            mBulletin.setBulletinImage(list_image);
+            setLoading(true);
+            mActivity.startLoadingProgress();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    updatePosting(mBulletin);
+                    mActivity.stopLoadingProgress();
+                    setLoading(false);
+                }
+            }, 3000);
+
+        }
+
+        private void requestThumbImage(File file) {
+            // create RequestBody instance from file
+            RequestBody requestFile =
+                    RequestBody.create(MediaType.parse("image/JPEG"), file);
+
+            // MultipartBody.Part is used to send also the actual file name
+            MultipartBody.Part body =
+                    MultipartBody.Part.createFormData("picture", file.getName(), requestFile);
+
+            // add another part within the multipart request
+            String descriptionString = String.valueOf(mPostId);
+            RequestBody description =
+                    RequestBody.create(
+                            MediaType.parse("text/html"), descriptionString);
+
+            // finally, execute the request
+            Call<ResponseBody> call = gitHubService.upload_post(description, body);
+
+            RetrofitHelper.enqueueWithRetry(call, new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call,
+                                       Response<ResponseBody> response) {
+                    Log.v("Upload", "success");
+                    JSONObject jObject = null;//jsonArray.getJSONObject(i);
+                    try {
+                        jObject = new JSONObject(response.body().string());
+                        String image = jObject.get("data").toString();
+                        list_image.add(new Bulletin_image(image));
+
+                    } catch (JSONException | IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    Log.e("Upload error:", t.getMessage());
+                }
+            });
+        }
+    }
+
+    protected void dispatchCropIntent(Uri imageCaptureUri) {
+        Intent intent = new Intent("com.android.camera.action.CROP");
+        Point screenSize = new Point();
+        mActivity.getWindowManager().getDefaultDisplay().getSize(screenSize);
+        intent.setDataAndType(imageCaptureUri, "image/*");
+        intent.putExtra("crop", "true");
+        intent.putExtra("aspectX", PROFILE_IMAGE_ASPECT_X);
+        intent.putExtra("aspectY", PROFILE_IMAGE_ASPECT_Y);
+        intent.putExtra("outputX", 640);
+        intent.putExtra("outputY", 480);
+        intent.putExtra("scale", true);
+        //retrieve data on return
+        intent.putExtra("return-data", false);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, mCropImagedUri);
+
+        mActivity.startActivityForResult(intent, REQ_CODE_CROP);
+    }
+
+
+    @BindingAdapter({"bind:bottomSheet"})
+    public static void bottomlistener(View v, BottomSheetBehavior.BottomSheetCallback b) {
+        BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(v.findViewById(R.id.commentLayout));
+        bottomSheetBehavior.setBottomSheetCallback(b);
+    }
+
+    public final BottomSheetBehavior.BottomSheetCallback getBottomSheetCallback() {
+        return  new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(View bottomSheet, int newState) {
+                // Check Logs to see how bottom sheets behaves
+                Logger.d("onStateChanged =" + newState);
+                switch (newState) {
+                    case BottomSheetBehavior.STATE_COLLAPSED:
+                        bottomSheetState.set("collasped");
+                        break;
+                    case BottomSheetBehavior.STATE_DRAGGING:
+                        Log.e("Bottom Sheet Behaviour", "STATE_DRAGGING");
+                        break;
+                    case BottomSheetBehavior.STATE_EXPANDED:
+                        bottomSheetState.set("expanded");
+                        Log.e("Bottom Sheet Behaviour", "STATE_EXPANDED");
+                        break;
+                    case BottomSheetBehavior.STATE_HIDDEN:
+
+                        Log.e("Bottom Sheet Behaviour", "STATE_HIDDEN");
+                        break;
+                    case BottomSheetBehavior.STATE_SETTLING:
+                        Log.e("Bottom Sheet Behaviour", "STATE_SETTLING");
+                        break;
+                }
+            }
+            @Override
+            public void onSlide(View bottomSheet, float slideOffset) {
+
+            }
+        };
+    }
+
+    public SwipeRefreshLayout.OnRefreshListener onRefreshListener() {
+        return new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (!loading) {
+                    Logger.d("reach last");
+                    setLoading(true);
+                    mTMBulletinMap.clear();
+                    mActivity.clearAdapter();
+                    getBulletinData(REQ_THRESHOLD);
+                }
+            }
+        };
+    }
+
+    public void onClickToBuddyListView(View v) {
+        Logger.d("i'm go to see BuddyList");
+        Intent i = new Intent(mActivity, BuddyActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Profile buddy = LoginPreferences.GetInstance().loadSharedPreferencesProfile(mActivity, mSportsId);
+        buddy.setUsername("Bulletin");
+        i.putExtra("Buddy", buddy);
+        Log.v(TAG, "Buddy : "+buddy.toString());
+        mActivity.startActivity(i);
+    }
+}
