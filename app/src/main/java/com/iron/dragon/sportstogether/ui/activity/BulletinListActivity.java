@@ -85,8 +85,8 @@ public class BulletinListActivity extends AppCompatActivity  {
         BulletinRecyclerViewAdapter adapter = (BulletinRecyclerViewAdapter) mBinding.boardRecyclerviewer.getAdapter();
         if (adapter.getItemCount() == 0) {
             ArrayList<BulletinListItem> bulletinListItems = new ArrayList<>();
-            bulletinListItems.add(item);
             bulletinListItems.add(header);
+            bulletinListItems.add(item);
             adapter.setItem(bulletinListItems);
         } else {
             adapter.addItem(header);

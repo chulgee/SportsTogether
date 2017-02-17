@@ -1,12 +1,9 @@
 package com.iron.dragon.sportstogether.ui.activity;
 
 import android.app.AlertDialog;
-import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -25,7 +22,6 @@ import android.widget.Toast;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.service.FloatingService;
-import com.iron.dragon.sportstogether.ui.fragment.ChatRoomListFragment;
 import com.iron.dragon.sportstogether.ui.model.BuddyModel;
 import com.iron.dragon.sportstogether.ui.presenter.BuddyPresenter;
 import com.iron.dragon.sportstogether.ui.presenter.BuddyPresenterImpl;
@@ -33,13 +29,10 @@ import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.StringUtil;
 import com.iron.dragon.sportstogether.util.Util;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 

@@ -134,17 +134,15 @@ public class Util {
     }
 
     public static int getDpToPixel(Context context, int dp){
-        final float density = context.getResources().getDisplayMetrics().density;
-        float px = dp * density;
-        return (int)px;
+        int px = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
+        return px;
     }
 
-    public static int getPixelToDp(Context context, int px){
-        final float density = context.getResources().getDisplayMetrics().density;
-        float dp = px / density;
+    public static int getPixelToDp(Context context, int pixel){
+        float scale = context.getResources().getDisplayMetrics().density;
+        float dp = pixel/(scale/160f);
         return(int)dp;
     }
-
 
     public static Bitmap blur(Context ct, Bitmap sentBitmap, int radius) {
 
