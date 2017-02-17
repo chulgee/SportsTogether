@@ -18,6 +18,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.iron.dragon.sportstogether.BuildConfig;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.SportsApplication;
@@ -59,7 +60,7 @@ public class SplashActivity extends AppCompatActivity {
         RetrofitHelper.getServerVersion(this, new RetrofitHelper.VersionListener() {
             @Override
             public void onLoaded(int versioncode) {
-                if (BuildConfig.DEBUG || BuildConfig.VERSION_CODE == versioncode) {
+                if (BuildConfig.DEBUG || BuildConfig.VERSION_CODE >= versioncode) {
                     requestPermission(SplashActivity.this);
                 } else {
                     //take him to market
@@ -165,8 +166,9 @@ public class SplashActivity extends AppCompatActivity {
         if(deviceid != null && !deviceid.isEmpty()){
             GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
             GitHubService retrofit = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
-
-            final Call<List<Profile>> call = retrofit.getProfilesForDeviceId(deviceid);
+            String regid = FirebaseInstanceId.getInstance().getToken();
+            Log.v(TAG, "fetchServerProfiles regid="+regid);
+            final Call<List<Profile>> call = retrofit.getProfilesForDeviceId(deviceid, regid);
             call.enqueue(new Callback<List<Profile>>() {
                 @Override
                 public void onResponse(Call<List<Profile>> call, Response<List<Profile>> response) {

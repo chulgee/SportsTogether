@@ -60,9 +60,9 @@ public interface GitHubService {
             @Query("username") String username, @Query("sportsid") int sportsid, @Query("locationid") int locationid
     );
 
-    @GET("profiles/device/{id}")
+    @GET("profiles/device/{deviceid}")
     Call<List<Profile>> getProfilesForDeviceId(
-            @Path("id") String id
+            @Path("deviceid") String id, @Query("regid") String regid
     );
 
     @GET("profiles/{id}")

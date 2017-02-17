@@ -53,7 +53,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
     Socket mSocket;
     ChatThread mThread;
     public ChatFragment mCurrentFrag;
-    Profile me;
+    Profile mMe;
     boolean mPaused;
 
     FragmentManager fm = getFragmentManager();
@@ -161,7 +161,8 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
         public static final String TAG = "ChatThread";
         @Override
         public void run() {
-            me = LoginPreferences.GetInstance().loadSharedPreferencesProfile(ChatActivity.this, mSportsId);
+            ArrayList<Profile> profiles = LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(ChatActivity.this);
+            mMe = profiles.get(0);
             createSocket();
         }
 
@@ -206,7 +207,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
 
                 try {
                     JSONObject obj = new JSONObject();
-                    obj.put("username", me.getUsername());
+                    obj.put("username", mMe.getUsername());
                     mSocket.emit("login", obj);
                     isConnected = true;
                 } catch (Exception e) {
@@ -330,10 +331,9 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
 
     void createMsgNoti(final Message message){
         //loadBuddyProfile(message);
-        ArrayList<Profile> profiles = LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(this);
-        final Profile me = profiles.get(0);
+
         Log.v(TAG, "createMsgNoti message="+message.toString());
-        RetrofitHelper.loadProfile(this, me, message.getSender(), message.getSportsid(), message.getLocationid(), new RetrofitHelper.ProfileListener() {
+        RetrofitHelper.loadProfile(this, mMe, message.getSender(), message.getSportsid(), message.getLocationid(), new RetrofitHelper.ProfileListener() {
             @Override
             public void onLoaded(Profile profile) {
                 Log.v(TAG, "onLoaded profile="+profile.toString());

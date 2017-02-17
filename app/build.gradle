@@ -2,11 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     signingConfigs {
-        debug_with_releasekey {
-            keyAlias 'sportstogether'
-            keyPassword 'irondragon'
-            storeFile file('C:/Users/P10950/Google 드라이브/Shared/my/Dev/android/releasekey_iron_dragon.jks')
-            storePassword 'irondragon'
+        releasekey_iron_dragon {
         }
     }
     compileSdkVersion 24
@@ -24,23 +20,21 @@ android {
         resValue("string", "GOOGLE_ADMOB_ID", GOOGLE_ADMOB_ID)
         // Enabling multidex support.
         multiDexEnabled true
-        signingConfig signingConfigs.debug_with_releasekey
+        signingConfig signingConfigs.releasekey_iron_dragon
     }
     buildTypes {
-        release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+        debug_releasekey_proguard {
+            signingConfig signingConfigs.releasekey_iron_dragon
         }
-        debug {
-            debuggable true
-            signingConfig signingConfigs.debug_with_releasekey
-            minifyEnabled true
+        debug_releasekey_no_proguard {
+            signingConfig signingConfigs.releasekey_iron_dragon
+        }
+        product_releasekey_proguard {
+            debuggable false
+            jniDebuggable false
+            signingConfig signingConfigs.releasekey_iron_dragon
             proguardFile 'C:/_dev/work/Sportstogether4/app/proguard-rules.pro'
-        }
-        debug_no_proguard {
-            debuggable true
-            signingConfig signingConfigs.debug_with_releasekey
-            minifyEnabled false
         }
     }
     //dexOptions 추가
