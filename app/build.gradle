@@ -1,9 +1,16 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        debug_with_releasekey {
+            keyAlias 'sportstogether'
+            keyPassword 'irondragon'
+            storeFile file('C:/Users/P10950/Google 드라이브/Shared/my/Dev/android/releasekey_iron_dragon.jks')
+            storePassword 'irondragon'
+        }
+    }
     compileSdkVersion 24
     buildToolsVersion "24.0.1"
-
     defaultConfig {
         applicationId "com.iron.dragon.sportstogether"
         minSdkVersion 19
@@ -17,22 +24,34 @@ android {
         resValue("string", "GOOGLE_ADMOB_ID", GOOGLE_ADMOB_ID)
         // Enabling multidex support.
         multiDexEnabled true
+        signingConfig signingConfigs.debug_with_releasekey
     }
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            debuggable true
+            signingConfig signingConfigs.debug_with_releasekey
+            minifyEnabled true
+            proguardFile 'C:/_dev/work/Sportstogether4/app/proguard-rules.pro'
+        }
+        debug_no_proguard {
+            debuggable true
+            signingConfig signingConfigs.debug_with_releasekey
+            minifyEnabled false
+        }
     }
-
     //dexOptions 추가
     dexOptions {
         jumboMode true
         javaMaxHeapSize "4g"
     }
-
     dataBinding {
         enabled = true
+    }
+    productFlavors {
     }
 }
 

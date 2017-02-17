@@ -147,3 +147,14 @@
 
 -keepattributes *Annotation*,EnclosingMethod
 -keep class reflection.using.package.name.** { *; }
+
+-keep class com.iron.dragon.sportstogether.ui** {
+    public *;
+ }
+
+-keepclassmembers interface com.iron.dragon.sportstogether.** {*;}
+
+-keepattributes SourceFile,LineNumberTable
+-keepclasseswithmembers class * {
+    native <methods>;
+ }

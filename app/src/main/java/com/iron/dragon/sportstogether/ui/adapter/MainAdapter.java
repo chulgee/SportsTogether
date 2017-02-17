@@ -6,10 +6,12 @@ import android.graphics.Point;
 import android.graphics.drawable.StateListDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -58,7 +60,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         SportsType item = mItems[position];
         int height=0;
         WindowManager wm = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
@@ -68,23 +70,28 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
         else
             height = mScreenHeight/3;
 
+        final String str = StringUtil.getStringFromSports(mContext, item.getValue());
+        holder.tv.setText(str);
+        int px_char = (int)mContext.getResources().getDimension(item.getResid_str_size());
+        Log.v(TAG, "font px_size="+px_char);
+        holder.tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, px_char);
+
         if(item.getValue() == SportsType.Badminton.getValue()
                 || item.getValue() == SportsType.Table_tennis.getValue()
                 || item.getValue() == SportsType.Basketball.getValue()) {
-            int size = mContext.getResources().getDimensionPixelSize(item.getResid_str_size());
-            int char_width_margin_dp = 4;
-            int size_px = Util.getDpToPixel(mContext, size + char_width_margin_dp);
-            Log.v(TAG, "font size_px="+size_px);
-            holder.tv.setWidth(size_px);
+            ViewTreeObserver viewTreeObserver = holder.tv.getViewTreeObserver();
+            viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    int w = holder.tv.getWidth();
+                    int h = holder.tv.getHeight();
+                    int padding = holder.tv.getPaddingLeft() + holder.tv.getPaddingRight();
+                    Log.v(TAG, "w="+w+", h="+h+", padding="+padding);
+                    holder.tv.setWidth(w/str.length() + padding);
+                    holder.tv.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+            });
         }
-
-        /*if(item.getValue() == SportsType.Badminton.getValue()) {
-            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP|Gravity.LEFT);
-            holder.tv.setLayoutParams(lp);
-            holder.tv.setRotation(-90);
-        }*/
-        holder.tv.setTextSize(StringUtil.getStringSizeFromSports(mContext, item.getValue()));
-        holder.tv.setText(StringUtil.getStringFromSports(mContext, item.getValue()));
 
         Animation animation = AnimationUtils.loadAnimation(mContext, android.R.anim.slide_in_left);
         holder.iv.setAnimation(animation);
