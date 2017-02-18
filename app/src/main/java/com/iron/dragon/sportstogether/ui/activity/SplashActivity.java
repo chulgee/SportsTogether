@@ -258,10 +258,6 @@ public class SplashActivity extends AppCompatActivity {
         }, 2000);
     }
 
-    public void updateRegid(){
-
-    }
-
     public boolean canOverlayWindow(Context context) {
         boolean ret = false;
 

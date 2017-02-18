@@ -48,10 +48,8 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
         display.getSize(p);
         mScreenWidth = p.x;
         mScreenHeight = p.y;
-        Log.v(TAG, "mScreenWidth="+mScreenWidth+", mScreenHeight="+mScreenHeight);
         final float density = context.getResources().getDisplayMetrics().density;
-        Log.v(TAG, "density="+density);
-        LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(mContext);
+        Log.v(TAG, "mScreenWidth="+mScreenWidth+", mScreenHeight="+mScreenHeight+", density="+density);
     }
 
     @Override
