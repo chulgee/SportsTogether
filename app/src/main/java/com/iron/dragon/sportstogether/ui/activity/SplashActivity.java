@@ -63,7 +63,6 @@ public class SplashActivity extends AppCompatActivity {
                 if (BuildConfig.DEBUG || BuildConfig.VERSION_CODE >= versioncode) {
                     requestPermission(SplashActivity.this);
                 } else {
-                    //take him to market
                     showScreenToUpdate();
                 }
             }
@@ -167,7 +166,7 @@ public class SplashActivity extends AppCompatActivity {
             GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
             GitHubService retrofit = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
             String regid = FirebaseInstanceId.getInstance().getToken();
-            Log.v(TAG, "fetchServerProfiles regid="+regid);
+            Log.v(TAG, "fetchServerProfiles deviceid="+deviceid+", regid="+regid);
             final Call<List<Profile>> call = retrofit.getProfilesForDeviceId(deviceid, regid);
             call.enqueue(new Callback<List<Profile>>() {
                 @Override
@@ -181,6 +180,7 @@ public class SplashActivity extends AppCompatActivity {
                                 for(Profile p : profiles) {
                                     LoginPreferences.GetInstance().saveSharedPreferencesProfile(SplashActivity.this, p);
                                 }
+                                Toast.makeText(SplashActivity.this, "서버에 저장된 프로파일을 가져왔습니다.", Toast.LENGTH_SHORT).show();
                             }else{
                                 Log.v(TAG, "no profiles from server");
                             }
@@ -242,12 +242,13 @@ public class SplashActivity extends AppCompatActivity {
         }
 
         if(!isLogged){
+            Log.v(TAG, "start fetching profiles from server");
             String deviceid = getDeviceId();
             fetchServerProfiles(deviceid);
-            Log.v(TAG, "start fetching profiles from server");
-        }else
-            Log.v(TAG, "no need to fetch profiles from server");
-
+        }else {
+            Log.v(TAG, "no need to fetch profiles from server, just check if regid needs to update or not");
+            RetrofitHelper.updateRegidToServer(this);
+        }
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -255,6 +256,10 @@ public class SplashActivity extends AppCompatActivity {
                 finish();
             }
         }, 2000);
+    }
+
+    public void updateRegid(){
+
     }
 
     public boolean canOverlayWindow(Context context) {

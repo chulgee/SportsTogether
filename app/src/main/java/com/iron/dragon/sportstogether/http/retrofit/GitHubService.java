@@ -62,7 +62,7 @@ public interface GitHubService {
 
     @GET("profiles/device/{deviceid}")
     Call<List<Profile>> getProfilesForDeviceId(
-            @Path("deviceid") String id, @Query("regid") String regid
+            @Path("deviceid") String deviceid, @Query("regid") String regid
     );
 
     @GET("profiles/{id}")
@@ -80,9 +80,9 @@ public interface GitHubService {
             @Path("id") String id, @Body Profile profile
     );
 
-    @PUT("profiles/regid/{id}")
+    @PUT("profiles/regid/{old_regid}")
     Call<Profile> putProfilesRegid(
-            @Path("id") String id, @Body Profile profile
+            @Path("old_regid") String old_regid, @Query("new_regid") String new_regid
     );
 
     @DELETE("profiles")

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.iron.dragon.sportstogether.data.bean.Profile;
@@ -68,6 +69,8 @@ public class LoginPreferences {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(REGID, regid);
         editor.apply();
+
+        // need to update local profile preferece regid 중요....
     }
 
     public String GetRegid(Context context){
@@ -94,6 +97,7 @@ public class LoginPreferences {
         SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
         Gson gson = new Gson();
         String json = gson.toJson(profile);
+        Log.v(TAG, "saveSharedPreferencesProfile profile="+json);
         prefsEditor.putString(StringUtil.getStringFromSports(context, profile.getSportsid()), json);
         prefsEditor.apply();
     }

@@ -19,6 +19,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
@@ -50,7 +51,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
         Log.v(TAG, "mScreenWidth="+mScreenWidth+", mScreenHeight="+mScreenHeight);
         final float density = context.getResources().getDisplayMetrics().density;
         Log.v(TAG, "density="+density);
-
+        LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(mContext);
     }
 
     @Override
@@ -73,7 +74,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
         final String str = StringUtil.getStringFromSports(mContext, item.getValue());
         holder.tv.setText(str);
         int px_char = (int)mContext.getResources().getDimension(item.getResid_str_size());
-        Log.v(TAG, "font px_size="+px_char);
         holder.tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, px_char);
 
         if(item.getValue() == SportsType.Badminton.getValue()

@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
+import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.CallbackWithExists;
@@ -135,7 +137,7 @@ public class RetrofitHelper {
             @Override
             public void onFailure(Call<Profile> call, Throwable t) {
                 Log.d("Test", "error message = " + t.getMessage());
-                Toast.makeText(context, "서버에 접속할 수 없습니다.\n 인터넷 연결을 확인해주세요", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "서버로부터 응답이 없습니다", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -172,5 +174,37 @@ public class RetrofitHelper {
                 cb.onFailed();
             }
         });
+    }
+
+    static public void updateRegidToServer(final Context context){
+        GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+        GitHubService gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
+
+        final String old_regid = LoginPreferences.GetInstance().GetRegid(context);
+        final String new_regid = FirebaseInstanceId.getInstance().getToken();
+        Log.v(TAG, "old_regid="+old_regid);
+        Log.v(TAG, "new_regid="+new_regid);
+        if(old_regid.equals(new_regid) == false){
+            final Call<Profile> call = gitHubService.putProfilesRegid(old_regid, new_regid);
+            call.enqueue(new Callback<Profile>() {
+                @Override
+                public void onResponse(Call<Profile> call, Response<Profile> response) {
+                    Log.v(TAG, "onResponse response.isSuccessful()=" + response.isSuccessful());
+
+                    if (response.isSuccessful()) {
+                        LoginPreferences.GetInstance().SetRegid(context, new_regid);
+                    } else {
+                        Log.v(TAG, "onResponse set regid failed!");
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Profile> call, Throwable t) {
+                    Log.d("Test", "error message = " + t.getMessage());
+                    Toast.makeText(context, "서버로부터 응답이 없습니다", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }else
+            Log.d(TAG, "regid 동일함. 업데이트 필요없음" );
     }
 }
