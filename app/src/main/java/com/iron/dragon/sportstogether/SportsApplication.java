@@ -1,6 +1,8 @@
 package com.iron.dragon.sportstogether;
 
 import android.app.Application;
+import android.content.Context;
+import android.support.multidex.MultiDex;
 import android.telecom.TelecomManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -23,6 +25,11 @@ public class SportsApplication extends Application {
     private Profile myProfile;
     private static String device_id;
 
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
+    }
 
     private static final String TAG = "SportsApplication";
 
