@@ -147,3 +147,82 @@
 
 -keepattributes *Annotation*,EnclosingMethod
 -keep class reflection.using.package.name.** { *; }
+
+-keep class com.iron.dragon.sportstogether.ui** {
+    public *;
+ }
+
+-keepclassmembers interface com.iron.dragon.sportstogether.** {*;}
+
+-keepattributes SourceFile,LineNumberTable
+-keepclasseswithmembers class * {
+    native <methods>;
+ }
+
+ #RxJava
+ -dontwarn sun.misc.**
+
+ -keepclassmembers class rx.internal.util.unsafe.*ArrayQueue*Field* {
+    long producerIndex;
+    long consumerIndex;
+ }
+
+ -keepclassmembers class rx.internal.util.unsafe.BaseLinkedQueueProducerNodeRef {
+     rx.internal.util.atomic.LinkedQueueNode producerNode;
+ }
+
+ -keepclassmembers class rx.internal.util.unsafe.BaseLinkedQueueConsumerNodeRef {
+     rx.internal.util.atomic.LinkedQueueNode consumerNode;
+ }
+
+ -dontnote rx.internal.util.PlatformDependent
+
+ #Socket.io
+ -keep class com.github.nkzawa.*
+ -keepclasseswithmembers class com.github.nkzawa.* { ; }
+ -keep class socket.io-client.
+ -keepclasseswithmembers class socket.io-client.* { ; }
+ -keep class io.socket.
+ -keepclasseswithmembers allowshrinking class io.socket.* { *; }
+
+ #JSONObject
+ -optimizationpasses 5
+ -dontusemixedcaseclassnames
+ -dontskipnonpubliclibraryclasses
+ -dontpreverify
+ -verbose
+ -optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
+
+ -keep public class * extends android.app.Activity
+ -keep public class * extends android.app.Application
+ -keep public class * extends android.app.Service
+ -keep public class * extends android.content.BroadcastReceiver
+ -keep public class * extends android.content.ContentProvider
+ -keep public class * extends android.app.backup.BackupAgentHelper
+ -keep public class * extends android.preference.Preference
+ -keep public class com.android.vending.licensing.ILicensingService
+
+ -keepclasseswithmembernames class * {
+     native <methods>;
+ }
+
+ -keepclasseswithmembers class * {
+     public <init>(android.content.Context, android.util.AttributeSet);
+ }
+
+ -keepclasseswithmembers class * {
+     public <init>(android.content.Context, android.util.AttributeSet, int);
+ }
+
+ -keepclassmembers class * extends android.app.Activity {
+    public void *(android.view.View);
+ }
+
+ -keepclassmembers enum * {
+     public static **[] values();
+     public static ** valueOf(java.lang.String);
+ }
+
+ -keep class * implements android.os.Parcelable {
+   public static final android.os.Parcelable$Creator *;
+ }

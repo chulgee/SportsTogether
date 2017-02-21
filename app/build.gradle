@@ -1,14 +1,17 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        releasekey_iron_dragon {
+        }
+    }
     compileSdkVersion 24
     buildToolsVersion "24.0.1"
-
     defaultConfig {
         applicationId "com.iron.dragon.sportstogether"
         minSdkVersion 19
         targetSdkVersion 24
-        versionCode 1
+        versionCode 4
         versionName "1.0"
         buildConfigField("String", "NAVER_CLIENT_ID", NAVER_CLIENT_ID)
         buildConfigField("String", "NAVER_CLIENT_SECRET", NAVER_CLIENT_SECRET)
@@ -17,22 +20,32 @@ android {
         resValue("string", "GOOGLE_ADMOB_ID", GOOGLE_ADMOB_ID)
         // Enabling multidex support.
         multiDexEnabled true
+        signingConfig signingConfigs.releasekey_iron_dragon
     }
     buildTypes {
-        release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+        debug_releasekey_proguard {
+            signingConfig signingConfigs.releasekey_iron_dragon
+        }
+        debug_releasekey_no_proguard {
+            signingConfig signingConfigs.releasekey_iron_dragon
+        }
+        product_releasekey_proguard {
+            debuggable false
+            jniDebuggable false
+            signingConfig signingConfigs.releasekey_iron_dragon
+            proguardFile 'C:/_dev/work/Sportstogether4/app/proguard-rules.pro'
         }
     }
-
     //dexOptions 추가
     dexOptions {
         jumboMode true
         javaMaxHeapSize "4g"
     }
-
     dataBinding {
         enabled = true
+    }
+    productFlavors {
     }
 }
 

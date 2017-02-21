@@ -18,6 +18,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.iron.dragon.sportstogether.BuildConfig;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.SportsApplication;
@@ -59,10 +60,9 @@ public class SplashActivity extends AppCompatActivity {
         RetrofitHelper.getServerVersion(this, new RetrofitHelper.VersionListener() {
             @Override
             public void onLoaded(int versioncode) {
-                if (BuildConfig.DEBUG || BuildConfig.VERSION_CODE == versioncode) {
+                if (BuildConfig.DEBUG || BuildConfig.VERSION_CODE >= versioncode) {
                     requestPermission(SplashActivity.this);
                 } else {
-                    //take him to market
                     showScreenToUpdate();
                 }
             }
@@ -165,8 +165,9 @@ public class SplashActivity extends AppCompatActivity {
         if(deviceid != null && !deviceid.isEmpty()){
             GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
             GitHubService retrofit = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
-
-            final Call<List<Profile>> call = retrofit.getProfilesForDeviceId(deviceid);
+            String regid = FirebaseInstanceId.getInstance().getToken();
+            Log.v(TAG, "fetchServerProfiles deviceid="+deviceid+", regid="+regid);
+            final Call<List<Profile>> call = retrofit.getProfilesForDeviceId(deviceid, regid);
             call.enqueue(new Callback<List<Profile>>() {
                 @Override
                 public void onResponse(Call<List<Profile>> call, Response<List<Profile>> response) {
@@ -179,6 +180,7 @@ public class SplashActivity extends AppCompatActivity {
                                 for(Profile p : profiles) {
                                     LoginPreferences.GetInstance().saveSharedPreferencesProfile(SplashActivity.this, p);
                                 }
+                                Toast.makeText(SplashActivity.this, "서버에 저장된 프로파일을 가져왔습니다.", Toast.LENGTH_SHORT).show();
                             }else{
                                 Log.v(TAG, "no profiles from server");
                             }
@@ -240,12 +242,13 @@ public class SplashActivity extends AppCompatActivity {
         }
 
         if(!isLogged){
+            Log.v(TAG, "start fetching profiles from server");
             String deviceid = getDeviceId();
             fetchServerProfiles(deviceid);
-            Log.v(TAG, "start fetching profiles from server");
-        }else
-            Log.v(TAG, "no need to fetch profiles from server");
-
+        }else {
+            Log.v(TAG, "no need to fetch profiles from server, just check if regid needs to update or not");
+            RetrofitHelper.updateRegidToServer(this);
+        }
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
