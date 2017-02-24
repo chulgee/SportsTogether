@@ -6,6 +6,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
+import android.support.multidex.MultiDex;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -36,6 +37,7 @@ import com.kakao.kakaolink.AppActionBuilder;
 import com.kakao.kakaolink.KakaoLink;
 import com.kakao.kakaolink.KakaoTalkLinkMessageBuilder;
 import com.kakao.util.KakaoParameterException;
+import com.orhanobut.logger.Logger;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -55,7 +57,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        MultiDex.install(this);
         super.onCreate(savedInstanceState);
+        Logger.d("onCreate");
         setContentView(R.layout.main_act);
         AdView mAdView = (AdView) findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
@@ -126,6 +130,24 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         InitNavLayout(navigationView);
+    }
+
+    @Override
+    protected void onResume() {
+        Logger.d("onResume");
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        Logger.d("onPause");
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        Logger.d("onStop");
+        super.onStop();
     }
 
     private void InitNavLayout(NavigationView navigationView) {

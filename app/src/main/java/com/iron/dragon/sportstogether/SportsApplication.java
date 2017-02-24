@@ -1,9 +1,8 @@
 package com.iron.dragon.sportstogether;
 
 import android.app.Application;
-import android.telecom.TelecomManager;
-import android.telephony.TelephonyManager;
-import android.util.Log;
+import android.content.Context;
+import android.support.multidex.MultiDex;
 
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.util.Const;
@@ -72,4 +71,10 @@ public class SportsApplication extends Application {
     public static void setDeviceID(String id){
         device_id = id;
     }
-}
+
+        @Override
+        protected void attachBaseContext(Context base) {
+            super.attachBaseContext(base);
+            MultiDex.install(this);
+        }
+    }

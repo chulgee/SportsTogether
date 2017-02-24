@@ -24,6 +24,7 @@
         <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
+
             <TextView
                 android:id="@+id/tv_nav_header_tilte"
                 style="@style/text_drop_shadow_grey_dt2_sz2"
