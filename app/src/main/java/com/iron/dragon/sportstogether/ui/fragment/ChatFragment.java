@@ -162,11 +162,13 @@ public class ChatFragment extends Fragment {
 
     @OnClick({R.id.ibtnBack, R.id.btnSend})
     public void onClick(View v) {
+        mActivity = (ChatActivity)getActivity();
 
         switch (v.getId()){
             case R.id.ibtnBack:
                 Log.v(TAG, "hi sChatRoom.size()="+sChatRoom.size());
                 Log.v(TAG, "getFragmentManager().getBackStackEntryCount()="+getFragmentManager().getBackStackEntryCount());
+                Log.v(TAG, "mActivity="+ mActivity);
                 mActivity.finish();
                 break;
             case R.id.btnSend:
@@ -177,6 +179,7 @@ public class ChatFragment extends Fragment {
                             .message(mContents).date(new Date().getTime()).room(mBuddyName).image(mMe.getImage()).build();
                     Log.v(TAG, "send message="+message);
                     updateUI(message);
+                    Log.v(TAG, "mActivity="+ mActivity);
                     mActivity.send(message);
                     message.setImage(mBuddy.getImage());
                     DbUtil.insert(getActivity(), message);
