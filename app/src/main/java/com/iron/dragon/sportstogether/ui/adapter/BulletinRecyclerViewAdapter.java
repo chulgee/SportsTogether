@@ -79,7 +79,9 @@ public class BulletinRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     }
 
     public void resetItems() {
-        malBulletin.clear();
+        if(malBulletin != null) {
+            malBulletin.clear();
+        }
     }
 
     public class ViewHolderItem extends RecyclerView.ViewHolder {
