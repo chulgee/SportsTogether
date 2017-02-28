@@ -1,7 +1,10 @@
 package com.iron.dragon.sportstogether.ui.activity;
 
 import android.Manifest;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,6 +16,7 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.IntentCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -161,12 +165,11 @@ public class SplashActivity extends AppCompatActivity {
         }
     }
 
-    public void fetchServerProfiles(String deviceid){
+    public void fetchServerProfiles(String deviceid, String regid){
         if(deviceid != null && !deviceid.isEmpty()){
             GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
             GitHubService retrofit = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
-            String regid = FirebaseInstanceId.getInstance().getToken();
-            Log.v(TAG, "fetchServerProfiles deviceid="+deviceid+", regid="+regid);
+
             final Call<List<Profile>> call = retrofit.getProfilesForDeviceId(deviceid, regid);
             call.enqueue(new Callback<List<Profile>>() {
                 @Override
@@ -244,7 +247,14 @@ public class SplashActivity extends AppCompatActivity {
         if(!isLogged){
             Log.v(TAG, "start fetching profiles from server");
             String deviceid = getDeviceId();
-            fetchServerProfiles(deviceid);
+            String regid = FirebaseInstanceId.getInstance().getToken();
+            Log.v(TAG, "handleGoToMain deviceid="+deviceid+", regid="+regid);
+            if(regid == null || regid.isEmpty()) {
+                Toast.makeText(this, "앱을 재실행하여 등록ID를 생성합니다. 잠시 기다려 주십시요", Toast.LENGTH_LONG).show();
+                restartApp();
+                return;
+            }
+            fetchServerProfiles(deviceid, regid);
         }else {
             Log.v(TAG, "no need to fetch profiles from server, just check if regid needs to update or not");
             RetrofitHelper.updateRegidToServer(this);
@@ -256,6 +266,24 @@ public class SplashActivity extends AppCompatActivity {
                 finish();
             }
         }, 2000);
+    }
+
+    public void restartApp(){
+        Intent mStartActivity = new Intent(this, SplashActivity.class);
+        PendingIntent mPendingIntent = PendingIntent.getActivity(this, (int)System.currentTimeMillis(), mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager mgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, mPendingIntent);
+        finish();
+    }
+
+    public void relaunchApp(){
+        PackageManager packageManager = getPackageManager();
+        Intent intent = packageManager.getLaunchIntentForPackage(getPackageName());
+        ComponentName componentName = intent.getComponent();
+        Intent mainIntent = IntentCompat.makeRestartActivityTask(componentName);
+        startActivity(mainIntent);
+        Log.v(TAG, "relaunchApp");
+        finish();
     }
 
     public boolean canOverlayWindow(Context context) {
