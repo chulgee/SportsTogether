@@ -22,6 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -176,7 +177,7 @@ public class RetrofitHelper {
         });
     }
 
-    static public void updateRegidToServer(final Context context){
+    public static void updateRegidToServer(final Context context){
         GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
         GitHubService gitHubService = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
 
@@ -206,5 +207,46 @@ public class RetrofitHelper {
             });
         }else
             Log.d(TAG, "regid 동일함. 업데이트 필요없음" );
+    }
+
+    public interface OnProfileListener{
+        public void onProfileLoaded();
+    }
+    public static void getServerProfiles(final Context context, String deviceid, String regid, final OnProfileListener cb){
+        GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
+        GitHubService retrofit = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
+
+        final Call<List<Profile>> call = retrofit.getProfilesForDeviceId(deviceid, regid);
+        call.enqueue(new Callback<List<Profile>>() {
+            @Override
+            public void onResponse(Call<List<Profile>> call, Response<List<Profile>> response) {
+                if(response.isSuccessful()){
+                    if(response.body() != null){
+                        Log.d(TAG, "response.body() = " + (response.body()!=null?response.body().toString():null));
+                        Log.d(TAG, "response.message() = " + response.message());
+                        List<Profile> profiles = response.body();
+                        if(profiles!=null && profiles.size()>0){
+                            for(Profile p : profiles) {
+                                LoginPreferences.GetInstance().SetLogout(context, p.getSportsid());
+                                LoginPreferences.GetInstance().saveSharedPreferencesProfile(context, p);
+                            }
+                            Toast.makeText(context, "서버에 저장된 프로파일을 가져왔습니다.", Toast.LENGTH_SHORT).show();
+                        }else{
+                            Log.v(TAG, "no profiles from server");
+                        }
+                    }else
+                        Toast.makeText(context, "데이터가 없습니다", Toast.LENGTH_SHORT).show();
+                    if(cb != null)
+                        cb.onProfileLoaded();
+                }else{
+                    Toast.makeText(context, response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Profile>> call, Throwable t) {
+                Log.d(TAG, "error message = " + t.getMessage());
+            }
+        });
     }
 }

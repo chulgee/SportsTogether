@@ -4,10 +4,12 @@ import android.Manifest;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -17,6 +19,7 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.IntentCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -32,6 +35,7 @@ import com.iron.dragon.sportstogether.enums.SportsType;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
 import com.iron.dragon.sportstogether.util.Const;
+import com.iron.dragon.sportstogether.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,11 +59,26 @@ public class SplashActivity extends AppCompatActivity {
 
     Handler handler = new Handler();
 
+    LocalBroadcastManager mLocalBr;
+    BroadcastReceiver mLocalBrReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(Const.LOCAL_ACTION_GO_TO_MAIN)){
+                handleGoToMain();
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.splash_act);
+
+        mLocalBr = LocalBroadcastManager.getInstance(this);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Const.LOCAL_ACTION_GO_TO_MAIN);
+        mLocalBr.registerReceiver(mLocalBrReceiver, filter);
 
         RetrofitHelper.getServerVersion(this, new RetrofitHelper.VersionListener() {
             @Override
@@ -126,6 +145,12 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mLocalBr.unregisterReceiver(mLocalBrReceiver);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -165,50 +190,6 @@ public class SplashActivity extends AppCompatActivity {
         }
     }
 
-    public void fetchServerProfiles(String deviceid, String regid){
-        if(deviceid != null && !deviceid.isEmpty()){
-            GitHubService.ServiceGenerator.changeApiBaseUrl(Const.MAIN_URL);
-            GitHubService retrofit = GitHubService.ServiceGenerator.retrofit.create(GitHubService.class);
-
-            final Call<List<Profile>> call = retrofit.getProfilesForDeviceId(deviceid, regid);
-            call.enqueue(new Callback<List<Profile>>() {
-                @Override
-                public void onResponse(Call<List<Profile>> call, Response<List<Profile>> response) {
-                    if(response.isSuccessful()){
-                        if(response.body() != null){
-                            Log.d(TAG, "response.body() = " + (response.body()!=null?response.body().toString():null));
-                            Log.d(TAG, "response.message() = " + response.message());
-                            List<Profile> profiles = response.body();
-                            if(profiles!=null && profiles.size()>0){
-                                for(Profile p : profiles) {
-                                    LoginPreferences.GetInstance().saveSharedPreferencesProfile(SplashActivity.this, p);
-                                }
-                                Toast.makeText(SplashActivity.this, "서버에 저장된 프로파일을 가져왔습니다.", Toast.LENGTH_SHORT).show();
-                            }else{
-                                Log.v(TAG, "no profiles from server");
-                            }
-                        }else
-                            Toast.makeText(SplashActivity.this, "데이터가 없습니다", Toast.LENGTH_SHORT).show();
-                    }else{
-                        Toast.makeText(SplashActivity.this, response.message(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<List<Profile>> call, Throwable t) {
-                    Log.d(TAG, "error message = " + t.getMessage());
-                }
-            });
-        }
-    }
-
-    String getDeviceId(){
-        TelephonyManager tm = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
-        String uid = tm.getDeviceId();
-        SportsApplication.setDeviceID(uid);
-        return uid;
-    }
-
     List<String> getReqPermissions(Context context, String[] permissions){
         List<String> reqPermissions = new ArrayList<String>();
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
@@ -234,31 +215,34 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     void handleGoToMain(){
-        SportsType[] types = SportsType.values();
-        boolean isLogged = false;
+        boolean isLogin = false;
 
-        for(SportsType t : types){
-            if(LoginPreferences.GetInstance().IsLogin(this, t.getValue())){
-                isLogged = true;
-                break;
-            };
-        }
+        isLogin = LoginPreferences.GetInstance().isLogin(this);
 
-        if(!isLogged){
-            Log.v(TAG, "start fetching profiles from server");
-            String deviceid = getDeviceId();
+        Log.v(TAG, "[token] handleGoToMain isLogin="+isLogin);
+        if(!isLogin){
+            Log.v(TAG, "[token] start fetching profiles from server");
+            String deviceid = Util.getDeviceId(this);
             String regid = FirebaseInstanceId.getInstance().getToken();
-            Log.v(TAG, "handleGoToMain deviceid="+deviceid+", regid="+regid);
+            Log.v(TAG, "[token] handleGoToMain deviceid="+deviceid+", regid="+regid);
             if(regid == null || regid.isEmpty()) {
-                Toast.makeText(this, "앱을 재실행하여 등록ID를 생성합니다. 잠시 기다려 주십시요", Toast.LENGTH_LONG).show();
-                restartApp();
-                return;
+                Toast.makeText(this, "등록ID를 생성합니다. 잠시 기다려 주십시요", Toast.LENGTH_SHORT).show();
+                // wait until a token refreshes,  and then trigger it at onTokenRefresh
+            }else {
+                RetrofitHelper.getServerProfiles(this, deviceid, regid, new RetrofitHelper.OnProfileListener() {
+                    @Override
+                    public void onProfileLoaded() {
+                        Log.v(TAG, "[token] onProfileLoaded goToMain");
+                        goToMain();
+                    }
+                });
             }
-            fetchServerProfiles(deviceid, regid);
-        }else {
-            Log.v(TAG, "no need to fetch profiles from server, just check if regid needs to update or not");
-            RetrofitHelper.updateRegidToServer(this);
+        }else{
+            goToMain();
         }
+    }
+
+    public void goToMain(){
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {

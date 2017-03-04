@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Profile;
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         MultiDex.install(this);
         super.onCreate(savedInstanceState);
-        Logger.d("onCreate");
+        Logger.d("onCreate regid"+FirebaseInstanceId.getInstance().getToken());
         setContentView(R.layout.main_act);
         AdView mAdView = (AdView) findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
