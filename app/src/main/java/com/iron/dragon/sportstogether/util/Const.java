@@ -20,4 +20,5 @@ public class Const {
     public static final String PREF_UNREAD_BUDDY = "pref_unread_buddy";
 
     public static final String CONTENT_URI_STR = "content://com.iron.dragon.provider";
+    public static final String LOCAL_ACTION_GO_TO_MAIN = "sports.together.fcm.token.refresh";
 }

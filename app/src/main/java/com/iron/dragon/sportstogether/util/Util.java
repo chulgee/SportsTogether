@@ -8,6 +8,7 @@ import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.util.TypedValue;
 
@@ -161,5 +162,12 @@ public class Util {
             return bitmap;
         }
         return sentBitmap;
+    }
+
+    public static String getDeviceId(final Context context){
+        TelephonyManager tm = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+        String uid = tm.getDeviceId();
+        SportsApplication.setDeviceID(uid);
+        return uid;
     }
 }

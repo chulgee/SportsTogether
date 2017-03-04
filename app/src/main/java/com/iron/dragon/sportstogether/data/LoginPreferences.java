@@ -12,6 +12,8 @@ import com.iron.dragon.sportstogether.enums.SportsType;
 import com.iron.dragon.sportstogether.util.StringUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by P11872 on 2015-08-20.
@@ -153,5 +155,24 @@ public class LoginPreferences {
                 SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
                 prefsEditor.remove(StringUtil.getStringFromSports(context, sportsId));
                 prefsEditor.apply();
+    }
+
+    public void removeSharedPreferencesProfileAll(Context context){
+        List<SportsType> list = Arrays.asList(SportsType.values());
+        for(SportsType a : list){
+            SetLogout(context, a.getValue());
+        }
+    }
+
+    public boolean isLogin(Context context){
+        SportsType[] types = SportsType.values();
+
+        for(SportsType t : types){
+            if(IsLogin(context, t.getValue())){
+                return true;
+            };
+        }
+
+        return false;
     }
 }
