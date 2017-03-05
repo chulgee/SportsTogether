@@ -180,6 +180,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
             mSocket.on(Socket.EVENT_DISCONNECT, onDisconnect);
             mSocket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
             mSocket.on("send", onSend);
+            mSocket.on("send_error", onSendError);
             mSocket.connect();
         }
 
@@ -309,14 +310,27 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
                 }
             }
         };
+
+        public Emitter.Listener onSendError = new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                final String error_message = (String)args[0];
+                Log.v(TAG, "onSendError -> "+error_message);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(ChatActivity.this, "메세지를 보내지 못했습니다.\n"+error_message, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        };
     }
 
     void showFragment(String buddyName){
         Iterator iter =ChatFragment.getChatRoom().keySet().iterator();
         while(iter.hasNext()){
             String key = (String)iter.next();
-            Log.v(TAG, "showFragment key="+key);
-            Fragment fragment = ChatFragment.getChatRoom().get(key);
+            Log.v(TAG, "showFragment key="+key);            Fragment fragment = ChatFragment.getChatRoom().get(key);
             FragmentTransaction ft = fm.beginTransaction();
             if(key.equals(buddyName)) {
                 Log.v(TAG, "show buddyName="+key+", fragment="+fragment);
@@ -350,7 +364,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
         PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification.Builder builder = new Notification.Builder(getApplicationContext());
-        builder.setSmallIcon(R.drawable.friend_icon_normal);
+        builder.setSmallIcon(R.drawable.ic_cardiogram);
         String str = message.getSender()+": "+message.getMessage();
         Log.v(TAG, "postMsgNoti str="+str);
         builder.setContentText(str);

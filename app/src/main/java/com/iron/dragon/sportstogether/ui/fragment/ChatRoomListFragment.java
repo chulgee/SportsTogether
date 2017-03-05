@@ -134,20 +134,24 @@ public class ChatRoomListFragment extends Fragment {
             public void rowOnClicked(View v, int position) {
                 Item item = mAdapter.getItem(position);
                 ArrayList<Profile> profiles = LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(getActivity());
-                final Profile me = profiles.get(0);
-                Log.v(TAG, "rowOnClicked item="+item.toString());
-                RetrofitHelper.loadProfile(getActivity(), me, item.room, item.sportsid, item.locationid, new RetrofitHelper.ProfileListener() {
-                    @Override
-                    public void onLoaded(Profile profile) {
-                        Log.v(TAG, "onLoaded profile="+profile.toString());
-                        Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(profile.getUsername())
-                                .message("Conversation get started").date(new Date().getTime()).image(null).build();
-                        Intent i = new Intent(getActivity(), ChatActivity.class);
-                        i.putExtra("Message", message);
-                        i.putExtra("Buddy", profile);
-                        getActivity().startActivity(i);
-                    }
-                });
+                if(profiles != null && profiles.size() > 0){
+                    final Profile me = profiles.get(0);
+                    Log.v(TAG, "rowOnClicked item="+item.toString());
+                    RetrofitHelper.loadProfile(getActivity(), me, item.room, item.sportsid, item.locationid, new RetrofitHelper.ProfileListener() {
+                        @Override
+                        public void onLoaded(Profile profile) {
+                            Log.v(TAG, "onLoaded profile="+profile.toString());
+                            Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(profile.getUsername())
+                                    .message("Conversation get started").date(new Date().getTime()).image(null).build();
+                            Intent i = new Intent(getActivity(), ChatActivity.class);
+                            i.putExtra("Message", message);
+                            i.putExtra("Buddy", profile);
+                            getActivity().startActivity(i);
+                        }
+                    });
+                }else {
+                    Toast.makeText(getActivity(), "프로파일이 한개 이상 존재해야 합니다. 로그인해주세요", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
