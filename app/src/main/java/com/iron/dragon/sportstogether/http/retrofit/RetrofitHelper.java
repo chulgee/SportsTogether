@@ -110,7 +110,7 @@ public class RetrofitHelper {
         }
     }
 
-    public static void loadProfile(final Context context, final Profile me, String username, int sportsid, int locationid, final ProfileListener cb) {
+    public static void loadProfile(final Context context, final Profile me, final String username, int sportsid, int locationid, final ProfileListener cb) {
 
         if(!ConnectivityUtil.isConnected(context))
             return;
@@ -127,7 +127,10 @@ public class RetrofitHelper {
                         Log.d(TAG, "response.body() = " + (response.body()!=null?response.body().toString():null));
                         Log.d(TAG, "response.message() = " + response.message());
                         Profile profile = response.body();
-                        cb.onLoaded(profile);
+                        if(profile!=null && profile.getUsername() == null){
+                            Toast.makeText(context, username+"님의 프로필이 서버에 존재하지 않습니다", Toast.LENGTH_SHORT).show();
+                        }else
+                            cb.onLoaded(profile);
                     }else
                         Toast.makeText(context, "데이터가 없습니다", Toast.LENGTH_SHORT).show();
                 }else{

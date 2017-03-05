@@ -321,6 +321,7 @@ public class LoginActivity extends AppCompatActivity {
                 });
                 break;
             case R.id.bt_cancel:
+                finish();
                 break;
         }
     }
