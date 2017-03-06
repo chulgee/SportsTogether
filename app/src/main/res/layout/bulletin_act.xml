@@ -122,15 +122,29 @@
 
         </android.support.design.widget.AppBarLayout>
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        <TextView
+            android:id="@+id/tv_bulletin_tip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:text="@string/bulletin_tip"
+            android:background="@color/md_orange_A400"
+            android:textColor="@android:color/white"
+            android:padding="7dp"/>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/board_recyclerviewer"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                android:layout_below="@+id/tv_bulletin_tip"
                 >
             </android.support.v7.widget.RecyclerView>
-
+        </RelativeLayout>
         <include  android:id="@+id/commentLayout" layout="@layout/bulletin_content_bottom_sheet" bind:viewModel="@{viewModel}"
             />
         <com.github.rahatarmanahmed.cpv.CircularProgressView
