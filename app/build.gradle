@@ -22,7 +22,7 @@ android {
         }
     }
     compileSdkVersion 24
-    buildToolsVersion "24.0.1"
+    buildToolsVersion "25.0.0"
     defaultConfig {
         applicationId "com.iron.dragon.sportstogether"
         minSdkVersion 19
@@ -94,7 +94,6 @@ dependencies {
     }
     compile 'com.github.ganfra:material-spinner:1.1.1'
     testCompile 'junit:junit:4.12'
-    compile 'com.google.firebase:firebase-core:10.0.1'
     compile 'com.google.firebase:firebase-messaging:10.0.1'
     compile 'com.android.volley:volley:1.0.0'
     compile 'com.google.code.gson:gson:2.8.0'

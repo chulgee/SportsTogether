@@ -42,6 +42,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
+import retrofit2.Response;
 
 /**
  * Created by user on 2016-08-12.
@@ -122,7 +123,7 @@ public class ChatRoomListFragment extends Fragment {
 
             @Override
             public void rowOnClicked(View v, int position) {
-                ChatMessageVO item = mAdapter.getItem(position);
+                final ChatMessageVO item = mAdapter.getItem(position);
                 ArrayList<Profile> profiles = LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(getActivity());
                 if(profiles != null && profiles.size() > 0){
                     final Profile me = profiles.get(0);
@@ -141,7 +142,7 @@ public class ChatRoomListFragment extends Fragment {
 
                         @Override
                         public void onEmpty() {
-                            Toast.makeText(getActivity(), username+"님의 프로필이 서버에 존재하지 않습니다", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), item.getCOLUMN_ROOM()+"님의 프로필이 서버에 존재하지 않습니다", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }else {
