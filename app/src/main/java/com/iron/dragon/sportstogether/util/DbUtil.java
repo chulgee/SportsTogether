@@ -1,16 +1,13 @@
 package com.iron.dragon.sportstogether.util;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.net.Uri;
 import android.util.Log;
 
-import com.iron.dragon.sportstogether.provider.MyContentProvider;
 import com.iron.dragon.sportstogether.data.bean.Message;
+import com.iron.dragon.sportstogether.provider.ChatMessageVO;
+import com.iron.dragon.sportstogether.provider.MyContentProvider;
 
-import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper.COLUMN_IMAGE;
-import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper.COLUMN_LOCATIONID;
-import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper.COLUMN_SPORTSID;
+import io.realm.Realm;
 
 
 /**
@@ -21,21 +18,29 @@ public class DbUtil {
 
     private static final String TAG = "DbUtil";
 
-    public static void insert(Context context, Message message){
-
-        ContentValues values = new ContentValues();
-        values.put(MyContentProvider.DbHelper.COLUMN_ROOM, message.getRoom());
-        values.put(MyContentProvider.DbHelper.COLUMN_DATE, message.getDate());
-        values.put(MyContentProvider.DbHelper.COLUMN_SENDER, message.getSender());
-        values.put(MyContentProvider.DbHelper.COLUMN_RECEIVER, message.getReceiver());
-        values.put(MyContentProvider.DbHelper.COLUMN_MESSAGE, message.getMessage());
-        values.put(MyContentProvider.DbHelper.COLUMN_FROM, message.getFrom());
-        values.put(MyContentProvider.DbHelper.COLUMN_MESSAGE_TYPE, message.getMsgType());
-        values.put(COLUMN_SPORTSID, message.getSportsid());
-        values.put(COLUMN_LOCATIONID, message.getLocationid());
-        values.put(COLUMN_IMAGE, message.getImage());
-        Uri uri = context.getContentResolver().insert(MyContentProvider.CONTENT_URI, values);
-        Log.v(TAG, "insert uri="+uri);
+    public static void insert(Context context, final Message message){
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                int count = 0;
+                if(realm.where(ChatMessageVO.class).count() != 0) {
+                    count = realm.where(ChatMessageVO.class).max("COLUMN_ID").intValue() + 1;
+                }
+                ChatMessageVO messageVO = realm.createObject(ChatMessageVO.class, count);
+                messageVO.setCOLUMN_ROOM(message.getRoom());
+                messageVO.setCOLUMN_DATE(message.getDate());
+                messageVO.setCOLUMN_SENDER(message.getSender());
+                messageVO.setCOLUMN_RECEIVER(message.getReceiver());
+                messageVO.setCOLUMN_MESSAGE(message.getMessage());
+                messageVO.setCOLUMN_FROM(message.getFrom());
+                messageVO.setCOLUMN_MESSSAGE_TYPE(message.getMsgType());
+                messageVO.setCOLUMN_SPORTSID(message.getSportsid());
+                messageVO.setCOLUMN_LOCATIONID(message.getLocationid());
+                messageVO.setCOLUMN_IMAGE(message.getImage());
+            }
+        });
+        realm.close();
     }
 
     public static void delete(Context context, String roomName){

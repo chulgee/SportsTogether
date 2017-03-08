@@ -1,16 +1,11 @@
 package com.iron.dragon.sportstogether.ui.fragment;
 
 import android.app.Fragment;
-import android.content.AsyncQueryHandler;
 import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -23,40 +18,29 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
-import com.iron.dragon.sportstogether.data.bean.Bulletin;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
-import com.iron.dragon.sportstogether.provider.MyContentProvider;
+import com.iron.dragon.sportstogether.provider.ChatMessageVO;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.ui.adapter.MessageAdapter;
 import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.DbUtil;
 import com.iron.dragon.sportstogether.util.Util;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper;
+import io.realm.Realm;
+import io.realm.RealmResults;
+import io.realm.Sort;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -91,7 +75,7 @@ public class ChatFragment extends Fragment {
     GitHubService mRetrofit;
 
     Handler mHandler = new Handler();
-
+    Realm realm;
     public ChatFragment() {
     }
 
@@ -148,7 +132,7 @@ public class ChatFragment extends Fragment {
         Log.v(TAG, "onCreateView");
         View v = inflater.inflate(R.layout.chat_frag, container, false);
         ButterKnife.bind(this, v);
-
+        realm = Realm.getDefaultInstance();
         ArrayList<Profile> profiles = LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(getActivity());
         mMe = profiles.get(0);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
@@ -159,6 +143,7 @@ public class ChatFragment extends Fragment {
 
         return v;
     }
+
 
     @OnClick({R.id.ibtnBack, R.id.btnSend})
     public void onClick(View v) {
@@ -199,46 +184,22 @@ public class ChatFragment extends Fragment {
     }
 
     private void loadChatHistory(){
-        AsyncQueryHandler queryHandler = new AsyncQueryHandler(getActivity().getContentResolver()) {
-            @Override
-            protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
-                Log.v(TAG, "token="+token+", cursor="+cursor);
-                super.onQueryComplete(token, cookie, cursor);
-                if(cursor != null && cursor.getCount()>0){
-                    while(cursor.moveToNext()){
-                        String sender = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_SENDER));
-                        String receiver = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_RECEIVER));
-                        String msg = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_MESSAGE));
-                        String image = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_IMAGE));
-                        int from = cursor.getInt(cursor.getColumnIndex(DbHelper.COLUMN_FROM));
-                        long date = cursor.getLong(cursor.getColumnIndex(DbHelper.COLUMN_DATE));
-                        int message_type = cursor.getInt(cursor.getColumnIndex(DbHelper.COLUMN_MESSAGE_TYPE));
-                        Message message = new Message.Builder(from).msgType(message_type).sender(sender)
-                                .receiver(receiver).message(msg).date(date).room(mBuddyName).image(image).build();
-                        mAdapter.addMessage(message);
-                        Log.v(TAG, "message="+message);
-                    };
-                    Bundle bd = getArguments();
-                    Message message = (Message)bd.get(PARAM_FRAG_MSG);
-                    if(message != null){
-                        mAdapter.addMessage(message);
-                    }
-                    rView.scrollToPosition(mAdapter.getItemCount()-1);
-                    mAdapter.notifyDataSetChanged();
-                }
+        RealmResults<ChatMessageVO> messages;
+        messages = realm.where(ChatMessageVO.class).equalTo("COLUMN_SENDER", mBuddyName).or().equalTo("COLUMN_RECEIVER", mBuddyName).findAllSorted("COLUMN_DATE", Sort.ASCENDING);
+        if(messages.size() > 0) {
+            for (ChatMessageVO messageVO : messages) {
+                Message message = new Message.Builder(messageVO.getCOLUMN_FROM()).msgType(messageVO.getCOLUMN_MESSSAGE_TYPE()).sender(messageVO.getCOLUMN_SENDER())
+                        .receiver(messageVO.getCOLUMN_RECEIVER()).message(messageVO.getCOLUMN_MESSAGE()).date(messageVO.getCOLUMN_DATE()).room(mBuddyName).image(messageVO.getCOLUMN_IMAGE()).build();
+                mAdapter.addMessage(message);
             }
-        };
-        String[] projection = {
-                DbHelper.COLUMN_ROOM,
-                DbHelper.COLUMN_DATE,
-                DbHelper.COLUMN_SENDER,
-                DbHelper.COLUMN_RECEIVER,
-                DbHelper.COLUMN_MESSAGE,
-                DbHelper.COLUMN_FROM,
-                DbHelper.COLUMN_MESSAGE_TYPE,
-                DbHelper.COLUMN_IMAGE
-        };
-        queryHandler.startQuery(1, null, MyContentProvider.CONTENT_URI, projection, "sender=? or receiver=?", new String[]{mBuddyName, mBuddyName}, " date asc");
+            Bundle bd = getArguments();
+            Message message = (Message)bd.get(PARAM_FRAG_MSG);
+            if(message != null){
+                mAdapter.addMessage(message);
+            }
+            rView.scrollToPosition(mAdapter.getItemCount()-1);
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     private void initView(){
@@ -302,6 +263,7 @@ public class ChatFragment extends Fragment {
         Log.v(TAG, "onDestoryView");
         super.onDestroyView();
         Fragment fragment = sChatRoom.remove(mBuddyName);
+        realm.close();
         Log.v(TAG, "sChatRoom onDestory buddy="+mBuddyName+", fragment="+fragment);
     }
 

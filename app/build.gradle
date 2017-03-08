@@ -14,6 +14,7 @@ repositories {
     maven { url 'https://maven.fabric.io/public' }
 }
 
+apply plugin: 'realm-android'
 
 android {
     signingConfigs {
@@ -21,7 +22,7 @@ android {
         }
     }
     compileSdkVersion 24
-    buildToolsVersion "24.0.1"
+    buildToolsVersion '25.0.0'
     defaultConfig {
         applicationId "com.iron.dragon.sportstogether"
         minSdkVersion 19
@@ -49,7 +50,7 @@ android {
             debuggable false
             jniDebuggable false
             signingConfig signingConfigs.releasekey_iron_dragon
-            proguardFile 'C:/_dev/work/Sportstogether4/app/proguard-rules.pro'
+            proguardFile 'proguard-rules.pro'
         }
     }
     //dexOptions 추가

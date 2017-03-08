@@ -120,4 +120,6 @@
 
     <string name="delete">delete</string>
 
+    <string name="bulletin_tip">아래 새글 작성을 통해 친구를 모집하세요</string>
+
 </resources>
