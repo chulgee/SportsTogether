@@ -3,15 +3,16 @@ package com.iron.dragon.sportstogether;
 import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDex;
-import android.telecom.TelecomManager;
-import android.telephony.TelephonyManager;
-import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.util.Const;
 
+import io.fabric.sdk.android.Fabric;
 import java.net.URISyntaxException;
 
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 
@@ -45,6 +46,11 @@ public class SportsApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
+        Realm.init(this);
+
+        RealmConfiguration config = new RealmConfiguration.Builder().deleteRealmIfMigrationNeeded().build();
+        Realm.setDefaultConfiguration(config);
 
     }
 

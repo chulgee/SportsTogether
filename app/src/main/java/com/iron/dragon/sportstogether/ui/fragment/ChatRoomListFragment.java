@@ -1,11 +1,8 @@
 package com.iron.dragon.sportstogether.ui.fragment;
 
-import android.content.AsyncQueryHandler;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -21,25 +18,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
-import com.iron.dragon.sportstogether.data.bean.Bulletin;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
-import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
-import com.iron.dragon.sportstogether.provider.MyContentProvider;
+import com.iron.dragon.sportstogether.provider.ChatMessageVO;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.ui.view.UnreadView;
 import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.Util;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -49,14 +39,9 @@ import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper;
-import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper.COLUMN_DATE;
-import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper.COLUMN_LOCATIONID;
-import static com.iron.dragon.sportstogether.provider.MyContentProvider.DbHelper.COLUMN_SPORTSID;
+import io.realm.Realm;
+import io.realm.RealmResults;
+import io.realm.Sort;
 
 /**
  * Created by user on 2016-08-12.
@@ -69,7 +54,7 @@ public class ChatRoomListFragment extends Fragment {
     Map<String, Bitmap> mAvatarMap = new HashMap<String, Bitmap>();
     private int sportsid;
     SharedPreferences mPref;
-
+    Realm realm;
     public interface OnClickCallback{
         void rowOnClicked(View v, int position);
         void deleteOnClicked(View v, int position);
@@ -79,11 +64,11 @@ public class ChatRoomListFragment extends Fragment {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             boolean found = false;
-            Iterator<Item> iter = mAdapter.mItems.iterator();
+            Iterator<ChatMessageVO> iter = mAdapter.mItems.iterator();
             while(iter.hasNext()){
-                Item item = (Item)iter.next();
-                Log.v(TAG, "key="+key+", item.room="+item.room);
-                if(item.room.equals(key)){
+                ChatMessageVO item = (ChatMessageVO)iter.next();
+                Log.v(TAG, "key="+key+", item.room="+item.getCOLUMN_ROOM());
+                if(item.getCOLUMN_ROOM().equals(key)){
                     int count = sharedPreferences.getInt(key, 0);
                     item.setUnread(count);
                     mAdapter.notifyDataSetChanged();
@@ -100,7 +85,7 @@ public class ChatRoomListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.chat_room_frag, container, false);
-
+        realm = Realm.getDefaultInstance();
         init(rootView);
 
         return rootView;
@@ -109,7 +94,6 @@ public class ChatRoomListFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         loadChatRoom();
     }
 
@@ -122,6 +106,12 @@ public class ChatRoomListFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        realm.close();
+    }
+
     public void init(View rootView){
 
         lv_room = (RecyclerView) rootView.findViewById(R.id.lv_room);
@@ -132,13 +122,12 @@ public class ChatRoomListFragment extends Fragment {
 
             @Override
             public void rowOnClicked(View v, int position) {
-                Item item = mAdapter.getItem(position);
+                ChatMessageVO item = mAdapter.getItem(position);
                 ArrayList<Profile> profiles = LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(getActivity());
                 if(profiles != null && profiles.size() > 0){
                     final Profile me = profiles.get(0);
                     Log.v(TAG, "rowOnClicked item="+item.toString());
-                    final String username = item.room;
-                    RetrofitHelper.getProfile(getActivity(), me, item.room, item.sportsid, item.locationid, new RetrofitHelper.OnViewHandleListener() {
+                    RetrofitHelper.getProfile(getActivity(), me, item.getCOLUMN_ROOM(), item.getCOLUMN_SPORTSID(), item.getCOLUMN_LOCATIONID(), new RetrofitHelper.OnViewHandleListener() {
                         @Override
                         public void onData(Response response) {
                             Profile profile = (Profile)response.body();
@@ -162,7 +151,7 @@ public class ChatRoomListFragment extends Fragment {
 
             @Override
             public void deleteOnClicked(View v, int position) {
-                removeChatRoom(position, mAdapter.getItem(position).room);
+                removeChatRoom(position, mAdapter.getItem(position).getCOLUMN_ROOM());
             }
 
         });
@@ -173,39 +162,33 @@ public class ChatRoomListFragment extends Fragment {
     }
 
     private void loadChatRoom(){
-        AsyncQueryHandler queryHandler = new AsyncQueryHandler(getActivity().getContentResolver()) {
-            @Override
-            protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
-                Log.v(TAG, "token="+token+", cursor="+cursor);
-                super.onQueryComplete(token, cookie, cursor);
-                if(cursor != null && cursor.getCount()>0){
-                    List<Item> list = new ArrayList<Item>();
-                    while(cursor.moveToNext()){
-                        String room = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_ROOM));
-                        String sender = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_SENDER));
-                        String receiver = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_RECEIVER));
-                        String image = cursor.getString(cursor.getColumnIndex(DbHelper.COLUMN_IMAGE));
-                        long time = cursor.getInt(cursor.getColumnIndex(COLUMN_DATE));
-                        sportsid = cursor.getInt(cursor.getColumnIndex(COLUMN_SPORTSID));
-                        int locationid = cursor.getInt(cursor.getColumnIndex(COLUMN_LOCATIONID));
-                        Item item = new Item(room, sender, receiver, image, time, sportsid, locationid );
-                        int count = Util.getUnreadChat(getActivity(), room);
-                        Log.v(TAG, "item="+item+", unread="+count);
-                        item.setUnread(count);
-                        list.add(item);
-                    };
-                    mAdapter.setItems(list);
-                    mAdapter.notifyDataSetChanged();
+
+        RealmResults<ChatMessageVO> messages = getMessageList();
+        if(messages.size() > 0){
+            List<ChatMessageVO> list = new ArrayList<ChatMessageVO>();
+            Iterator<ChatMessageVO> it = messages.iterator();
+            ChatMessageVO prevMessage = it.next();
+            list.add(prevMessage);
+            while (it.hasNext()){
+                ChatMessageVO message = it.next();
+                if (!message.getCOLUMN_ROOM().equals(prevMessage.getCOLUMN_ROOM())) {
+                    int count = Util.getUnreadChat(getActivity(), message.getCOLUMN_ROOM());
+                    message.setUnread(count);
+                    list.add(message);
                 }
+                prevMessage = message;
             }
-        };
-        // TIP : inject group by clause into selection
-        queryHandler.startQuery(1, null, MyContentProvider.CONTENT_URI, null
-                , "sender=sender group by "+DbHelper.COLUMN_ROOM, null, " date asc");
+            mAdapter.setItems(list);
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private RealmResults<ChatMessageVO> getMessageList() {
+        return realm.where(ChatMessageVO.class).findAllSorted("COLUMN_DATE", Sort.ASCENDING);
     }
 
     public void fetchAvaTar(final String room, final String filename){
-        // me와 buddy 아바타 가져오기
+        // me와 buddy 아바타 가져오기q
         String url = Const.MAIN_URL + "/upload_profile?filename=" + filename;
         //final Bitmap bmp;
         Log.v(TAG, "fetchAvaTar url="+url);
@@ -225,35 +208,29 @@ public class ChatRoomListFragment extends Fragment {
         });
     }
 
-    private void removeChatRoom(final int index, String roomName){
+    private void removeChatRoom(final int index, final String roomName){
+        final RealmResults<ChatMessageVO> message = realm.where(ChatMessageVO.class).equalTo("COLUMN_ROOM", roomName).findAll();
+        realm.executeTransaction(new Realm.Transaction() {
+             @Override
+             public void execute(Realm realm) {
 
-        AsyncQueryHandler queryHandler = new AsyncQueryHandler(getActivity().getContentResolver()) {
-
-            @Override
-            protected void onDeleteComplete(int token, Object cookie, int result) {
-                super.onDeleteComplete(token, cookie, result);
-                Log.v(TAG, "onDeleteComplete result="+result);
-                mAdapter.removeItem(index);
-                mAdapter.notifyItemRemoved(index);
-                //Toast.makeText(getContext(), "deletion successful", Toast.LENGTH_SHORT).show();
-            }
-        };
-        String where = MyContentProvider.DbHelper.COLUMN_ROOM+"=?";
-        queryHandler.startDelete(1, null, MyContentProvider.CONTENT_URI, where, new String[]{roomName});
+                 message.deleteAllFromRealm();
+                 mAdapter.removeItem(index);
+                 mAdapter.notifyItemRemoved(index);
+             }
+        });
     }
 
     class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
-        private List<Item> mItems;
+        private List<ChatMessageVO> mItems;
         private OnClickCallback mListener;
 
-        public MyAdapter(Context context, List<Item> items, OnClickCallback listener){
+        public MyAdapter(Context context, List<ChatMessageVO> items, OnClickCallback listener) {
             mListener = listener;
-
             if(mItems == null)
-                this.mItems = new ArrayList<Item>();
+                this.mItems = new ArrayList<ChatMessageVO>();
             else
                 this.mItems = items;
-            Log.v(TAG, "items="+this.mItems);
         }
 
         @Override
@@ -267,9 +244,9 @@ public class ChatRoomListFragment extends Fragment {
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             ViewCache vh = (ViewCache)holder;
-            Item item = mItems.get(position);
+            ChatMessageVO item = mItems.get(position);
 
-            vh.tv_title.setText(item.room+" 님과의 대화");
+            vh.tv_title.setText(item.getCOLUMN_ROOM() +" 님과의 대화");
             int count = item.getUnread();
             if(count > 0){
                 vh.cv_unread.setUnreadCount(count);
@@ -279,8 +256,8 @@ public class ChatRoomListFragment extends Fragment {
                 vh.cv_unread.setVisibility(View.GONE);
             }
             vh.civ_thumb.setImageResource(R.drawable.default_user);
-            if(item.image != null && !item.image.isEmpty()){
-                String url = Const.MAIN_URL + "/upload_profile?filename=" + item.image;
+            if(item.getCOLUMN_IMAGE()  != null && !item.getCOLUMN_IMAGE().isEmpty()){
+                String url = Const.MAIN_URL + "/upload_profile?filename=" + item.getCOLUMN_IMAGE();
                 Log.v(TAG, "onBindViewHolder image url:"+url);
                 Picasso.with(getActivity()).load(url).placeholder(R.drawable.default_user).resize(50,50).centerInside().into(vh.civ_thumb);
             }
@@ -291,15 +268,15 @@ public class ChatRoomListFragment extends Fragment {
             return mItems.size();
         }
 
-        public Item getItem(int index){
+        public ChatMessageVO getItem(int index){
             return mItems.get(index);
         }
 
-        public void addItem(Item item){
+        public void addItem(ChatMessageVO item){
             mItems.add(item);
         }
 
-        public void setItems(List<Item> list){
+        public void setItems(List<ChatMessageVO> list){
             mItems = list;
         }
 
@@ -335,48 +312,6 @@ public class ChatRoomListFragment extends Fragment {
                     mListener.deleteOnClicked(v, getAdapterPosition());
                 }
             }
-        }
-    }
-
-    class Item{
-        String room;
-        String sender;
-        String receiver;
-        String image;
-        long lastTime;
-        int sportsid;
-        int locationid;
-        int unread;
-
-        public Item(String room, String sender, String receiver, String image, long date, int sportsid, int locationid){
-            this.room = room;
-            this.sender = sender;
-            this.receiver = receiver;
-            this.image = image;
-            this.lastTime = date;
-            this.sportsid = sportsid;
-            this.locationid = locationid;
-        }
-
-        public int getUnread() {
-            return unread;
-        }
-
-        public void setUnread(int unread) {
-            this.unread = unread;
-        }
-
-        @Override
-        public String toString() {
-            return "Item{" +
-                    "room='" + room + '\'' +
-                    ", sender='" + sender + '\'' +
-                    ", receiver='" + receiver + '\'' +
-                    ", image='" + image + '\'' +
-                    ", lastTime=" + lastTime +
-                    ", sportsid=" + sportsid +
-                    ", locationid=" + locationid +
-                    '}';
         }
     }
 }
