@@ -51,7 +51,7 @@ public interface GitHubService {
 
     // 친구 목록 가져오려면 reqFriends = 1 넣는다. otherwise, 자신 포함됨.
     @GET("profiles")
-    Call<String> getProfiles(
+    Call<List<Profile>> getProfiles(
             @Query("username") String username, @Query("sportsid") int sportsid, @Query("locationid") int locationid, @Query("reqFriends") int reqFriends, @Query("level") int level
     );
 

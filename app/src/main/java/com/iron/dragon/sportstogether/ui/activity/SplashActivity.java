@@ -21,18 +21,13 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.IntentCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.iron.dragon.sportstogether.BuildConfig;
 import com.iron.dragon.sportstogether.R;
-import com.iron.dragon.sportstogether.SportsApplication;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
-import com.iron.dragon.sportstogether.data.bean.Profile;
-import com.iron.dragon.sportstogether.enums.SportsType;
-import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
 import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.Util;
@@ -40,8 +35,6 @@ import com.iron.dragon.sportstogether.util.Util;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
@@ -80,47 +73,18 @@ public class SplashActivity extends AppCompatActivity {
         filter.addAction(Const.LOCAL_ACTION_GO_TO_MAIN);
         mLocalBr.registerReceiver(mLocalBrReceiver, filter);
 
-        RetrofitHelper.getServerVersion(this, new RetrofitHelper.VersionListener() {
+        RetrofitHelper.getServerVersion(this, new RetrofitHelper.OnViewUpdateListener() {
             @Override
-            public void onLoaded(int versioncode) {
+            public void onViewUpdateListener(Response response) {
+                int versioncode = (int)response.body();
+                Log.v(TAG, "versioncode="+versioncode);
                 if (BuildConfig.DEBUG || BuildConfig.VERSION_CODE >= versioncode) {
                     requestPermission(SplashActivity.this);
                 } else {
                     showScreenToUpdate();
                 }
             }
-
-            @Override
-            public void onFailed() {
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        SplashActivity.this.finish();
-                    }
-                }, 1500);
-            }
         });
-    }
-
-    public void showScreenToUpdate() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("업데이트 필요");
-        StringBuffer sb = new StringBuffer();
-        sb.append("새로운 버전이 마켓에 등록되었습니다. \n" +
-                "아래 버튼을 눌러 업데이트해주세요");
-        builder.setMessage(sb.toString());
-        builder.setCancelable(false);
-        builder.setPositiveButton("마켓으로 이동", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(SplashActivity.this, "마켓으로 이동합니다.", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("market://details?id=com.iron.dragon.sportstogether"));
-                startActivity(intent);
-                finish();
-            }
-        });
-        builder.create().show();
     }
 
     @Override
@@ -165,6 +129,27 @@ public class SplashActivity extends AppCompatActivity {
                 Toast.makeText(this, "오버레이 권한을 허락해 주세요", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public void showScreenToUpdate() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("업데이트 필요");
+        StringBuffer sb = new StringBuffer();
+        sb.append("새로운 버전이 마켓에 등록되었습니다. \n" +
+                "아래 버튼을 눌러 업데이트해주세요");
+        builder.setMessage(sb.toString());
+        builder.setCancelable(false);
+        builder.setPositiveButton("마켓으로 이동", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(SplashActivity.this, "마켓으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("market://details?id=com.iron.dragon.sportstogether"));
+                startActivity(intent);
+                finish();
+            }
+        });
+        builder.create().show();
     }
 
     void requestPermission(Context context){
@@ -218,27 +203,30 @@ public class SplashActivity extends AppCompatActivity {
         boolean isLogin = false;
 
         isLogin = LoginPreferences.GetInstance().isLogin(this);
+        String regid = FirebaseInstanceId.getInstance().getToken();
+        Log.v(TAG, "[token] handleGoToMain isLogin="+isLogin+", regid="+regid);
 
-        Log.v(TAG, "[token] handleGoToMain isLogin="+isLogin);
         if(!isLogin){
-            Log.v(TAG, "[token] start fetching profiles from server");
             String deviceid = Util.getDeviceId(this);
-            String regid = FirebaseInstanceId.getInstance().getToken();
-            Log.v(TAG, "[token] handleGoToMain deviceid="+deviceid+", regid="+regid);
+            Log.v(TAG, "[token] handleGoToMain deviceid="+deviceid);
             if(regid == null || regid.isEmpty()) {
-                Toast.makeText(this, "등록ID를 생성합니다. 잠시 기다려 주십시요", Toast.LENGTH_SHORT).show();
                 // wait until a token refreshes,  and then trigger it at onTokenRefresh
+                Toast.makeText(this, "등록ID를 생성합니다. 잠시 기다려 주십시요", Toast.LENGTH_SHORT).show();
             }else {
-                RetrofitHelper.getServerProfiles(this, deviceid, regid, new RetrofitHelper.OnProfileListener() {
+                RetrofitHelper.getServerProfiles(this, deviceid, regid, new RetrofitHelper.OnViewUpdateListener() {
                     @Override
-                    public void onProfileLoaded() {
-                        Log.v(TAG, "[token] onProfileLoaded goToMain");
+                    public void onViewUpdateListener(Response response) {
                         goToMain();
                     }
                 });
             }
         }else{
-            goToMain();
+            RetrofitHelper.updateRegidToServer(this, new RetrofitHelper.OnViewUpdateListener() {
+                @Override
+                public void onViewUpdateListener(Response response) {
+                    goToMain();
+                }
+            });
         }
     }
 
@@ -250,6 +238,19 @@ public class SplashActivity extends AppCompatActivity {
                 finish();
             }
         }, 2000);
+    }
+
+    public boolean canOverlayWindow(Context context) {
+        boolean ret = false;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(context)) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, REQ_CODE_OVERLAY_WINDOW);
+        } else {
+            ret = true;
+        }
+
+        return ret;
     }
 
     public void restartApp(){
@@ -266,21 +267,6 @@ public class SplashActivity extends AppCompatActivity {
         ComponentName componentName = intent.getComponent();
         Intent mainIntent = IntentCompat.makeRestartActivityTask(componentName);
         startActivity(mainIntent);
-        Log.v(TAG, "relaunchApp");
         finish();
     }
-
-    public boolean canOverlayWindow(Context context) {
-        boolean ret = false;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(context)) {
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent, REQ_CODE_OVERLAY_WINDOW);
-        } else {
-            ret = true;
-        }
-
-        return ret;
-    }
-
 }

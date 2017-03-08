@@ -118,12 +118,13 @@ public class BulletinListViewModel extends BaseObservable {
         if (bulletinListItem instanceof BulletinEventItem) {
             Bulletin bulletin = ((BulletinEventItem) bulletinListItem).getBulletin();
             Log.v(TAG, "bulletin: " + bulletin.toString());
-            //loadBuddyProfile(bulletin);
             ArrayList<Profile> profiles = LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(mActivity);
             final Profile me = profiles.get(0);
-            RetrofitHelper.loadProfile(mActivity, me, bulletin.getUsername(), bulletin.getSportsid(), bulletin.getLocationid(), new RetrofitHelper.ProfileListener() {
+            final String username = bulletin.getUsername();
+            RetrofitHelper.getProfile(mActivity, me, bulletin.getUsername(), bulletin.getSportsid(), bulletin.getLocationid(), new RetrofitHelper.OnViewHandleListener() {
                 @Override
-                public void onLoaded(Profile profile) {
+                public void onData(Response response) {
+                    Profile profile = (Profile)response.body();
                     Log.v(TAG, "onLoaded profile="+profile.toString());
                     Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(profile.getUsername())
                             .message("Conversation get started").date(new Date().getTime()).image(null).build();
@@ -131,6 +132,11 @@ public class BulletinListViewModel extends BaseObservable {
                     i.putExtra("Message", message);
                     i.putExtra("Buddy", profile);
                     mActivity.startActivity(i);
+                }
+
+                @Override
+                public void onEmpty() {
+                    Toast.makeText(mActivity, username+"님의 프로필이 서버에 존재하지 않습니다", Toast.LENGTH_SHORT).show();
                 }
             });
         }

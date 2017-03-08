@@ -8,12 +8,16 @@ import android.view.View;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
+import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
 import com.iron.dragon.sportstogether.ui.activity.BuddyActivity;
 import com.iron.dragon.sportstogether.ui.activity.ChatActivity;
 import com.iron.dragon.sportstogether.ui.model.BuddyModel;
+import com.iron.dragon.sportstogether.util.Util;
 
 import java.util.Date;
 import java.util.List;
+
+import retrofit2.Response;
 
 import static android.content.ContentValues.TAG;
 
@@ -55,13 +59,18 @@ public class BuddyPresenterImpl implements BuddyPresenter{
     }
 
     @Override
-    public void loadProfiles(Profile buddy){
-        model.loadProfiles(buddy, new BuddyModel.BuddyModelCallback() {
+    public void getProfiles(final Context context, Profile buddy) {
+        final BuddyView listener = (BuddyView)context;
+        model.getProfiles(buddy, new RetrofitHelper.OnViewUpdateListener() {
             @Override
-            public void onLoad(List<Profile> buddies) {
-                view.updateView(buddies);
+            public void onViewUpdateListener(Response response) {
+                List<Profile> profiles = (List<Profile>)response.body();
+                for(Profile p : profiles){
+                    int count = Util.getUnreadBuddy(context, p.getUsername());
+                    p.setUnread(count);
+                }
+                listener.updateView(profiles);
             }
-
         });
     }
 }

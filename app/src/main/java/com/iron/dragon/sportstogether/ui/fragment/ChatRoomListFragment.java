@@ -137,16 +137,22 @@ public class ChatRoomListFragment extends Fragment {
                 if(profiles != null && profiles.size() > 0){
                     final Profile me = profiles.get(0);
                     Log.v(TAG, "rowOnClicked item="+item.toString());
-                    RetrofitHelper.loadProfile(getActivity(), me, item.room, item.sportsid, item.locationid, new RetrofitHelper.ProfileListener() {
+                    final String username = item.room;
+                    RetrofitHelper.getProfile(getActivity(), me, item.room, item.sportsid, item.locationid, new RetrofitHelper.OnViewHandleListener() {
                         @Override
-                        public void onLoaded(Profile profile) {
-                            Log.v(TAG, "onLoaded profile="+profile.toString());
+                        public void onData(Response response) {
+                            Profile profile = (Profile)response.body();
                             Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(profile.getUsername())
                                     .message("Conversation get started").date(new Date().getTime()).image(null).build();
                             Intent i = new Intent(getActivity(), ChatActivity.class);
                             i.putExtra("Message", message);
                             i.putExtra("Buddy", profile);
                             getActivity().startActivity(i);
+                        }
+
+                        @Override
+                        public void onEmpty() {
+                            Toast.makeText(getActivity(), username+"님의 프로필이 서버에 존재하지 않습니다", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }else {
