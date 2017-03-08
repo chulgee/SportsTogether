@@ -1,4 +1,4 @@
-package com.iron.dragon.sportstogether.ui.adapter.item;
+package com.iron.dragon.sportstogether.ui.adapter;
 
 import android.content.Context;
 import android.content.SharedPreferences;

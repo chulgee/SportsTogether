@@ -11,43 +11,25 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
 import com.iron.dragon.sportstogether.data.bean.Message;
 import com.iron.dragon.sportstogether.data.bean.Profile;
-import com.iron.dragon.sportstogether.http.retrofit.RetrofitHelper;
 import com.iron.dragon.sportstogether.service.FloatingService;
-import com.iron.dragon.sportstogether.ui.adapter.item.BuddyAdapter;
+import com.iron.dragon.sportstogether.ui.adapter.BuddyAdapter;
 import com.iron.dragon.sportstogether.ui.model.BuddyModel;
 import com.iron.dragon.sportstogether.ui.presenter.BuddyPresenter;
 import com.iron.dragon.sportstogether.ui.presenter.BuddyPresenterImpl;
 import com.iron.dragon.sportstogether.util.Const;
 import com.iron.dragon.sportstogether.util.StringUtil;
-import com.iron.dragon.sportstogether.util.Util;
-import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-
-import de.hdodenhof.circleimageview.CircleImageView;
-import retrofit2.Response;
-
-import static android.content.ContentValues.TAG;
 
 public class BuddyActivity extends AppCompatActivity implements BuddyPresenter.BuddyView {
     private static final String TAG = "BuddyActivity";
