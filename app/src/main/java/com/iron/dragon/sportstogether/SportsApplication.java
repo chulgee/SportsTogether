@@ -7,9 +7,11 @@ import android.telecom.TelecomManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.util.Const;
 
+import io.fabric.sdk.android.Fabric;
 import java.net.URISyntaxException;
 
 import io.socket.client.IO;
@@ -45,6 +47,7 @@ public class SportsApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
 
     }
 
