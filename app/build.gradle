@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'realm-android'
 
 android {
     signingConfigs {
@@ -34,7 +35,7 @@ android {
             debuggable false
             jniDebuggable false
             signingConfig signingConfigs.releasekey_iron_dragon
-            proguardFile 'C:/_dev/work/Sportstogether4/app/proguard-rules.pro'
+            proguardFile 'proguard-rules.pro'
         }
     }
     //dexOptions 추가
