@@ -42,6 +42,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
+import retrofit2.Response;
 import rx.Observable;
 
 /**
@@ -124,21 +125,26 @@ public class ChatRoomListFragment extends Fragment {
 
             @Override
             public void rowOnClicked(View v, int position) {
-                ChatMessageVO item = mAdapter.getItem(position);
+                final ChatMessageVO item = mAdapter.getItem(position);
                 ArrayList<Profile> profiles = LoginPreferences.GetInstance().loadSharedPreferencesProfileAll(getActivity());
                 if(profiles != null && profiles.size() > 0){
                     final Profile me = profiles.get(0);
                     Log.v(TAG, "rowOnClicked item="+item.toString());
-                    RetrofitHelper.loadProfile(getActivity(), me, item.getCOLUMN_ROOM(), item.getCOLUMN_SPORTSID(), item.getCOLUMN_LOCATIONID(), new RetrofitHelper.ProfileListener() {
+                    RetrofitHelper.getProfile(getActivity(), me, item.getCOLUMN_ROOM(), item.getCOLUMN_SPORTSID(), item.getCOLUMN_LOCATIONID(), new RetrofitHelper.OnViewHandleListener() {
                         @Override
-                        public void onLoaded(Profile profile) {
-                            Log.v(TAG, "onLoaded profile="+profile.toString());
+                        public void onData(Response response) {
+                            Profile profile = (Profile)response.body();
                             Message message = new Message.Builder(Message.PARAM_FROM_ME).msgType(Message.PARAM_TYPE_LOG).sender(me.getUsername()).receiver(profile.getUsername())
                                     .message("Conversation get started").date(new Date().getTime()).image(null).build();
                             Intent i = new Intent(getActivity(), ChatActivity.class);
                             i.putExtra("Message", message);
                             i.putExtra("Buddy", profile);
                             getActivity().startActivity(i);
+                        }
+
+                        @Override
+                        public void onEmpty() {
+                            Toast.makeText(getActivity(), item.getCOLUMN_ROOM()+"님의 프로필이 서버에 존재하지 않습니다", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }else {

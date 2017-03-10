@@ -1,4 +1,19 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        classpath 'io.fabric.tools:gradle:1.+'
+    }
+}
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
+
 apply plugin: 'realm-android'
 apply plugin: 'me.tatarka.retrolambda'
 
@@ -8,12 +23,12 @@ android {
         }
     }
     compileSdkVersion 24
-    buildToolsVersion '25.0.0'
+    buildToolsVersion "25.0.0"
     defaultConfig {
         applicationId "com.iron.dragon.sportstogether"
         minSdkVersion 19
         targetSdkVersion 24
-        versionCode 6
+        versionCode 8
         versionName "1.0"
         buildConfigField("String", "NAVER_CLIENT_ID", NAVER_CLIENT_ID)
         buildConfigField("String", "NAVER_CLIENT_SECRET", NAVER_CLIENT_SECRET)
@@ -84,7 +99,7 @@ dependencies {
     }
     compile 'com.github.ganfra:material-spinner:1.1.1'
     testCompile 'junit:junit:4.12'
-    compile 'com.google.firebase:firebase-messaging:9.6.1'
+    compile 'com.google.firebase:firebase-messaging:10.0.1'
     compile 'com.android.volley:volley:1.0.0'
     compile 'com.google.code.gson:gson:2.8.0'
     compile('io.socket:socket.io-client:0.8.2') {
@@ -106,11 +121,15 @@ dependencies {
     }
     compile 'io.reactivex:rxandroid:1.1.0'
     compile 'io.reactivex:rxjava:1.1.3'
-    compile 'com.google.android.gms:play-services:9.6.1'
+    compile 'com.google.android.gms:play-services:10.0.1'
     compile 'org.adw.library:discrete-seekbar:1.0.1'
     compile 'com.etsy.android.grid:library:1.0.5'
 
     compile 'com.android.support:multidex:1.0.0'
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.6@aar') {
+        transitive = true;
+    }
+
 }
 
 apply plugin: 'com.google.gms.google-services'

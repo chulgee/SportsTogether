@@ -49,9 +49,9 @@ public class MyFirebaseInstanceIdService extends FirebaseInstanceIdService {
             String deviceid = Util.getDeviceId(getApplicationContext());
             // regid가 업데이트되on면 서버의 regid를 업데이트 시키고,
             // 기존 로컬 프로파일을 제거하고 서버 프로파일을 로컬에 저장한다.
-            RetrofitHelper.getServerProfiles(getApplicationContext(), deviceid, regid, new RetrofitHelper.OnProfileListener() {
+            RetrofitHelper.getServerProfiles(getApplicationContext(), deviceid, regid, new RetrofitHelper.OnViewUpdateListener() {
                 @Override
-                public void onProfileLoaded() {
+                public void onViewUpdateListener(Response response) {
                     Toast.makeText(getApplicationContext(), "등록ID가 업데이트되었습니다.", Toast.LENGTH_SHORT).show();
                     Intent i = new Intent(Const.LOCAL_ACTION_GO_TO_MAIN);
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(i);

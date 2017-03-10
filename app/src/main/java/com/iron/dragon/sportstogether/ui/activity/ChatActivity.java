@@ -344,14 +344,21 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
     }
 
     void createMsgNoti(final Message message){
-        //loadBuddyProfile(message);
-
         Log.v(TAG, "createMsgNoti message="+message.toString());
-        RetrofitHelper.loadProfile(this, mMe, message.getSender(), message.getSportsid(), message.getLocationid(), new RetrofitHelper.ProfileListener() {
+
+        final String username = message.getSender();
+
+        RetrofitHelper.getProfile(this, mMe, message.getSender(), message.getSportsid(), message.getLocationid(), new RetrofitHelper.OnViewHandleListener() {
             @Override
-            public void onLoaded(Profile profile) {
+            public void onData(Response response) {
+                Profile profile = (Profile)response.body();
                 Log.v(TAG, "onLoaded profile="+profile.toString());
                 postMsgNoti(message, profile);
+            }
+
+            @Override
+            public void onEmpty() {
+                Toast.makeText(ChatActivity.this, username+"님의 프로필이 서버에 존재하지 않습니다", Toast.LENGTH_SHORT).show();
             }
         });
     }

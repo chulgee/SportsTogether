@@ -70,7 +70,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Notification.Builder builder = new Notification.Builder(getApplicationContext());
             builder.setSmallIcon(R.drawable.ic_cardiogram);
             builder.setContentText(buddy.getUsername()+"님이 들어왔어요");
-            builder.setContentTitle("같은레벨 친구 입장");
+            builder.setContentTitle("동네친구 입장");
             builder.setContentIntent(pi);
             builder.setAutoCancel(true);
             builder.setPriority(Notification.PRIORITY_HIGH);
