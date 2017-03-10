@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'realm-android'
+apply plugin: 'me.tatarka.retrolambda'
 
 android {
     signingConfigs {
@@ -22,6 +23,10 @@ android {
         // Enabling multidex support.
         multiDexEnabled true
         signingConfig signingConfigs.releasekey_iron_dragon
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
+        }
     }
     buildTypes {
 
@@ -106,7 +111,6 @@ dependencies {
     compile 'com.etsy.android.grid:library:1.0.5'
 
     compile 'com.android.support:multidex:1.0.0'
-
 }
 
 apply plugin: 'com.google.gms.google-services'

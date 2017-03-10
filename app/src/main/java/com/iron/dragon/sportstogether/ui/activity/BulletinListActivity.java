@@ -253,4 +253,9 @@ public class BulletinListActivity extends AppCompatActivity  {
         ToastUtil.show(getApplicationContext(), string);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mViewModel.onDestroy();
+    }
 }

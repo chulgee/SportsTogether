@@ -10,7 +10,6 @@ import com.iron.dragon.sportstogether.util.Const;
 import com.orhanobut.logger.Logger;
 
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -38,12 +37,7 @@ public class SettingsViewModel extends BaseObservable {
         gitHubService.putSettings(LoginPreferences.GetInstance().GetRegid(mActivity.getApplicationContext()), update)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<Settings>() {
-                    @Override
-                    public void call(Settings settings) {
-                        Logger.v("onResponse response.isSuccessful()=" + settings.toString());
-                    }
-                });
+                .subscribe(setting -> Logger.v("onResponse response.isSuccessful()=" + setting.toString()));
 
 
     }

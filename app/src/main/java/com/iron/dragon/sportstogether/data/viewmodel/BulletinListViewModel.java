@@ -11,9 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomSheetBehavior;
@@ -55,10 +53,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -67,6 +65,10 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import rx.Observable;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 import static android.content.ContentValues.TAG;
 
@@ -96,6 +98,8 @@ public class BulletinListViewModel extends BaseObservable {
     private int mPageNum = 1;
     private boolean loading;
     private String Content;
+    private Observable<File> mSubscription;
+    private Subscription mProgressSubscription;
 
     @Bindable
     public boolean getSwipeRefreshViewRefreshing() {
@@ -143,10 +147,20 @@ public class BulletinListViewModel extends BaseObservable {
         getBulletinData(REQ_THRESHOLD * (++mPageNum));
     }
 
+    public void onDestroy() {
+        Logger.d("model destroy");
+        if(mSubscription != null) {
+            mSubscription.unsubscribeOn(Schedulers.io());
+        }
+        if(mProgressSubscription != null) {
+            mProgressSubscription.unsubscribe();
+        }
+    }
+
     private enum State {
         EXPANDED,
         COLLAPSED,
-        IDLE;
+        IDLE
     }
 
     public void setContent(String content) {
@@ -172,7 +186,7 @@ public class BulletinListViewModel extends BaseObservable {
 
     }
 
-    public void setLoading(boolean loading) {
+    private void setLoading(boolean loading) {
         this.loading = loading;
         notifyPropertyChanged(BR.loading);
     }
@@ -226,40 +240,37 @@ public class BulletinListViewModel extends BaseObservable {
 
     private void initListView(List<Bulletin> listOfStrings) {
         if (listOfStrings.size() != 0) {
-            for (Bulletin bulletin : listOfStrings) {
-                String sDate = Util.getStringDate(bulletin.getDate());
-                if (mTMBulletinMap.get(sDate) == null) {
-                    ArrayList<Bulletin> items = new ArrayList<>();
-                    items.add(bulletin);
-                    mTMBulletinMap.put(sDate, items);
-                } else {
-                    mTMBulletinMap.get(sDate).add(bulletin);
-                }
-            }
+
+            Observable.from(listOfStrings)
+                    .flatMap((bulletin) -> Observable.just(Util.getStringDate(bulletin.getDate()))
+                            .doOnNext(sDate-> {
+                                if (mTMBulletinMap.get(sDate) == null) {
+                                    ArrayList<Bulletin> items = new ArrayList<>();
+                                    items.add(bulletin);
+                                    mTMBulletinMap.put(sDate, items);
+                                } else {
+                                    mTMBulletinMap.get(sDate).add(bulletin);
+                                }
+                            }))
+                    .subscribe();
+
             ArrayList<BulletinListItem> bulletinListItems = new ArrayList<>();
-
-            for (String date : mTMBulletinMap.keySet()) {
-                Logger.d("convert data = " + date);
-                BulletinHeaderItem header = new BulletinHeaderItem();
-                header.setDate(date);
-                bulletinListItems.add(header);
-                ArrayList<Bulletin> ar = mTMBulletinMap.get(date);
-                Collections.sort(ar, new Comparator<Bulletin>() {
-                    @Override
-                    public int compare(Bulletin bulletin, Bulletin t1) {
-                        return bulletin.getDate() > t1.getDate() ? -1 : bulletin.getDate() == t1.getDate() ? 0 : 1;
-                    }
-                });
-
-                for (Bulletin event : ar) {
-                    BulletinEventItem item = new BulletinEventItem();
-                    item.setBulletin(event);
-                    bulletinListItems.add(item);
-                }
-
-            }
+            Observable.from(mTMBulletinMap.keySet())
+                    .doOnNext(sDate->{
+                        BulletinHeaderItem header = new BulletinHeaderItem();
+                        header.setDate(sDate);
+                        bulletinListItems.add(header);
+                    })
+                    .flatMap(sDate -> Observable.from(mTMBulletinMap.get(sDate))
+                            .toSortedList((bulletin, bulletin2) -> bulletin.getDate() > bulletin2.getDate() ? -1 : bulletin.getDate() == bulletin2.getDate() ? 0 : 1)
+                            .flatMap(Observable::from)
+                            .doOnNext(bulletin -> {
+                                BulletinEventItem item = new BulletinEventItem();
+                                item.setBulletin(bulletin);
+                                bulletinListItems.add(item);
+                            }))
+                    .subscribe();
             mActivity.setListItem(bulletinListItems);
-
         }
     }
 
@@ -289,31 +300,20 @@ public class BulletinListViewModel extends BaseObservable {
         return StringUtil.getStringFromSports(mActivity, mSportsId);
     }
 
-    public void getBuddyCount() {
-        final Call<String> call =
-                gitHubService.getBuddyCount(mSportsId, mLocationId);
-
-        call.enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                String num = "" + 0;
-                try {
-                    JSONArray jsonArray = new JSONArray(response.body());
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject jObject = jsonArray.getJSONObject(i);
-                        num = jObject.get("COUNT(*)").toString();
+    private void getBuddyCount() {
+        gitHubService.getBuddyCount(mSportsId, mLocationId)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(response -> {
+                    try {
+                        JSONArray jsonArray = new JSONArray(response);
+                        return jsonArray.getJSONObject(0).get("COUNT(*)").toString();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                setNumberOfUsersLoggedIn(mActivity.getString(R.string.bulletin_num, num));
-            }
-
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                Log.d("Test", "error message = " + t.getMessage());
-            }
-        });
+                    return "0";
+                })
+                .subscribe(result -> setNumberOfUsersLoggedIn(mActivity.getString(R.string.bulletin_num, result)));
     }
 
     public void onClickAttachImage(View v) {
@@ -339,7 +339,7 @@ public class BulletinListViewModel extends BaseObservable {
         mActivity.ShowChangeImageActionDialog(b);
     }
 
-    protected void dispatchTakePictureIntent() {
+    private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(mActivity.getPackageManager()) != null) {
@@ -363,7 +363,7 @@ public class BulletinListViewModel extends BaseObservable {
         }
     }
 
-    protected File createNewFile(String prefix) {
+    private File createNewFile(String prefix) {
         if (prefix == null || "".equalsIgnoreCase(prefix)) {
             prefix = "IMG_";
         }
@@ -403,6 +403,7 @@ public class BulletinListViewModel extends BaseObservable {
                 .setDate(System.currentTimeMillis())
                 .setImage(p.getImage())
                 .setType(1).build();
+
         final Call<Bulletin> call =
                 gitHubService.postBulletin(bulletin);
         call.enqueue(new Callback<Bulletin>() {
@@ -410,7 +411,6 @@ public class BulletinListViewModel extends BaseObservable {
             public void onResponse(Call<Bulletin> call, Response<Bulletin> response) {
                 if (response.isSuccessful()) {
                     Bulletin res_bulletin = response.body();
-                    Logger.d("response Data = " + res_bulletin.getComment());
                     if (mAlCropImageUri.size() == 0) {
                         updatePosting(bulletin);
                     } else {
@@ -418,7 +418,6 @@ public class BulletinListViewModel extends BaseObservable {
                     }
                 }
             }
-
             @Override
             public void onFailure(Call<Bulletin> call, Throwable t) {
                 Log.d("Test", "error message = " + t.getMessage());
@@ -434,8 +433,6 @@ public class BulletinListViewModel extends BaseObservable {
         item.setBulletin(res_bulletin);
         mActivity.showPosting(header, item);
         postDone();
-
-
     }
 
     private void postDone() {
@@ -444,10 +441,122 @@ public class BulletinListViewModel extends BaseObservable {
         setContent("");
     }
 
+
+    private List<Bulletin_image> list_image;
+
     private void uploadFile(int getid, Bulletin bulletin) {
-        int count = mAlCropImageUri.size();
-        new ResizeBitmapTask(getid, bulletin).execute(mAlCropImageUri);//Util.getFileFromUri(getContentResolver(), fileUri);
-//            mCropImagedUri = null;
+        list_image = new ArrayList<>();
+        setLoading(true);
+        mActivity.startLoadingProgress();
+        mSubscription = Observable.defer(() -> Observable.from(mAlCropImageUri)
+                .map(uri -> new File(uri.getPath()))
+                .map(file -> {
+                    Logger.d("observable map file =" + file.length() + "file = " + file.getPath() + " name = " + file.getName());
+                    publishImages(file, getid);
+                    return file;
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()));
+
+
+        mSubscription.subscribe(file -> Logger.d("upload file = " + file.getName())
+                , Throwable::printStackTrace
+                , () -> mProgressSubscription = Observable.just(null)
+                        .delay(3, TimeUnit.SECONDS)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(o -> {
+                            Logger.d("upload file finished");
+                            bulletin.setBulletinImage(list_image);
+                            updatePosting(bulletin);
+                            mActivity.stopLoadingProgress();
+                            setLoading(false);
+                        }));
+    }
+
+    private void publishImages(File file, int getid) {
+        long fileSize = file.length();
+        if (fileSize > 2 * 1024 * 1024) {
+            CompressBitmap(file, 4);
+        } /*else if (fileSize < 700 * 1024) {
+
+        }*/ else {
+            CompressBitmap(file, 2);
+        }
+        publishProgress(file, getid);
+    }
+
+    private void CompressBitmap(File file, int samplesize) {
+        Logger.d("content name " + file.getName()  + " file length = " + file.length());
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        options.inSampleSize = samplesize;
+        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+        OutputStream out = null;
+        try {
+            out = new FileOutputStream(file);
+
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }  finally {
+            try {
+                out.close();
+                bitmap.recycle();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void publishProgress(File file, int getid) {
+        Logger.d("onProgressUpdate values = " + file);
+        requestThumbImage(file, getid);
+    }
+    private void requestThumbImage(File file, int getid) {
+        // create RequestBody instance from file
+        RequestBody requestFile =
+                RequestBody.create(MediaType.parse("image/JPEG"), file);
+        try {
+            Logger.d("content length = " + requestFile.contentLength() + " file length = " + file.length());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // MultipartBody.Part is used to send also the actual file name
+        MultipartBody.Part body =
+                MultipartBody.Part.createFormData("picture", file.getName(), requestFile);
+
+        // add another part within the multipart request
+        String descriptionString = String.valueOf(getid);
+        RequestBody description =
+                RequestBody.create(
+                        MediaType.parse("text/html"), descriptionString);
+
+        // finally, execute the request
+        Call<ResponseBody> call = gitHubService.upload_post(description, body);
+
+        RetrofitHelper.enqueueWithRetry(call, new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call,
+                                   Response<ResponseBody> response) {
+                Log.v("Upload", "success");
+                JSONObject jObject;//jsonArray.getJSONObject(i);
+                try {
+                    jObject = new JSONObject(response.body().string());
+                    String image = jObject.get("data").toString();
+                    list_image.add(new Bulletin_image(image));
+
+                } catch (JSONException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e("Upload error:", t.getMessage());
+            }
+        });
     }
 
     public void setOnActivityResult(int requestCode, int resultCode, Intent data) {
@@ -461,7 +570,6 @@ public class BulletinListViewModel extends BaseObservable {
                 } catch (IOException ex) {
                     Log.e("io", ex.getMessage());
                 }
-
                 mCropImagedUri = Uri.fromFile(f);
                 dispatchCropIntent(selectedImageUri);
             }
@@ -486,6 +594,17 @@ public class BulletinListViewModel extends BaseObservable {
                 ImageView iv = new ImageView(mActivity);
                 mActivity.addImageView(ImageUtil.getDownsampledBitmap(mActivity.getContentResolver(), mCropImagedUri, 150, 150));
                 tempfix++;
+
+                mActivity.startLoadingProgress();
+                setLoading(true);
+                Observable.just(null)
+                        .delay(3, TimeUnit.SECONDS)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(o -> {
+                            mActivity.stopLoadingProgress();
+                            setLoading(false);
+                        });
             } else {
                 mActivity.showToast(mActivity.getString(R.string.crop_error));
             }
@@ -523,126 +642,7 @@ public class BulletinListViewModel extends BaseObservable {
         };
     }
 
-    private class ResizeBitmapTask extends AsyncTask<ArrayList<Uri>, File, Void> {
-
-        private final int mPostId;
-        private final Bulletin mBulletin;
-        List<Bulletin_image> list_image = new ArrayList<>();
-
-        public ResizeBitmapTask(int getid, Bulletin bulletin) {
-            mPostId = getid;
-            mBulletin = bulletin;
-        }
-
-        @SafeVarargs
-        @Override
-        protected final Void doInBackground(ArrayList<Uri>... params) {
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            ArrayList<Uri> uri_list = params[0];
-            Logger.d("url_list size = " + uri_list.size());
-            for (Uri uri : uri_list) {
-                File file = new File(uri.getPath());
-                Logger.d("File Upload Name = " + file.getAbsolutePath());
-                long fileSize = file.length();
-                if (fileSize > 2 * 1024 * 1024) {
-                    options.inSampleSize = 4;
-                } else if (fileSize < 700 * 1024) {
-                    publishProgress(file);
-                    continue;
-                } else {
-                    options.inSampleSize = 2;
-                }
-
-                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-
-
-                OutputStream out = null;
-                try {
-                    out = new FileOutputStream(file);
-
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    try {
-                        out.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                publishProgress(file);
-            }
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(File... values) {
-            super.onProgressUpdate(values);
-            Logger.d("onProgressUpdate values = " + values[0]);
-            requestThumbImage(values[0]);
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            mBulletin.setBulletinImage(list_image);
-            setLoading(true);
-            mActivity.startLoadingProgress();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    updatePosting(mBulletin);
-                    mActivity.stopLoadingProgress();
-                    setLoading(false);
-                }
-            }, 3000);
-
-        }
-
-        private void requestThumbImage(File file) {
-            // create RequestBody instance from file
-            RequestBody requestFile =
-                    RequestBody.create(MediaType.parse("image/JPEG"), file);
-
-            // MultipartBody.Part is used to send also the actual file name
-            MultipartBody.Part body =
-                    MultipartBody.Part.createFormData("picture", file.getName(), requestFile);
-
-            // add another part within the multipart request
-            String descriptionString = String.valueOf(mPostId);
-            RequestBody description =
-                    RequestBody.create(
-                            MediaType.parse("text/html"), descriptionString);
-
-            // finally, execute the request
-            Call<ResponseBody> call = gitHubService.upload_post(description, body);
-
-            RetrofitHelper.enqueueWithRetry(call, new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call,
-                                       Response<ResponseBody> response) {
-                    Log.v("Upload", "success");
-                    JSONObject jObject = null;//jsonArray.getJSONObject(i);
-                    try {
-                        jObject = new JSONObject(response.body().string());
-                        String image = jObject.get("data").toString();
-                        list_image.add(new Bulletin_image(image));
-
-                    } catch (JSONException | IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    Log.e("Upload error:", t.getMessage());
-                }
-            });
-        }
-    }
-
-    protected void dispatchCropIntent(Uri imageCaptureUri) {
+    private void dispatchCropIntent(Uri imageCaptureUri) {
         Intent intent = new Intent("com.android.camera.action.CROP");
         Point screenSize = new Point();
         mActivity.getWindowManager().getDefaultDisplay().getSize(screenSize);

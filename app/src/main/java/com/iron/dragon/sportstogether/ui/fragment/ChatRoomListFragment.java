@@ -42,6 +42,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
+import rx.Observable;
 
 /**
  * Created by user on 2016-08-12.
@@ -55,6 +56,7 @@ public class ChatRoomListFragment extends Fragment {
     private int sportsid;
     SharedPreferences mPref;
     Realm realm;
+
     public interface OnClickCallback{
         void rowOnClicked(View v, int position);
         void deleteOnClicked(View v, int position);
@@ -159,24 +161,24 @@ public class ChatRoomListFragment extends Fragment {
     private void loadChatRoom(){
 
         RealmResults<ChatMessageVO> messages = getMessageList();
-        if(messages.size() > 0){
-            List<ChatMessageVO> list = new ArrayList<ChatMessageVO>();
-            Iterator<ChatMessageVO> it = messages.iterator();
-            ChatMessageVO prevMessage = it.next();
-            list.add(prevMessage);
-            while (it.hasNext()){
-                ChatMessageVO message = it.next();
-                if (!message.getCOLUMN_ROOM().equals(prevMessage.getCOLUMN_ROOM())) {
-                    int count = Util.getUnreadChat(getActivity(), message.getCOLUMN_ROOM());
-                    message.setUnread(count);
-                    list.add(message);
-                }
-                prevMessage = message;
-            }
-            mAdapter.setItems(list);
-            mAdapter.notifyDataSetChanged();
+        if (messages.size() > 0) {
+            List<ChatMessageVO> list = new ArrayList<>();
+            Observable.from(messages)
+                    .distinct(ChatMessageVO::getCOLUMN_ROOM)
+                    .subscribe(chatMessageVO -> {
+                                int count = Util.getUnreadChat(getActivity(), chatMessageVO.getCOLUMN_ROOM());
+                                chatMessageVO.setUnread(count);
+                                list.add(chatMessageVO);
+                            }
+                            , Throwable::printStackTrace
+                            , () -> {
+                                mAdapter.setItems(list);
+                                mAdapter.notifyDataSetChanged();
+                            });
+
         }
     }
+
 
     private RealmResults<ChatMessageVO> getMessageList() {
         return realm.where(ChatMessageVO.class).findAllSorted("COLUMN_DATE", Sort.ASCENDING);

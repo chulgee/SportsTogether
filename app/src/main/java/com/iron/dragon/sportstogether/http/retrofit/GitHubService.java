@@ -110,7 +110,7 @@ public interface GitHubService {
     );
 
     @GET("buddy_count")
-    Call<String> getBuddyCount(
+    Observable<String> getBuddyCount(
             @Query("sportsid") int sportsid, @Query("locationid") int locationid
     );
 

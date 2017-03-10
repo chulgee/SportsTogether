@@ -264,12 +264,12 @@ public class ChatFragment extends Fragment {
         super.onDestroyView();
         Fragment fragment = sChatRoom.remove(mBuddyName);
         realm.close();
-        Log.v(TAG, "sChatRoom onDestory buddy="+mBuddyName+", fragment="+fragment);
+        Log.v(TAG, "sChatRoom onDestroy buddy="+mBuddyName+", fragment="+fragment);
     }
 
     @Override
     public void onDestroy() {
-        Log.v(TAG, "onDestory");
+        Log.v(TAG, "onDestroy");
         //Fragment fragment = sChatRoom.remove(mBuddyName);
         super.onDestroy();
     }
