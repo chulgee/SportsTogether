@@ -12,7 +12,6 @@ import android.widget.ImageView;
 
 import com.iron.dragon.sportstogether.R;
 import com.iron.dragon.sportstogether.data.LoginPreferences;
-import com.iron.dragon.sportstogether.data.bean.Profile;
 import com.iron.dragon.sportstogether.databinding.ProfileListItemBinding;
 import com.iron.dragon.sportstogether.http.retrofit.GitHubService;
 import com.iron.dragon.sportstogether.ui.activity.ProfileManagerActivity;
@@ -25,7 +24,6 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -100,15 +98,11 @@ public class ProfileManagerRecyclerViewAdapter extends RecyclerView.Adapter<Recy
             gitHubService.deleteProfiles(profile.getProfile().getUsername(), profile.getProfile().getSportsid())
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Action1<Profile>() {
-                        @Override
-                        public void call(Profile profile) {
-                            Logger.v("onResponse response.isSuccessful()=" + profile.toString());
-                            LoginPreferences.GetInstance().SetLogout(mContext, profile.getSportsid());
-                            malProfiles.remove(getAdapterPosition());
-                            notifyItemRemoved(getAdapterPosition());
-
-                        }
+                    .subscribe(profile1 -> {
+                        Logger.v("onResponse response.isSuccessful()=" + profile1.toString());
+                        LoginPreferences.GetInstance().SetLogout(mContext, profile1.getSportsid());
+                        malProfiles.remove(getAdapterPosition());
+                        notifyItemRemoved(getAdapterPosition());
                     });
 
         }

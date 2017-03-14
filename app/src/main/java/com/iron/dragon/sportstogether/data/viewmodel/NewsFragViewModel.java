@@ -1,8 +1,6 @@
 package com.iron.dragon.sportstogether.data.viewmodel;
 
 import android.databinding.BaseObservable;
-import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import com.iron.dragon.sportstogether.data.bean.News;
@@ -14,9 +12,7 @@ import com.iron.dragon.sportstogether.ui.fragment.NewsFragment;
 import com.iron.dragon.sportstogether.util.Const;
 
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,6 +21,9 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 import static android.content.ContentValues.TAG;
 
@@ -35,6 +34,8 @@ import static android.content.ContentValues.TAG;
 public class NewsFragViewModel extends BaseObservable {
     private NewsFragment mFragment;
     private GitHubService gitHubService;
+    private Observable<Element> mObservable;
+
     public NewsFragViewModel(NewsFragment fragment) {
         mFragment = fragment;
         GitHubService.ServiceGenerator.changeApiBaseUrl(Const.NEWS_URL);
@@ -45,7 +46,6 @@ public class NewsFragViewModel extends BaseObservable {
 
         final Call<News> call =
                 gitHubService.getNews("운동");
-
         RetrofitHelper.enqueueWithRetry(call, new Callback<News>() {
             @Override
             public void onResponse(Call<News> call, Response<News> response) {
@@ -72,41 +72,31 @@ public class NewsFragViewModel extends BaseObservable {
             pf.setNews(news);
             listItems.add(pf);
         }
-        new ThumbImageTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, listItems);
+        mObservable = Observable.defer(() -> Observable.from(listItems)
+                .subscribeOn(Schedulers.io())
+                .flatMap(item -> {
+                    try {
+                        return Observable.just(Jsoup.connect(item.getNews().getLink()).get())
+                                .flatMap(doc-> Observable.just(doc.select("head meta")))
+                                .flatMap(Observable::from)
+                                .filter(element -> element.attr("property").equals("og:image"))
+                                .doOnNext(element -> {
+                                    item.setNewsImage(element.attr("content"));
+                                });
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    };
+                    return null;
+                })
+                .observeOn(AndroidSchedulers.mainThread()));
+        mObservable.subscribe(element-> System.out.println("modify title rx= " + element), Throwable::printStackTrace, () -> mFragment.InvalidateAdapter());
+
         mFragment.setListItem(listItems);
     }
 
-    private class ThumbImageTask extends AsyncTask<ArrayList<NewsListItem>, Integer, Bitmap> {
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            super.onProgressUpdate(values);
-        }
-
-        @Override
-        protected Bitmap doInBackground(ArrayList<NewsListItem>... args) {
-            Document doc = null;
-            ArrayList<NewsListItem> items = args[0];
-            int index = 0;
-            for(NewsListItem item :items) {
-                try {
-                    doc = Jsoup.connect(item.getNews().getLink()).get();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                Elements titles = doc.select("head meta");
-                for(Element element:titles) {
-                    if(element.attr("property").equals("og:image")) {
-                        item.setNewsImage(element.attr("content"));
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            mFragment.InvalidateAdapter();
-        }
+    public void onDestroyView() {
+        mObservable.unsubscribeOn(Schedulers.io());
     }
 }
+

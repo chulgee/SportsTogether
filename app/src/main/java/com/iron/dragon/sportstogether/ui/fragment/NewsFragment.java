@@ -69,4 +69,10 @@ public class NewsFragment extends Fragment {
         NewsRecyclerViewAdapter adapter = (NewsRecyclerViewAdapter) mBinding.newsRecyclerviewer.getAdapter();
         adapter.notifyDataSetChanged();
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mViewModel.onDestroyView();
+    }
 }

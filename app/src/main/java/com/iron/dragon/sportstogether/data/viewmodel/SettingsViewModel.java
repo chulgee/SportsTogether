@@ -35,7 +35,7 @@ public class SettingsViewModel extends BaseObservable {
         Settings update = new Settings(buddycheck, chatcheck);
 
         gitHubService.putSettings(LoginPreferences.GetInstance().GetRegid(mActivity.getApplicationContext()), update)
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(setting -> Logger.v("onResponse response.isSuccessful()=" + setting.toString()));
 

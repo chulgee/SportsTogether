@@ -308,7 +308,7 @@ public class BulletinListViewModel extends BaseObservable {
 
     private void getBuddyCount() {
         gitHubService.getBuddyCount(mSportsId, mLocationId)
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(response -> {
                     try {
